@@ -12,6 +12,9 @@
     
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Librerie per esportare PDF ed Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
         @media print {
@@ -164,6 +167,18 @@
                 </div>
             </div>
 
+            <!-- COUNTDOWN ALLA PROSSIMA GARA -->
+            <div id="race-countdown-box" class="bg-gradient-to-r from-emerald-900/40 to-slate-800 p-3 rounded-2xl border border-emerald-500/30 flex justify-between items-center hidden">
+                <div>
+                    <span class="text-[10px] uppercase font-bold text-emerald-400 block tracking-wider">⏳ Prossima Gara in Agenda</span>
+                    <span id="countdown-race-name" class="text-xs font-bold text-white">Nome Gara</span>
+                </div>
+                <div class="text-right">
+                    <span id="countdown-days-val" class="text-base font-black text-emerald-300">--</span>
+                    <span class="text-[9px] text-slate-400 block">giorni alla partenza</span>
+                </div>
+            </div>
+
             <div class="bg-slate-800 p-3.5 rounded-2xl border border-slate-700 space-y-2">
                 <div class="flex justify-between items-center">
                     <span id="report-goal-title" class="text-xs font-bold text-emerald-400">Obiettivo</span>
@@ -179,12 +194,25 @@
                         <span id="report-done-km" class="text-lg font-black text-emerald-400">0 km</span>
                     </div>
                 </div>
+                <!-- BARRA GRAFICA PROGRESSI -->
+                <div class="space-y-1 pt-1">
+                    <div class="flex justify-between text-[10px] text-slate-400">
+                        <span>Progresso Completamento</span>
+                        <span id="progress-percent-text">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-700">
+                        <div id="progress-bar-fill" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="space-y-2">
                 <div class="flex justify-between items-center px-1">
                     <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Sfoglia Settimane</span>
-                    <button type="button" onclick="app.exportToPDF()" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-lg font-bold hover:bg-emerald-500/30 cursor-pointer">📥 Scarica Tabella PDF</button>
+                    <div class="flex gap-1.5">
+                        <button type="button" onclick="app.exportCompletePDF()" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-lg font-bold hover:bg-emerald-500/30 cursor-pointer">📄 PDF Completo</button>
+                        <button type="button" onclick="app.exportCompleteExcel()" class="text-[10px] bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-lg font-bold hover:bg-blue-500/30 cursor-pointer">📊 Excel</button>
+                    </div>
                 </div>
                 <div id="week-selector-container" class="flex space-x-1.5 overflow-x-auto pb-1"></div>
             </div>
@@ -242,29 +270,51 @@
             </button>
         </div>
 
-        <!-- 4. GARE -->
+        <!-- 4. GARE IN AGENDA (KM MANUALI O GARA AD ORE) -->
         <div id="screen-races" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-                <h3 class="font-bold text-emerald-400 text-sm">📊 Storico Gare</h3>
+                <h3 class="font-bold text-emerald-400 text-sm">📅 Gare in Agenda</h3>
                 <button type="button" onclick="app.closeRaces()" class="text-slate-400 text-xs cursor-pointer">✕ Chiudi</button>
             </div>
             <div class="space-y-3 text-xs text-slate-300">
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
-                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Registra Nuova Gara</span>
-                    <input type="text" id="race-name" placeholder="Nome Gara" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs mb-2">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Pianifica Nuova Gara</span>
+                    <input type="text" id="race-name" placeholder="Nome Gara (es. Maratona di Roma)" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs mb-2">
+                    
                     <div class="grid grid-cols-2 gap-2 mb-2">
-                        <select id="race-dist" class="p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
-                            <option value="10">10 km</option>
-                            <option value="21.1">Mezza</option>
-                            <option value="42.2">Maratona</option>
-                            <option value="50">50km Ultra</option>
-                            <option value="100">100km Ultra</option>
-                        </select>
-                        <input type="text" id="race-time" placeholder="Tempo (48:30)" class="p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
+                        <div>
+                            <label class="block text-[10px] uppercase text-slate-400 mb-1">Tipo / Distanza</label>
+                            <select id="race-dist-select" onchange="app.handleRaceDistChange()" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
+                                <option value="5">5 km</option>
+                                <option value="10" selected>10 km</option>
+                                <option value="14">14 km</option>
+                                <option value="21.1">Mezza (21.1 km)</option>
+                                <option value="42.2">Maratona (42.2 km)</option>
+                                <option value="custom_km">Altro (Km Manuali)</option>
+                                <option value="custom_time">⏱️ Gara ad Ore (Tempo)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase text-slate-400 mb-1">Data Gara</label>
+                            <input type="date" id="race-date" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
+                        </div>
                     </div>
-                    <button type="button" onclick="app.addRace()" class="w-full py-2 bg-emerald-500 font-bold text-slate-950 rounded-lg cursor-pointer">+ Aggiungi Gara</button>
+
+                    <!-- Campo km manuale -->
+                    <div id="field-custom-dist" class="hidden mb-2">
+                        <label class="block text-[10px] uppercase text-emerald-400 mb-1 font-bold">Inserisci Chilometri a Mano (es. 14, 18.5)</label>
+                        <input type="number" step="0.1" id="race-dist-custom" placeholder="Es. 14" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                    </div>
+
+                    <!-- Campo ore manuale per gare a tempo -->
+                    <div id="field-custom-time" class="hidden mb-2">
+                        <label class="block text-[10px] uppercase text-emerald-400 mb-1 font-bold">Durata Gara (Ore, es. 6, 8, 12, 24)</label>
+                        <input type="number" step="0.5" id="race-time-custom" placeholder="Es. 6" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                    </div>
+
+                    <button type="button" onclick="app.addRace()" class="w-full py-2 bg-emerald-500 font-bold text-slate-950 rounded-lg cursor-pointer">+ Aggiungi in Agenda</button>
                 </div>
-                <div id="races-list-container" class="space-y-1.5 max-h-[120px] overflow-y-auto"></div>
+                <div id="races-list-container" class="space-y-1.5 max-h-[140px] overflow-y-auto"></div>
             </div>
             <button type="button" onclick="app.closeRaces()" class="w-full py-2 bg-slate-700 font-bold rounded-xl text-white cursor-pointer">Torna alla Dashboard</button>
         </div>
@@ -291,13 +341,12 @@
         </div>
 
         <footer class="text-center text-[10px] text-slate-500 py-1">
-            Running Coach Pro - Supabase Cloud Edition
+            Running Coach Pro - Cloud Edition
         </footer>
     </div>
 
     <!-- LOGICA APPLICAZIONE CON SUPABASE -->
     <script>
-        // Configurazione Supabase
         const SUPABASE_URL = "https://eaxqmxtgogzadwmbjzil.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_0_YjpPPK8om98MQGjtK-6g_KZqYxz8K";
 
@@ -329,7 +378,6 @@
                         .maybeSingle();
 
                     if (error) {
-                        console.error("Errore Supabase:", error);
                         this.loadFromLocalStorage();
                         return;
                     }
@@ -346,7 +394,6 @@
                     document.getElementById('cloud-status').className = "bg-slate-800 text-center text-[10px] text-emerald-400 py-1 border-b border-slate-700";
                     this.evaluateStartupScreen();
                 } catch (e) {
-                    console.error("Eccezione connessione:", e);
                     this.loadFromLocalStorage();
                 }
             }
@@ -372,7 +419,7 @@
                 } catch(e) {}
 
                 try {
-                    const payload = {
+                    await supabaseClient.from('runners').upsert({
                         user_id: this.userId,
                         profile: this.profile,
                         full_plan: this.fullPlan,
@@ -380,18 +427,8 @@
                         races: this.races,
                         avatar_url: this.avatarUrl,
                         updated_at: new Date()
-                    };
-
-                    const { error } = await supabaseClient
-                        .from('runners')
-                        .upsert(payload, { onConflict: 'user_id' });
-
-                    if (error) {
-                        console.error("Errore salvataggio Supabase:", error);
-                    }
-                } catch (e) {
-                    console.error("Eccezione salvataggio:", e);
-                }
+                    }, { onConflict: 'user_id' });
+                } catch (e) {}
             }
 
             loadFromLocalStorage() {
@@ -405,7 +442,7 @@
                         this.races = data.races || [];
                         this.avatarUrl = data.avatarUrl || this.avatarUrl;
                     }
-                } catch(e) { console.error(e); }
+                } catch(e) {}
 
                 document.getElementById('cloud-status').innerText = "Modalità Offline Locale (Supabase Fallback) ⚠️";
                 document.getElementById('cloud-status').className = "bg-slate-800 text-center text-[10px] text-amber-400 py-1 border-b border-slate-700";
@@ -452,6 +489,21 @@
                     fieldKm.classList.remove('hidden');
                 } else if (raceType === 'ultra_time') {
                     fieldHours.classList.remove('hidden');
+                }
+            }
+
+            handleRaceDistChange() {
+                const val = document.getElementById('race-dist-select').value;
+                const customDistField = document.getElementById('field-custom-dist');
+                const customTimeField = document.getElementById('field-custom-time');
+                
+                customDistField.classList.add('hidden');
+                customTimeField.classList.add('hidden');
+
+                if (val === 'custom_km') {
+                    customDistField.classList.remove('hidden');
+                } else if (val === 'custom_time') {
+                    customTimeField.classList.remove('hidden');
                 }
             }
 
@@ -502,7 +554,6 @@
             }
 
             generatePlan() {
-                // Controllo spunta disclaimer
                 const disclaimerChecked = document.getElementById('disclaimer-check').checked;
                 if (!disclaimerChecked) {
                     alert("Per favore, leggi e accetta l'esonero di responsabilità spuntando la casella prima di generare il programma.");
@@ -539,9 +590,21 @@
                 let weeks = [];
                 let baseKm = raceType === 'marathon' ? 40 : (raceType === 'half' ? 30 : 25);
 
+                const today = new Date();
+                let hasUpcomingRaceNear = this.races.some(r => {
+                    if (!r.date) return false;
+                    let rDate = new Date(r.date);
+                    let diffDays = (rDate - today) / (1000 * 60 * 60 * 24);
+                    return diffDays >= 0 && diffDays <= 45;
+                });
+
                 for (let w = 1; w <= weeksCount; w++) {
                     let weekKm = baseKm + (w * 3);
                     if (w % 4 === 0) weekKm *= 0.8;
+
+                    if (hasUpcomingRaceNear && w >= weeksCount - 1) {
+                        weekKm *= 0.75; 
+                    }
 
                     let daysData = selectedDays.map((dayName, idx) => {
                         let isLong = (dayName === 'Domenica' || idx === selectedDays.length - 1);
@@ -553,13 +616,16 @@
                         let title = "Corsa Lenta Rigenerante";
                         let desc = `• Riscaldamento: 10 min di camminata e mobilità.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento (${paces.slow}/km).\n• Defaticamento: 5 min di allungamento.`;
                         
-                        if (isLong) {
+                        if (hasUpcomingRaceNear && w >= weeksCount - 1 && isQuality) {
+                            title = "Scarico Pre-Gara: Allunghi Agili";
+                            desc = `• Riscaldamento: 2 km corsa lenta.\n• Blocco: 5 allunghi progressivi di 80m in scioltezza (senza forzare).\n• Defaticamento: 1 km.`;
+                        } else if (isLong) {
                             title = "Lungo Specifico (Metodo 9+1 o Galloway)";
                             desc = `• Modalità: Alterna 9 minuti di corsa lenta (${paces.slow}/km) e 1 minuto di camminata veloce.\n• Distanza Totale: ${sessionKm} km.\n• Gestione: Battito costante e idratazione regolare.`;
                         } else if (isQuality) {
                             if (w % 2 === 1) {
                                 title = "Allenamento di Qualità: Ripetute (Interval)";
-                                desc = `• Riscaldamento: 2 km corsa lenta (${paces.slow}/km) + allunghi.\n• Blocco:\n  - 5 x 1000m a Ritmo Veloce (${paces.intervalFast}/km)\n  - Recupero: 2'30" corsa lenta/camminata.\n• Defaticamento: 1.5 km.`;
+                                desc = `• Riscaldamento: 2 km corsa lenta (${paces.slow}/km) + allunghi.\n• Blocco:\n  - 5 x 1000m a Ritmo Veloce (${paces.intervalFast}/km)\n  - Recupero: 2'30\" corsa lenta/camminata.\n• Defaticamento: 1.5 km.`;
                             } else {
                                 title = "Allenamento di Qualità: Fartlek Variazioni";
                                 desc = `• Riscaldamento: 2 km progressivi.\n• Blocco:\n  - 8 a 10 ripetute di (1 min forte a ${paces.intervalFast}/km + 1 min lento recupero).\n• Defaticamento: 2 km a ${paces.slow}/km.`;
@@ -605,6 +671,12 @@
                 document.getElementById('report-done-km').innerText = `${doneKm} km`;
                 document.getElementById('dashboard-stats-history').innerText = `Storico: ${doneKm} km`;
 
+                let percent = totalPlanKm > 0 ? Math.min(100, Math.round((doneKm / totalPlanKm) * 100)) : 0;
+                document.getElementById('progress-bar-fill').style.width = `${percent}%`;
+                document.getElementById('progress-percent-text').innerText = `${percent}%`;
+
+                this.updateRaceCountdown();
+
                 const weekContainer = document.getElementById('week-selector-container');
                 weekContainer.innerHTML = '';
                 if (this.fullPlan && this.fullPlan.weeks) {
@@ -643,6 +715,31 @@
                         `;
                         scheduleContainer.appendChild(div);
                     });
+                }
+            }
+
+            updateRaceCountdown() {
+                const box = document.getElementById('race-countdown-box');
+                const nameEl = document.getElementById('countdown-race-name');
+                const daysEl = document.getElementById('countdown-days-val');
+
+                const today = new Date();
+                today.setHours(0,0,0,0);
+
+                let futureRaces = this.races.filter(r => r.date && new Date(r.date) >= today);
+                futureRaces.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                if (futureRaces.length > 0) {
+                    let nextRace = futureRaces[0];
+                    let rDate = new Date(nextRace.date);
+                    let diffTime = rDate - today;
+                    let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    nameEl.innerText = `${nextRace.name} (${nextRace.dist})`;
+                    daysEl.innerText = diffDays;
+                    box.classList.remove('hidden');
+                } else {
+                    box.classList.add('hidden');
                 }
             }
 
@@ -724,25 +821,50 @@
                 const container = document.getElementById('races-list-container');
                 container.innerHTML = '';
                 if (this.races.length === 0) {
-                    container.innerHTML = '<p class="text-slate-500 text-center py-2">Nessuna gara registrata.</p>';
+                    container.innerHTML = '<p class="text-slate-500 text-center py-2">Nessuna gara in agenda.</p>';
                     return;
                 }
                 this.races.forEach((r, idx) => {
                     const div = document.createElement('div');
-                    div.className = "bg-slate-800 p-2 rounded-lg border border-slate-700 flex justify-between items-center";
-                    div.innerHTML = `<div><span class="font-bold text-white block">${r.name}</span><span class="text-[10px] text-slate-400">${r.dist}km - ${r.time}</span></div><button onclick="app.deleteRace(${idx})" class="text-rose-400 text-xs cursor-pointer">Elimina</button>`;
+                    div.className = "bg-slate-800 p-2 rounded-lg border border-slate-700 flex justify-between items-center text-xs";
+                    div.innerHTML = `<div><span class="font-bold text-white block">${r.name}</span><span class="text-[10px] text-slate-400">Distanza/Durata: ${r.dist} - Data: ${r.date || 'N/D'}</span></div><button onclick="app.deleteRace(${idx})" class="text-rose-400 cursor-pointer">Elimina</button>`;
                     container.appendChild(div);
                 });
             }
 
             addRace() {
                 const name = document.getElementById('race-name').value;
-                const dist = document.getElementById('race-dist').value;
-                const time = document.getElementById('race-time').value;
-                if (!name || !time) { alert("Inserisci nome e tempo della gara."); return; }
-                this.races.push({ name, dist, time });
+                const distSelect = document.getElementById('race-dist-select').value;
+                let dist = distSelect;
+
+                if (distSelect === 'custom_km') {
+                    const kmVal = document.getElementById('race-dist-custom').value;
+                    if (!kmVal) { alert("Inserisci i chilometri."); return; }
+                    dist = `${kmVal} km`;
+                } else if (distSelect === 'custom_time') {
+                    const hoursVal = document.getElementById('race-time-custom').value;
+                    if (!hoursVal) { alert("Inserisci la durata in ore."); return; }
+                    dist = `Gara ${hoursVal} Ore`;
+                } else {
+                    dist = `${distSelect} km`;
+                }
+
+                const date = document.getElementById('race-date').value;
+
+                if (!name || !date) { 
+                    alert("Inserisci nome e data della gara."); 
+                    return; 
+                }
+
+                this.races.push({ name, dist, date });
                 document.getElementById('race-name').value = '';
-                document.getElementById('race-time').value = '';
+                document.getElementById('race-dist-custom').value = '';
+                document.getElementById('race-time-custom').value = '';
+                document.getElementById('race-date').value = '';
+                document.getElementById('field-custom-dist').classList.add('hidden');
+                document.getElementById('field-custom-time').classList.add('hidden');
+                document.getElementById('race-dist-select').value = '10';
+                
                 this.saveData();
                 this.renderRacesList();
             }
@@ -801,8 +923,96 @@
                 }
             }
 
-            exportToPDF() {
-                window.print();
+            exportCompletePDF() {
+                if (!this.fullPlan || !this.fullPlan.weeks) {
+                    alert("Nessun piano attivo da esportare.");
+                    return;
+                }
+
+                let containerHtml = `
+                    <div style="font-family: Arial, sans-serif; color: #111; padding: 20px; background: #fff;">
+                        <h1 style="color: #059669; font-size: 24px; margin-bottom: 5px;">Running Coach Pro</h1>
+                        <p style="font-size: 12px; color: #555; margin-bottom: 20px;">Piano di Preparazione Atletica Completo - Obiettivo: ${this.profile.raceType.toUpperCase()}</p>
+                `;
+
+                this.fullPlan.weeks.forEach(w => {
+                    containerHtml += `
+                        <div style="margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px;">
+                            <h2 style="font-size: 16px; background: #f3f4f6; padding: 6px 10px; color: #1f2937;">--- SETTIMANA ${w.weekNumber} (Totale: ${w.totalKm} km) ---</h2>
+                    `;
+                    w.days.forEach(d => {
+                        let isLungoOrHard = d.title.includes('Lungo') || d.km >= 18;
+                        containerHtml += `
+                            <div style="margin: 10px 0; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fafafa;">
+                                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 13px; color: #047857;">
+                                    <span>${d.day.toUpperCase()}</span>
+                                    <span>${d.km} km</span>
+                                </div>
+                                <div style="font-weight: bold; font-size: 12px; color: #111; margin: 4px 0;">${d.title}</div>
+                                <div style="font-size: 11px; color: #4b5563; white-space: pre-line; margin-top: 4px;">${d.instructions}</div>
+                                <div style="font-size: 10px; color: #6b7280; margin-top: 6px; border-top: 1px dashed #e5e7eb; pt-4">
+                                    👟 <strong>Modello Scarpa:</strong> ${d.shoe}
+                                </div>
+                        `;
+                        if (isLungoOrHard) {
+                            containerHtml += `
+                                <div style="font-size: 10px; color: #d97706; margin-top: 3px;">
+                                    🍌 <strong>Integrazione:</strong> Prendi un gel energetico ogni 45-50 minuti e bevi acqua regolarmente.
+                                </div>
+                            `;
+                        }
+                        containerHtml += `</div>`;
+                    });
+                    containerHtml += `</div>`;
+                });
+
+                containerHtml += `
+                        <div style="font-size: 9px; color: #9ca3af; text-align: center; margin-top: 30px;">
+                            Running Coach Pro - Programma generato automaticamente per uso amatoriale.
+                        </div>
+                    </div>
+                `;
+
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = containerHtml;
+                
+                html2pdf().from(tempDiv).set({
+                    margin:       10,
+                    filename:     'RunningCoachPro_PianoCompletoDettagliato.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                }).save();
+            }
+
+            exportCompleteExcel() {
+                if (!this.fullPlan || !this.fullPlan.weeks) {
+                    alert("Nessun piano attivo da esportare.");
+                    return;
+                }
+                
+                let flatData = [];
+                this.fullPlan.weeks.forEach(w => {
+                    w.days.forEach(d => {
+                        let integrazione = (d.title.includes('Lungo') || d.km >= 18) ? "Gel energetico ogni 45-50 min + acqua" : "Idratazione standard";
+                        flatData.push({
+                            "Settimana": `Settimana ${w.weekNumber}`,
+                            "Km Settimana": w.totalKm,
+                            "Giorno": d.day,
+                            "Km Sessione": d.km,
+                            "Tipo Allenamento": d.title,
+                            "Istruzioni e Ritmi": d.instructions.replace(/\n/g, ' - '),
+                            "Modello Scarpa": d.shoe,
+                            "Strategia Integrazione": integrazione,
+                            "Stato": d.completed ? "Completato" : "Da fare"
+                        });
+                    });
+                });
+
+                const worksheet = XLSX.utils.json_to_sheet(flatData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Piano Dettagliato");
+                XLSX.writeFile(workbook, "RunningCoachPro_TabellaCompletaDettagliata.xlsx");
             }
         }
 
