@@ -307,7 +307,20 @@
                 <h3 class="font-bold text-emerald-400 text-sm">📅 Gare in Agenda</h3>
                 <button type="button" onclick="app.closeRaces()" class="text-slate-400 text-xs cursor-pointer">✕ Chiudi</button>
             </div>
-            <div class="space-y-3 text-xs text-slate-300">
+            
+            <!-- PULSANTE E BOX INFORMATIVO AGENDA GARE -->
+            <div class="space-y-2">
+                <button type="button" onclick="app.toggleAgendaInfo()" class="w-full py-2 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 font-semibold rounded-xl text-xs border border-emerald-500/30 cursor-pointer flex items-center justify-center gap-1.5 transition-all">
+                    <span>💡 Come funziona l'Agenda Gare</span>
+                </button>
+                
+                <div id="agenda-info-box" class="hidden bg-slate-900 p-3 rounded-xl border border-emerald-500/30 text-[11px] text-slate-300 space-y-2 leading-relaxed animate-in fade-in duration-200">
+                    <p class="font-bold text-emerald-400 uppercase tracking-wider text-[10px]">Sincronizzazione Intelligente</p>
+                    <p>Inserisci le tue competizioni in programma con la relativa data e distanza (o durata a ore). L'app considererà l'allenamento ideale da svolgere a prescindere dalla tabella che è stata generata, attuando automaticamente il corretto scarico pre-gara nelle settimane vicine alla competizione!</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-xs text-slate-300 pt-1">
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
                     <span class="text-[10px] uppercase font-bold text-slate-400 block">Pianifica Nuova Gara</span>
                     <input type="text" id="race-name" placeholder="Nome Gara (es. Maratona di Roma)" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs mb-2">
@@ -365,8 +378,8 @@
                         <p class="text-[10px] text-slate-400">Imposta i tuoi dati e il tuo obiettivo: l'app calcolerà i ritmi precisi per ogni sessione.</p>
                     </div>
                     <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-700 space-y-1">
-                        <strong class="text-emerald-400 font-bold text-[11px] block">📅 2. Gestione Gare</strong>
-                        <p class="text-[10px] text-slate-400">Aggiungi le tue gare in agenda (con km personalizzati o a tempo) per attivare il conto alla rovescia e lo scarico automatico.</p>
+                        <strong class="text-emerald-400 font-bold text-[11px] block">📅 2. Gestione Gare e Agenda Intelligente</strong>
+                        <p class="text-[10px] text-slate-400">Inserisci le tue gare: l'app considererà l'allenamento ideale da svolgere a prescindere dalla tabella generata, gestendo in automatico il recupero.</p>
                     </div>
                     <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-700 space-y-1">
                         <strong class="text-emerald-400 font-bold text-[11px] block">☁️ 3. Cloud & Sicurezza</strong>
@@ -393,8 +406,8 @@
                     <p>Inserisci i tuoi dati fisici, seleziona il tipo di obiettivo (gara breve, maratona o ultramaratona a tempo) e la durata. L'app calcola automaticamente i ritmi di allenamento personalizzati.</p>
                 </div>
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
-                    <strong class="text-white block text-emerald-400 font-bold">📅 Gestione Gare e Agenda</strong>
-                    <p>Puoi aggiungere le tue gare in programma inserendo la distanza esatta (anche personalizzata in km) o la durata in ore per le gare a tempo.</p>
+                    <strong class="text-white block text-emerald-400 font-bold">📅 Gestione Gare e Agenda Intelligente</strong>
+                    <p>Puoi aggiungere le tue gare in programma inserendo la distanza esatta (anche personalizzata in km) o la durata in ore. L'app considererà l'allenamento ideale da svolgere a prescindere dalla tabella generata, attuando il corretto scarico.</p>
                 </div>
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
                     <strong class="text-white block text-emerald-400 font-bold">☁️ Sincronizzazione Cloud</strong>
@@ -942,6 +955,11 @@
 
             openInfo() { this.showScreen('screen-info'); }
             closeInfo() { this.showScreen('screen-dashboard'); }
+
+            toggleAgendaInfo() {
+                const box = document.getElementById('agenda-info-box');
+                box.classList.toggle('hidden');
+            }
 
             renderRacesList() {
                 const container = document.getElementById('races-list-container');
