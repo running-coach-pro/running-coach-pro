@@ -32,7 +32,7 @@
         Connessione a Supabase in corso... 🔄
     </div>
 
-    <div id="app" class="max-w-md mx-auto w-full p-4 flex-1 flex flex-col justify-between">
+    <div id="app" class="max-w-md mx-auto w-full p-4 flex-1 flex flex-col justify-between relative">
         
         <!-- 0. SCHERMATA AUTENTICAZIONE (LOGIN / REGISTRAZIONE) -->
         <div id="screen-auth" class="space-y-4 my-auto py-4">
@@ -348,7 +348,36 @@
             <button type="button" onclick="app.closeRaces()" class="w-full py-2 bg-slate-700 font-bold rounded-xl text-white cursor-pointer">Torna alla Dashboard</button>
         </div>
 
-        <!-- 5. SCHERMATA COME FUNZIONA / INFO -->
+        <!-- 5. POP-UP / MODALE DI BENVENUTO (COME FUNZIONA) -->
+        <div id="welcome-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-slate-800 border border-emerald-500/40 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl animate-in fade-in zoom-in duration-200">
+                <div class="text-center space-y-1">
+                    <h3 class="font-extrabold text-emerald-400 text-base">📖 Benvenuto in Running Coach Pro</h3>
+                    <p class="text-[11px] text-slate-400">Il tuo assistente personale per la preparazione atletica.</p>
+                </div>
+                
+                <div class="space-y-2.5 text-xs text-slate-300 leading-relaxed max-h-[50vh] overflow-y-auto pr-1">
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-700 space-y-1">
+                        <strong class="text-emerald-400 font-bold text-[11px] block">🎯 1. Creazione Programma</strong>
+                        <p class="text-[10px] text-slate-400">Imposta i tuoi dati e il tuo obiettivo: l'app calcolerà i ritmi precisi per ogni sessione.</p>
+                    </div>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-700 space-y-1">
+                        <strong class="text-emerald-400 font-bold text-[11px] block">📅 2. Gestione Gare</strong>
+                        <p class="text-[10px] text-slate-400">Aggiungi le tue gare in agenda (con km personalizzati o a tempo) per attivare il conto alla rovescia e lo scarico automatico.</p>
+                    </div>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-700 space-y-1">
+                        <strong class="text-emerald-400 font-bold text-[11px] block">☁️ 3. Cloud & Sicurezza</strong>
+                        <p class="text-[10px] text-slate-400">Tutti i dati e i progressi vengono salvati sul cloud tramite il tuo account protetto.</p>
+                    </div>
+                </div>
+
+                <button type="button" onclick="app.closeWelcomeModal()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 font-bold rounded-xl text-slate-950 text-xs cursor-pointer shadow-lg shadow-emerald-500/20 transition-all">
+                    Ho capito, iniziamo! 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- 6. SCHERMATA INFO CLASSICA (tramite icona ℹ️) -->
         <div id="screen-info" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                 <h3 class="font-bold text-emerald-400 text-sm">📖 Come funziona Running Coach Pro</h3>
@@ -371,7 +400,7 @@
             <button type="button" onclick="app.closeInfo()" class="w-full py-2 bg-slate-700 font-bold rounded-xl text-white cursor-pointer mt-2">Torna alla Dashboard</button>
         </div>
 
-        <!-- 6. IMPOSTAZIONI -->
+        <!-- 7. IMPOSTAZIONI -->
         <div id="screen-settings" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                 <h3 class="font-bold text-base text-white">Profilo & Scarpe</h3>
@@ -473,6 +502,9 @@
                     document.getElementById('cloud-status').innerText = "Cloud Sincronizzato ☁️ (Supabase Connesso)";
                     document.getElementById('cloud-status').className = "bg-slate-800 text-center text-[10px] text-emerald-400 py-1 border-b border-slate-700";
                     await this.loadUserData();
+                    
+                    // Mostra il pop-up di benvenuto al primo accesso dopo il login
+                    this.checkAndShowWelcomeModal();
                 }
             }
 
@@ -498,6 +530,20 @@
                     }
                 } catch (e) {}
                 this.evaluateStartupScreen();
+                this.checkAndShowWelcomeModal();
+            }
+
+            checkAndShowWelcomeModal() {
+                // Controlla se l'utente ha già visto il pop-up in questa sessione o browser
+                const hasSeenWelcome = localStorage.getItem('running_coach_welcomed');
+                if (!hasSeenWelcome) {
+                    document.getElementById('welcome-modal').classList.remove('hidden');
+                }
+            }
+
+            closeWelcomeModal() {
+                localStorage.setItem('running_coach_welcomed', 'true');
+                document.getElementById('welcome-modal').classList.add('hidden');
             }
 
             showScreen(screenId) {
