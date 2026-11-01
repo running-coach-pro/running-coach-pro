@@ -511,6 +511,9 @@
                     }
 
                     this.userId = session.user.id;
+                    document.getElementById('cloud-status').innerText = "Cloud Sincronizzato ☁️ (Supabase Connesso)";
+                    document.getElementById('cloud-status').className = "bg-slate-800 text-center text-[10px] text-emerald-400 py-1 border-b border-slate-700";
+                    
                     await this.loadUserData();
                 } catch (e) {
                     this.showScreen('screen-auth');
@@ -551,8 +554,6 @@
                     document.getElementById('cloud-status').innerText = "Cloud Sincronizzato ☁️ (Supabase Connesso)";
                     document.getElementById('cloud-status').className = "bg-slate-800 text-center text-[10px] text-emerald-400 py-1 border-b border-slate-700";
                     await this.loadUserData();
-                    
-                    this.checkAndShowWelcomeModal();
                 }
             }
 
@@ -578,6 +579,7 @@
                         document.getElementById('dashboard-avatar').src = this.avatarUrl;
                     }
                 } catch (e) {}
+                
                 this.evaluateStartupScreen();
                 this.checkAndShowWelcomeModal();
             }
