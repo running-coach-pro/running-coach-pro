@@ -256,9 +256,14 @@
                 <div id="weekly-schedule-container" class="space-y-2"></div>
             </div>
 
-            <button type="button" onclick="app.dropPlan()" class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-semibold rounded-xl text-xs border border-rose-500/20 cursor-pointer">
-                Cambia Obiettivo
-            </button>
+            <div class="space-y-1.5">
+                <button type="button" onclick="app.dropPlan()" class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-semibold rounded-xl text-xs border border-rose-500/20 cursor-pointer">
+                    Cambia Obiettivo
+                </button>
+                <button type="button" onclick="app.logout()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs border border-slate-700 cursor-pointer">
+                    🔒 Esci (Logout)
+                </button>
+            </div>
         </div>
 
         <!-- 3. DETTAGLIO ALLENAMENTO -->
@@ -497,8 +502,7 @@
                 </div>
 
                 <button type="button" onclick="app.saveSettings()" class="w-full py-2 bg-emerald-500 font-bold text-slate-950 rounded-xl cursor-pointer">Salva Modifiche</button>
-                <button type="button" onclick="app.logout()" class="w-full py-2 bg-slate-700 font-bold text-white rounded-xl cursor-pointer mt-1">🔒 Esci (Logout)</button>
-                <button type="button" onclick="app.resetApp()" class="w-full py-2 bg-rose-500/20 text-rose-400 font-bold rounded-xl cursor-pointer mt-2">🗑️ Reset Totale App</button>
+                <button type="button" onclick="app.deleteAccountData()" class="w-full py-2 bg-rose-500/20 text-rose-400 font-bold rounded-xl cursor-pointer mt-2">🗑️ Rimuovi Account (Svuota Dati)</button>
             </div>
         </div>
 
@@ -677,7 +681,6 @@
                 } catch (e) {
                     console.warn("Errore di salvataggio cloud temporaneo.");
                 } finally {
-                    // Rilascia il blocco anti-flood dopo 2 secondi
                     setTimeout(() => { this.isSaving = false; }, 2000);
                 }
             }
@@ -1270,8 +1273,8 @@
                 alert("Impostazioni salvate con successo!");
             }
 
-            resetApp() {
-                if (confirm("Sei sicuro di voler resettare tutta l'applicazione?")) {
+            deleteAccountData() {
+                if (confirm("Vuoi davvero svuotare tutti i dati e le tabelle associate al tuo account sul Cloud?")) {
                     localStorage.clear();
                     location.reload();
                 }
@@ -1367,7 +1370,7 @@
                 const worksheet = XLSX.utils.json_to_sheet(flatData);
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Piano Dettagliato");
-                XLSX.writeFile(workbook, "Running Coach Pro_TabellaCompletaDettagliata.xlsx");
+                XLSX.writeFile(workbook, "Running Coach Pro_TabellaCompletaDettagliato.xlsx");
             }
         }
 
