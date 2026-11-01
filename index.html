@@ -34,8 +34,36 @@
 
     <div id="app" class="max-w-md mx-auto w-full p-4 flex-1 flex flex-col justify-between">
         
+        <!-- 0. SCHERMATA AUTENTICAZIONE (LOGIN / REGISTRAZIONE) -->
+        <div id="screen-auth" class="space-y-4 my-auto py-4">
+            <div class="text-center space-y-1">
+                <h1 class="text-3xl font-extrabold text-emerald-400">Running Coach Pro</h1>
+                <p class="text-slate-400 text-xs">Accedi o registrati per salvare i tuoi programmi nel Cloud.</p>
+            </div>
+            
+            <div class="bg-slate-800 p-4 rounded-2xl space-y-3 border border-slate-700">
+                <div>
+                    <label class="block text-xs uppercase text-slate-400 mb-1">Email</label>
+                    <input type="email" id="auth-email" placeholder="latuaemail@email.com" class="w-full p-2.5 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase text-slate-400 mb-1">Password</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full p-2.5 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs">
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="app.handleLogin()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">
+                        Accedi
+                    </button>
+                    <button type="button" onclick="app.handleSignup()" class="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 font-bold rounded-xl text-white text-xs cursor-pointer">
+                        Registrati
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- 1. SCHERMATA OBIETTIVO (ONBOARDING) -->
-        <div id="screen-onboarding" class="space-y-3 my-auto py-2 max-h-[92vh] overflow-y-auto">
+        <div id="screen-onboarding" class="hidden space-y-3 my-auto py-2 max-h-[92vh] overflow-y-auto">
             <div class="text-center space-y-1">
                 <h1 class="text-3xl font-extrabold text-emerald-400">Running Coach Pro</h1>
                 <p class="text-slate-400 text-xs">Il tuo coach personale per la preparazione atletica.</p>
@@ -270,7 +298,7 @@
             </button>
         </div>
 
-        <!-- 4. GARE IN AGENDA (KM MANUALI O GARA AD ORE) -->
+        <!-- 4. GARE IN AGENDA -->
         <div id="screen-races" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                 <h3 class="font-bold text-emerald-400 text-sm">📅 Gare in Agenda</h3>
@@ -336,6 +364,7 @@
                     </div>
                 </div>
                 <button type="button" onclick="app.saveSettings()" class="w-full py-2 bg-emerald-500 font-bold text-slate-950 rounded-xl cursor-pointer">Salva</button>
+                <button type="button" onclick="app.logout()" class="w-full py-2 bg-slate-700 font-bold text-white rounded-xl cursor-pointer mt-1">🔒 Esci (Logout)</button>
                 <button type="button" onclick="app.resetApp()" class="w-full py-2 bg-rose-500/20 text-rose-400 font-bold rounded-xl cursor-pointer mt-2">🗑️ Reset Totale App</button>
             </div>
         </div>
@@ -345,7 +374,7 @@
         </footer>
     </div>
 
-    <!-- LOGICA APPLICAZIONE CON SUPABASE -->
+    <!-- LOGICA APPLICAZIONE CON SUPABASE & AUTH -->
     <script>
         const SUPABASE_URL = "https://eaxqmxtgogzadwmbjzil.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_0_YjpPPK8om98MQGjtK-6g_KZqYxz8K";
@@ -364,23 +393,77 @@
                 this.fullPlan = null;
                 this.selectedWeekIndex = 0;
                 this.activeDayIndex = null;
-                this.userId = "runner_default_user";
+                this.userId = null;
 
                 this.initCloudSync();
             }
 
             async initCloudSync() {
                 try {
+                    const { data: { session } } = await supabaseClient.auth.getSession();
+                    
+                    if (!session) {
+                        this.showScreen('screen-auth');
+                        document.getElementById('cloud-status').innerText = "Effettua l'accesso per continuare 🔒";
+                        return;
+                    }
+
+                    this.userId = session.user.id;
+                    await this.loadUserData();
+                } catch (e) {
+                    this.showScreen('screen-auth');
+                }
+            }
+
+            async handleSignup() {
+                const email = document.getElementById('auth-email').value;
+                const password = document.getElementById('auth-password').value;
+
+                if (!email || !password) {
+                    alert("Inserisci email e password per registrarti.");
+                    return;
+                }
+
+                const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) {
+                    alert("Errore di registrazione: " + error.message);
+                } else {
+                    alert("Registrazione completata! Effettua ora il login.");
+                }
+            }
+
+            async handleLogin() {
+                const email = document.getElementById('auth-email').value;
+                const password = document.getElementById('auth-password').value;
+
+                if (!email || !password) {
+                    alert("Inserisci email e password per accedere.");
+                    return;
+                }
+
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) {
+                    alert("Credenziali non valide: " + error.message);
+                } else {
+                    this.userId = data.session.user.id;
+                    document.getElementById('cloud-status').innerText = "Cloud Sincronizzato ☁️ (Supabase Connesso)";
+                    document.getElementById('cloud-status').className = "bg-slate-800 text-center text-[10px] text-emerald-400 py-1 border-b border-slate-700";
+                    await this.loadUserData();
+                }
+            }
+
+            async logout() {
+                await supabaseClient.auth.signOut();
+                location.reload();
+            }
+
+            async loadUserData() {
+                try {
                     const { data, error } = await supabaseClient
                         .from('runners')
                         .select('*')
                         .eq('user_id', this.userId)
                         .maybeSingle();
-
-                    if (error) {
-                        this.loadFromLocalStorage();
-                        return;
-                    }
 
                     if (data) {
                         this.profile = data.profile || {};
@@ -389,17 +472,12 @@
                         this.races = data.races || [];
                         this.avatarUrl = data.avatar_url || this.avatarUrl;
                     }
-
-                    document.getElementById('cloud-status').innerText = "Cloud Sincronizzato ☁️ (Supabase Connesso)";
-                    document.getElementById('cloud-status').className = "bg-slate-800 text-center text-[10px] text-emerald-400 py-1 border-b border-slate-700";
-                    this.evaluateStartupScreen();
-                } catch (e) {
-                    this.loadFromLocalStorage();
-                }
+                } catch (e) {}
+                this.evaluateStartupScreen();
             }
 
             showScreen(screenId) {
-                ['screen-onboarding', 'screen-dashboard', 'screen-detail', 'screen-races', 'screen-settings'].forEach(id => {
+                ['screen-auth', 'screen-onboarding', 'screen-dashboard', 'screen-detail', 'screen-races', 'screen-settings'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.classList.add('hidden');
                 });
@@ -408,16 +486,7 @@
             }
 
             async saveData() {
-                try {
-                    localStorage.setItem('ai_runner_data_supabase', JSON.stringify({
-                        profile: this.profile,
-                        fullPlan: this.fullPlan,
-                        shoes: this.shoes,
-                        races: this.races,
-                        avatarUrl: this.avatarUrl
-                    }));
-                } catch(e) {}
-
+                if (!this.userId) return;
                 try {
                     await supabaseClient.from('runners').upsert({
                         user_id: this.userId,
@@ -429,24 +498,6 @@
                         updated_at: new Date()
                     }, { onConflict: 'user_id' });
                 } catch (e) {}
-            }
-
-            loadFromLocalStorage() {
-                try {
-                    const saved = localStorage.getItem('ai_runner_data_supabase');
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        this.profile = data.profile || {};
-                        this.fullPlan = data.fullPlan || null;
-                        this.shoes = data.shoes || this.shoes;
-                        this.races = data.races || [];
-                        this.avatarUrl = data.avatarUrl || this.avatarUrl;
-                    }
-                } catch(e) {}
-
-                document.getElementById('cloud-status').innerText = "Modalità Offline Locale (Supabase Fallback) ⚠️";
-                document.getElementById('cloud-status').className = "bg-slate-800 text-center text-[10px] text-amber-400 py-1 border-b border-slate-700";
-                this.evaluateStartupScreen();
             }
 
             evaluateStartupScreen() {
