@@ -424,7 +424,15 @@
                 <button type="button" onclick="app.closeSettings()" class="text-slate-400 text-xs cursor-pointer">Chiudi</button>
             </div>
             <div class="space-y-3 text-xs">
-                <input type="text" id="settings-avatar-input" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white" placeholder="URL Foto Profilo">
+                <!-- CARICAMENTO FOTO PROFILO DA DISPOSITIVO -->
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2 text-center">
+                    <span class="font-bold text-emerald-400 uppercase tracking-wider text-[10px] block">Foto Profilo Personale</span>
+                    <div class="flex justify-center">
+                        <img id="settings-preview-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-16 h-16 rounded-full object-cover border-2 border-emerald-400" alt="Anteprima">
+                    </div>
+                    <input type="file" id="avatar-file-input" accept="image/*" onchange="app.handleImageUpload(event)" class="w-full text-[11px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600 file:cursor-pointer cursor-pointer">
+                </div>
+
                 <div class="space-y-2 pt-1 border-t border-slate-700">
                     <span class="font-bold text-emerald-400 uppercase tracking-wider text-[10px] block">Rotazione Scarpe</span>
                     <div id="shoes-management-container" class="space-y-1.5 max-h-[100px] overflow-y-auto"></div>
@@ -433,7 +441,7 @@
                         <button type="button" onclick="app.addShoeModel()" class="px-3 bg-emerald-500 text-slate-950 font-bold rounded-lg cursor-pointer">+ Aggiungi</button>
                     </div>
                 </div>
-                <button type="button" onclick="app.saveSettings()" class="w-full py-2 bg-emerald-500 font-bold text-slate-950 rounded-xl cursor-pointer">Salva</button>
+                <button type="button" onclick="app.saveSettings()" class="w-full py-2 bg-emerald-500 font-bold text-slate-950 rounded-xl cursor-pointer">Salva Modifiche</button>
                 <button type="button" onclick="app.logout()" class="w-full py-2 bg-slate-700 font-bold text-white rounded-xl cursor-pointer mt-1">🔒 Esci (Logout)</button>
                 <button type="button" onclick="app.resetApp()" class="w-full py-2 bg-rose-500/20 text-rose-400 font-bold rounded-xl cursor-pointer mt-2">🗑️ Reset Totale App</button>
             </div>
@@ -543,6 +551,7 @@
                         this.shoes = data.shoes || this.shoes;
                         this.races = data.races || [];
                         this.avatarUrl = data.avatar_url || this.avatarUrl;
+                        document.getElementById('dashboard-avatar').src = this.avatarUrl;
                     }
                 } catch (e) {}
                 this.evaluateStartupScreen();
@@ -791,6 +800,7 @@
 
             renderDashboard() {
                 document.getElementById('user-display').innerText = `${this.profile.raceType ? this.profile.raceType.toUpperCase() : 'ATLETA'} - ${this.profile.level || ''}`;
+                document.getElementById('dashboard-avatar').src = this.avatarUrl;
                 
                 let totalPlanKm = 0;
                 let doneKm = 0;
@@ -1020,11 +1030,43 @@
             }
 
             openSettings() {
-                document.getElementById('settings-avatar-input').value = this.avatarUrl;
+                document.getElementById('settings-preview-avatar').src = this.avatarUrl;
                 this.renderShoesSettings();
                 this.showScreen('screen-settings');
             }
             closeSettings() { this.showScreen('screen-dashboard'); }
+
+            handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        let width = img.width;
+                        let height = img.height;
+                        const maxDim = 200;
+                        if (width > height) {
+                            if (width > maxDim) { height *= maxDim / width; width = maxDim; }
+                        } else {
+                            if (height > maxDim) { width *= maxDim / height; height = maxDim; }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        this.avatarUrl = canvas.toDataURL('image/jpeg', 0.85);
+                        document.getElementById('settings-preview-avatar').src = this.avatarUrl;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
 
             renderShoesSettings() {
                 const container = document.getElementById('shoes-management-container');
@@ -1054,10 +1096,10 @@
             }
 
             saveSettings() {
-                this.avatarUrl = document.getElementById('settings-avatar-input').value || this.avatarUrl;
                 document.getElementById('dashboard-avatar').src = this.avatarUrl;
                 this.saveData();
                 this.closeSettings();
+                alert("Impostazioni salvate con successo!");
             }
 
             resetApp() {
