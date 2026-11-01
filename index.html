@@ -495,7 +495,7 @@
                     
                     <div class="pt-2 border-t border-slate-800 text-center">
                         <p class="text-[10px] text-slate-400 mb-1">Vuoi richiedere il codice all'amministratore?</p>
-                        <!-- Pulsante mailto: apre l'app di posta con email precompilata -->
+                        <!-- Pulsante mailto: apre l'app di posta con email precompilata indirizzata a jovy1972@gmail.com -->
                         <a id="vip-email-link" href="#" onclick="app.openVipEmailRequest()" class="block w-full py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/40 cursor-pointer transition-all text-center no-underline">
                             ✉️ Invia Richiesta VIP via Email
                         </a>
@@ -726,8 +726,8 @@
                 this.profile.vip_requested = true;
                 this.saveData();
 
-                // Compone l'email automatica per te (sostituisci la tua email qui sotto se desideri)
-                const myAdminEmail = "tuaemail@gmail.com"; 
+                // Email inserita: jovy1972@gmail.com
+                const myAdminEmail = "jovy1972@gmail.com"; 
                 const subject = encodeURIComponent("Richiesta Accesso VIP - Running Coach Pro");
                 const body = encodeURIComponent(`Ciao Jovy,\n\nVorrei richiedere l'accesso al piano VIP per la mia applicazione Running Coach Pro.\n\nLa mia email di registrazione è: ${this.userEmail}\n\nGrazie!`);
                 
@@ -1407,7 +1407,7 @@
                     return;
                 }
                 
-                let dataRows = [];
+                DataRows = [];
                 this.fullPlan.weeks.forEach(w => {
                     w.days.forEach(d => {
                         dataRows.push({
