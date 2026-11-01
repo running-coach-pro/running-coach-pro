@@ -530,7 +530,7 @@
         </footer>
     </div>
 
-    <!-- LOGICA APPLICAZIONE CON GESTIONE PASSWORD E BLOCCHI VIP -->
+    <!-- LOGICA APPLICAZIONE COMPLETA -->
     <script>
         const SUPABASE_URL = "https://eaxqmxtgogzadwmbjzil.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_0_YjpPPK8om98MQGjtK-6g_KZqYxz8K";
@@ -576,7 +576,6 @@
                 }
             }
 
-            // Mostra/Nascondi password
             togglePasswordVisibility(fieldId, iconId) {
                 const input = document.getElementById(fieldId);
                 const icon = document.getElementById(iconId);
@@ -1298,18 +1297,49 @@
 
             exportCompletePDF() {
                 if (!this.profile.is_vip) {
-                    alert("⭐ L'esportazione PDF completa è riservata agli account VIP.");
+                    alert("⭐ L'esportazione PDF completa è riservata agli account VIP. Inserisci il codice nelle impostazioni per sbloccare!");
                     return;
                 }
-                alert("Generazione PDF VIP in corso...");
+                const element = document.getElementById('screen-dashboard');
+                const opt = {
+                    margin:       10,
+                    filename:     'Running_Coach_Pro_Programma.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                html2pdf().from(element).set(opt).save();
             }
 
             exportCompleteExcel() {
                 if (!this.profile.is_vip) {
-                    alert("⭐ L'esportazione Excel è riservata agli account VIP.");
+                    alert("⭐ L'esportazione Excel è riservata agli account VIP. Inserisci il codice nelle impostazioni per sbloccare!");
                     return;
                 }
-                alert("Generazione Excel VIP in corso...");
+                if (!this.fullPlan || !this.fullPlan.weeks) {
+                    alert("Nessun programma da esportare.");
+                    return;
+                }
+                
+                let dataRows = [];
+                this.fullPlan.weeks.forEach(w => {
+                    w.days.forEach(d => {
+                        dataRows.push({
+                            "Settimana": w.weekNumber,
+                            "Giorno": d.day,
+                            "Allenamento": d.title,
+                            "Km": d.km,
+                            "Completato": d.completed ? "Sì" : "No",
+                            "Scarpa": d.shoe,
+                            "Note": d.notes || ""
+                        });
+                    });
+                });
+
+                const worksheet = XLSX.utils.json_to_sheet(dataRows);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Allenamenti");
+                XLSX.writeFile(workbook, "Running_Coach_Pro_Report.xlsx");
             }
         }
 
