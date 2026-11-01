@@ -187,7 +187,11 @@
                 <div class="flex items-center space-x-2.5">
                     <img id="dashboard-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-9 h-9 rounded-full object-cover border border-emerald-400" alt="Avatar">
                     <div>
-                        <h3 id="user-display" class="font-bold text-white text-xs">Atleta</h3>
+                        <div class="flex items-center gap-1.5">
+                            <h3 id="user-display" class="font-bold text-white text-xs">Atleta</h3>
+                            <!-- Badge Stato Utente (Base / VIP) -->
+                            <span id="user-tier-badge" class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Base</span>
+                        </div>
                         <span class="text-[10px] text-emerald-400 font-medium" id="dashboard-stats-history">Storico: 0 km</span>
                     </div>
                 </div>
@@ -742,6 +746,7 @@
                 const paces = this.calculatePaces();
 
                 this.profile = {
+                    ...this.profile,
                     gender: document.getElementById('profile-gender').value,
                     weight: document.getElementById('profile-weight').value,
                     build: document.getElementById('profile-build').value,
@@ -781,7 +786,6 @@
                         let title = "Corsa Lenta Rigenerante";
                         let desc = `• Riscaldamento: 10 min di camminata e mobilità.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento (${paces.slow}/km).\n• Defaticamento: 5 min di allungamento.`;
                         
-                        // Assegnazione intelligente della scarpa in base all'IA (o default)
                         let defaultShoe = this.shoes[0] ? this.shoes[0].name : "Standard";
                         if (isLong && this.shoes.some(s => s.category && s.category.includes('Lungo'))) {
                             defaultShoe = this.shoes.find(s => s.category.includes('Lungo')).name;
@@ -830,6 +834,16 @@
                 document.getElementById('user-display').innerText = `${this.profile.raceType ? this.profile.raceType.toUpperCase() : 'ATLETA'} - ${this.profile.level || ''}`;
                 document.getElementById('dashboard-avatar').src = this.avatarUrl;
                 
+                // GESTIONE AGGIORNAMENTO BADGE STATO UTENTE (BASE / VIP)
+                const tierBadge = document.getElementById('user-tier-badge');
+                if (this.profile.is_vip) {
+                    tierBadge.innerText = "VIP ⭐";
+                    tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                } else {
+                    tierBadge.innerText = "Base 🟢";
+                    tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-slate-700 text-slate-300";
+                }
+
                 let totalPlanKm = 0;
                 let doneKm = 0;
                 if (this.fullPlan && this.fullPlan.weeks) {
@@ -1287,7 +1301,7 @@
                 const worksheet = XLSX.utils.json_to_sheet(flatData);
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Piano Dettagliato");
-                XLSX.writeFile(workbook, "RunningCoachPro_TabellaCompletaDettagliata.xlsx");
+                XLSX.writeFile(workbook, "Running Coach Pro_TabellaCompletaDettagliata.xlsx");
             }
         }
 
