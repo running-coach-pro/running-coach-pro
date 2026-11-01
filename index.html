@@ -189,8 +189,9 @@
                         <span class="text-[10px] text-emerald-400 font-medium" id="dashboard-stats-history">Storico: 0 km</span>
                     </div>
                 </div>
-                <div class="flex space-x-1">
+                <div class="flex space-x-1 items-center">
                     <button type="button" onclick="app.openRaces()" class="text-xs bg-emerald-500/10 text-emerald-300 px-2 py-1.5 rounded-xl border border-emerald-500/20 cursor-pointer font-bold">📊 Gare</button>
+                    <button type="button" onclick="app.openInfo()" class="text-slate-400 hover:text-white p-1.5 cursor-pointer text-sm" title="Come funziona">ℹ️</button>
                     <button type="button" onclick="app.openSettings()" class="text-slate-400 hover:text-white p-1.5 cursor-pointer">⚙️</button>
                 </div>
             </div>
@@ -347,7 +348,30 @@
             <button type="button" onclick="app.closeRaces()" class="w-full py-2 bg-slate-700 font-bold rounded-xl text-white cursor-pointer">Torna alla Dashboard</button>
         </div>
 
-        <!-- 5. IMPOSTAZIONI -->
+        <!-- 5. SCHERMATA COME FUNZIONA / INFO -->
+        <div id="screen-info" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                <h3 class="font-bold text-emerald-400 text-sm">📖 Come funziona Running Coach Pro</h3>
+                <button type="button" onclick="app.closeInfo()" class="text-slate-400 text-xs cursor-pointer">✕ Chiudi</button>
+            </div>
+            <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
+                    <strong class="text-white block text-emerald-400 font-bold">🎯 Creazione del Programma</strong>
+                    <p>Inserisci i tuoi dati fisici, seleziona il tipo di obiettivo (gara breve, maratona o ultramaratona a tempo) e la durata. L'app calcola automaticamente i ritmi di allenamento personalizzati.</p>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
+                    <strong class="text-white block text-emerald-400 font-bold">📅 Gestione Gare e Agenda</strong>
+                    <p>Puoi aggiungere le tue gare in programma inserendo la distanza esatta (anche personalizzata in km) o la durata in ore per le gare a tempo.</p>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
+                    <strong class="text-white block text-emerald-400 font-bold">☁️ Sincronizzazione Cloud</strong>
+                    <p>Grazie all'account protetto, tutti i tuoi allenamenti completati, lo storico e le scarpe in rotazione vengono salvati in sicurezza sul cloud.</p>
+                </div>
+            </div>
+            <button type="button" onclick="app.closeInfo()" class="w-full py-2 bg-slate-700 font-bold rounded-xl text-white cursor-pointer mt-2">Torna alla Dashboard</button>
+        </div>
+
+        <!-- 6. IMPOSTAZIONI -->
         <div id="screen-settings" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                 <h3 class="font-bold text-base text-white">Profilo & Scarpe</h3>
@@ -477,7 +501,7 @@
             }
 
             showScreen(screenId) {
-                ['screen-auth', 'screen-onboarding', 'screen-dashboard', 'screen-detail', 'screen-races', 'screen-settings'].forEach(id => {
+                ['screen-auth', 'screen-onboarding', 'screen-dashboard', 'screen-detail', 'screen-races', 'screen-info', 'screen-settings'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.classList.add('hidden');
                 });
@@ -867,6 +891,9 @@
 
             openRaces() { this.renderRacesList(); this.showScreen('screen-races'); }
             closeRaces() { this.showScreen('screen-dashboard'); }
+
+            openInfo() { this.showScreen('screen-info'); }
+            closeInfo() { this.showScreen('screen-dashboard'); }
 
             renderRacesList() {
                 const container = document.getElementById('races-list-container');
