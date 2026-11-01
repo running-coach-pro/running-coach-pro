@@ -482,15 +482,23 @@
                     <input type="file" id="avatar-file-input" accept="image/*" onchange="app.handleImageUpload(event)" class="w-full text-[11px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600 file:cursor-pointer cursor-pointer">
                 </div>
 
-                <!-- SEZIONE ATTIVAZIONE CODICE VIP SEGRETO -->
+                <!-- SEZIONE ATTIVAZIONE CODICE VIP SEGRETO & RICHIESTA VIA EMAIL -->
                 <div class="bg-slate-900 p-3 rounded-xl border border-amber-500/40 space-y-2">
-                    <span class="font-bold text-amber-400 uppercase tracking-wider text-[10px] block">⭐ Attivazione Stato VIP (Codice Segreto)</span>
-                    <p class="text-[10px] text-slate-400">Inserisci il codice segreto per sbloccare l'account in modalità VIP all'istante.</p>
+                    <span class="font-bold text-amber-400 uppercase tracking-wider text-[10px] block">⭐ Gestione Stato VIP</span>
+                    <p class="text-[10px] text-slate-400">Hai un codice segreto? Inseriscilo qui sotto per sbloccare subito.</p>
                     <div class="flex space-x-1">
                         <input type="password" id="vip-secret-input" placeholder="Inserisci codice..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
                         <button type="button" onclick="app.unlockVipWithCode()" class="px-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg cursor-pointer text-xs shadow-md transition-all">
                             Sblocca
                         </button>
+                    </div>
+                    
+                    <div class="pt-2 border-t border-slate-800 text-center">
+                        <p class="text-[10px] text-slate-400 mb-1">Vuoi richiedere il codice all'amministratore?</p>
+                        <!-- Pulsante mailto: apre l'app di posta con email precompilata -->
+                        <a id="vip-email-link" href="#" onclick="app.openVipEmailRequest()" class="block w-full py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/40 cursor-pointer transition-all text-center no-underline">
+                            ✉️ Invia Richiesta VIP via Email
+                        </a>
                     </div>
                 </div>
 
@@ -503,7 +511,7 @@
                         <label class="block text-[10px] uppercase text-slate-400">Aggiungi Modello (es. Asics Superblast)</label>
                         <div class="flex space-x-1">
                             <input type="text" id="new-shoe-name" placeholder="Nome modello scarpa..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
-                            <button type="button" onclick="app.analyzeShoeWithAI()" class="px-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg cursor-pointer text-xs flex items-center gap-1 shadow-md transition-all" title="Riconosci caratteristiche con AI">
+                            <button type="button" onclick="app.analyzeShoeWithAI()" class="px-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg cursor-pointer text-xs flex items-center gap-1 shadow-md transition-all" title="Riconoscimento caratteristiche con AI">
                                 ✨ Analizza
                             </button>
                         </div>
@@ -545,11 +553,12 @@
                     { name: "Mizuno Wave Neo Vista 2", category: "Lavori Veloci / Fartlek 🔵", km: 0, maxKm: 600, description: "Scarpa reattiva eccellente per ripetute e ritmi medi." }
                 ];
                 this.races = [];
-                this.profile = { is_vip: false };
+                this.profile = { is_vip: false, vip_requested: false };
                 this.fullPlan = null;
                 this.selectedWeekIndex = 0;
                 this.activeDayIndex = null;
                 this.userId = null;
+                this.userEmail = "";
                 this.tempAnalyzedShoe = null;
                 this.isSaving = false;
 
@@ -567,6 +576,7 @@
                     }
 
                     this.userId = session.user.id;
+                    this.userEmail = session.user.email || "utente@email.com";
                     document.getElementById('cloud-status').innerText = "Cloud Sincronizzato ☁️ (Supabase Connesso)";
                     document.getElementById('cloud-status').className = "bg-slate-800 text-center text-[10px] text-emerald-400 py-1 border-b border-slate-700";
                     
@@ -625,6 +635,7 @@
                     alert("Credenziali non valide: " + error.message);
                 } else {
                     this.userId = data.session.user.id;
+                    this.userEmail = data.session.user.email;
                     document.getElementById('cloud-status').innerText = "Cloud Sincronizzato ☁️ (Supabase Connesso)";
                     document.getElementById('cloud-status').className = "bg-slate-800 text-center text-[10px] text-emerald-400 py-1 border-b border-slate-700";
                     await this.loadUserData();
@@ -663,7 +674,7 @@
                         .maybeSingle();
 
                     if (data) {
-                        this.profile = data.profile || { is_vip: false };
+                        this.profile = data.profile || { is_vip: false, vip_requested: false };
                         this.fullPlan = data.full_plan || null;
                         this.shoes = data.shoes || this.shoes;
                         this.races = data.races || [];
@@ -700,6 +711,7 @@
                 const secret = document.getElementById('vip-secret-input').value.trim();
                 if (secret === "jovyvip" || secret === "RUNNINGVIP2026") {
                     this.profile.is_vip = true;
+                    this.profile.vip_requested = false;
                     this.saveData();
                     this.renderDashboard();
                     alert("🎉 Complimenti! Account aggiornato a VIP ⭐ con successo!");
@@ -707,6 +719,20 @@
                 } else {
                     alert("❌ Codice segreto non valido.");
                 }
+            }
+
+            openVipEmailRequest() {
+                // Imposta lo stato su richiesto
+                this.profile.vip_requested = true;
+                this.saveData();
+
+                // Compone l'email automatica per te (sostituisci la tua email qui sotto se desideri)
+                const myAdminEmail = "tuaemail@gmail.com"; 
+                const subject = encodeURIComponent("Richiesta Accesso VIP - Running Coach Pro");
+                const body = encodeURIComponent(`Ciao Jovy,\n\nVorrei richiedere l'accesso al piano VIP per la mia applicazione Running Coach Pro.\n\nLa mia email di registrazione è: ${this.userEmail}\n\nGrazie!`);
+                
+                // Apre il client di posta
+                window.location.href = `mailto:${myAdminEmail}?subject=${subject}&body=${body}`;
             }
 
             showScreen(screenId) {
@@ -930,6 +956,10 @@
                     tierBadge.innerText = "VIP ⭐";
                     tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 cursor-pointer transition-transform active:scale-95";
                     tierBadge.title = "Sei un membro VIP!";
+                } else if (this.profile.vip_requested) {
+                    tierBadge.innerText = "In attesa ⏳";
+                    tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/30 cursor-pointer transition-transform active:scale-95";
+                    tierBadge.title = "Richiesta VIP inviata via email";
                 } else {
                     tierBadge.innerText = "Base 🟢";
                     tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-slate-700 text-slate-300 cursor-pointer transition-transform active:scale-95";
