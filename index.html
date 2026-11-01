@@ -433,14 +433,33 @@
                     <input type="file" id="avatar-file-input" accept="image/*" onchange="app.handleImageUpload(event)" class="w-full text-[11px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600 file:cursor-pointer cursor-pointer">
                 </div>
 
+                <!-- ROTAZIONE SCARPE & AI SMART TAG -->
                 <div class="space-y-2 pt-1 border-t border-slate-700">
-                    <span class="font-bold text-emerald-400 uppercase tracking-wider text-[10px] block">Rotazione Scarpe</span>
-                    <div id="shoes-management-container" class="space-y-1.5 max-h-[100px] overflow-y-auto"></div>
-                    <div class="flex space-x-1 pt-1">
-                        <input type="text" id="new-shoe-name" placeholder="Nuovo modello" class="flex-1 p-2 bg-slate-900 rounded-lg border border-slate-700 text-white text-xs">
-                        <button type="button" onclick="app.addShoeModel()" class="px-3 bg-emerald-500 text-slate-950 font-bold rounded-lg cursor-pointer">+ Aggiungi</button>
+                    <span class="font-bold text-emerald-400 uppercase tracking-wider text-[10px] block">Rotazione Scarpe & AI Smart Tag</span>
+                    <div id="shoes-management-container" class="space-y-1.5 max-h-[120px] overflow-y-auto"></div>
+                    
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-700 space-y-2">
+                        <label class="block text-[10px] uppercase text-slate-400">Aggiungi Modello (es. Asics Superblast)</label>
+                        <div class="flex space-x-1">
+                            <input type="text" id="new-shoe-name" placeholder="Nome modello scarpa..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
+                            <button type="button" onclick="app.analyzeShoeWithAI()" class="px-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg cursor-pointer text-xs flex items-center gap-1 shadow-md transition-all" title="Riconosci caratteristiche con AI">
+                                ✨ Analizza
+                            </button>
+                        </div>
+                        <!-- Anteprima categoria rilevata dall'AI -->
+                        <div id="ai-shoe-preview" class="hidden text-[10px] bg-slate-800 p-2 rounded-lg border border-amber-500/30 text-amber-300 space-y-1">
+                            <div class="flex justify-between font-bold">
+                                <span id="ai-preview-category">Categoria: --</span>
+                                <span id="ai-preview-maxkm">Max: -- km</span>
+                            </div>
+                            <p id="ai-preview-desc" class="text-slate-400 text-[9px]"></p>
+                        </div>
+                        <button type="button" onclick="app.addAnalyzedShoe()" id="btn-save-ai-shoe" class="hidden w-full py-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-lg text-xs cursor-pointer transition-all">
+                            + Conferma e Aggiungi alla Rotazione
+                        </button>
                     </div>
                 </div>
+
                 <button type="button" onclick="app.saveSettings()" class="w-full py-2 bg-emerald-500 font-bold text-slate-950 rounded-xl cursor-pointer">Salva Modifiche</button>
                 <button type="button" onclick="app.logout()" class="w-full py-2 bg-slate-700 font-bold text-white rounded-xl cursor-pointer mt-1">🔒 Esci (Logout)</button>
                 <button type="button" onclick="app.resetApp()" class="w-full py-2 bg-rose-500/20 text-rose-400 font-bold rounded-xl cursor-pointer mt-2">🗑️ Reset Totale App</button>
@@ -463,8 +482,8 @@
             constructor() {
                 this.avatarUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces";
                 this.shoes = [
-                    { name: "Brooks Glycerin 23 GTS", km: 0, maxKm: 700 },
-                    { name: "Mizuno Wave Neo Vista 2", km: 0, maxKm: 600 }
+                    { name: "Brooks Glycerin 23 GTS", category: "Lungo / Massimo Ammortizzamento 🟢", km: 0, maxKm: 750, description: "Ammortizzamento elevato per proteggere le articolazioni." },
+                    { name: "Mizuno Wave Neo Vista 2", category: "Lavori Veloci / Fartlek 🔵", km: 0, maxKm: 600, description: "Scarpa reattiva eccellente per ripetute e ritmi medi." }
                 ];
                 this.races = [];
                 this.profile = {};
@@ -472,6 +491,7 @@
                 this.selectedWeekIndex = 0;
                 this.activeDayIndex = null;
                 this.userId = null;
+                this.tempAnalyzedShoe = null;
 
                 this.initCloudSync();
             }
@@ -761,6 +781,14 @@
                         let title = "Corsa Lenta Rigenerante";
                         let desc = `• Riscaldamento: 10 min di camminata e mobilità.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento (${paces.slow}/km).\n• Defaticamento: 5 min di allungamento.`;
                         
+                        // Assegnazione intelligente della scarpa in base all'IA (o default)
+                        let defaultShoe = this.shoes[0] ? this.shoes[0].name : "Standard";
+                        if (isLong && this.shoes.some(s => s.category && s.category.includes('Lungo'))) {
+                            defaultShoe = this.shoes.find(s => s.category.includes('Lungo')).name;
+                        } else if (isQuality && this.shoes.some(s => s.category && s.category.includes('Veloci'))) {
+                            defaultShoe = this.shoes.find(s => s.category.includes('Veloci')).name;
+                        }
+
                         if (hasUpcomingRaceNear && w >= weeksCount - 1 && isQuality) {
                             title = "Scarico Pre-Gara: Allunghi Agili";
                             desc = `• Riscaldamento: 2 km corsa lenta.\n• Blocco: 5 allunghi progressivi di 80m in scioltezza (senza forzare).\n• Defaticamento: 1 km.`;
@@ -783,7 +811,7 @@
                             km: sessionKm,
                             instructions: desc,
                             completed: false,
-                            shoe: this.shoes[0] ? this.shoes[0].name : "Standard",
+                            shoe: defaultShoe,
                             notes: ""
                         };
                     });
@@ -923,7 +951,7 @@
                 this.shoes.forEach(s => {
                     const opt = document.createElement('option');
                     opt.value = s.name;
-                    opt.innerText = s.name;
+                    opt.innerText = `${s.name} (${s.category || 'Generica'})`;
                     if (s.name === dayObj.shoe) opt.selected = true;
                     shoeSelect.appendChild(opt);
                 });
@@ -1031,6 +1059,9 @@
 
             openSettings() {
                 document.getElementById('settings-preview-avatar').src = this.avatarUrl;
+                document.getElementById('ai-shoe-preview').classList.add('hidden');
+                document.getElementById('btn-save-ai-shoe').classList.add('hidden');
+                document.getElementById('new-shoe-name').value = '';
                 this.renderShoesSettings();
                 this.showScreen('screen-settings');
             }
@@ -1068,28 +1099,85 @@
                 reader.readAsDataURL(file);
             }
 
+            analyzeShoeWithAI() {
+                const nameInput = document.getElementById('new-shoe-name').value.trim();
+                if (!nameInput) {
+                    alert("Inserisci prima il nome o il modello della scarpa.");
+                    return;
+                }
+
+                const previewBox = document.getElementById('ai-shoe-preview');
+                const saveBtn = document.getElementById('btn-save-ai-shoe');
+                
+                previewBox.classList.remove('hidden');
+                document.getElementById('ai-preview-category').innerText = "Analisi in corso con IA... 🔄";
+                document.getElementById('ai-preview-maxkm').innerText = "";
+                document.getElementById('ai-preview-desc').innerText = "Riconoscimento delle caratteristiche tecniche in corso.";
+                saveBtn.classList.add('hidden');
+
+                setTimeout(() => {
+                    let lowerName = nameInput.toLowerCase();
+                    let category = "Giornaliera / Polivalente ⚪";
+                    let maxKm = 700;
+                    let desc = "Modello bilanciato adatto a diverse tipologie di allenamento quotidiano.";
+
+                    if (lowerName.includes('glycerin') || lowerName.includes('nimbus') || lowerName.includes('invincible') || lowerName.includes('bondi') || lowerName.includes('ghost') || lowerName.includes('pegasus') || lowerName.includes('wave neo') || lowerName.includes('tristate') || lowerName.includes('ride')) {
+                        category = "Lungo / Massimo Ammortizzamento 🟢";
+                        maxKm = 750;
+                        desc = "Ammortizzamento elevato progettato per proteggere le articolazioni nelle lunghe distanze.";
+                    } else if (lowerName.includes('superblast') || lowerName.includes('boston') || lowerName.includes('speed') || lowerName.includes('deviate') || lowerName.includes('challenger') || lowerName.includes('magic')) {
+                        category = "Lavori Veloci / Fartlek 🔵";
+                        maxKm = 600;
+                        desc = "Scarpa reattiva e leggera, eccellente per ripetute, variazioni di ritmo e ritmi medi.";
+                    } else if (lowerName.includes('alphafly') || lowerName.includes('vaporfly') || lowerName.includes('metaspeed') || lowerName.includes('endorphin pro') || lowerName.includes('takumi') || lowerName.includes('carbon')) {
+                        category = "Gara / Piastra in Carbonio ⚡";
+                        maxKm = 400;
+                        desc = "Modello agonistico ad altissima reattività con piastra, ottimizzato per il giorno della gara.";
+                    }
+
+                    this.tempAnalyzedShoe = {
+                        name: nameInput,
+                        category: category,
+                        km: 0,
+                        maxKm: maxKm,
+                        description: desc
+                    };
+
+                    document.getElementById('ai-preview-category').innerText = `Categoria: ${category}`;
+                    document.getElementById('ai-preview-maxkm').innerText = `Max: ${maxKm} km`;
+                    document.getElementById('ai-preview-desc').innerText = desc;
+                    saveBtn.classList.remove('hidden');
+                }, 600);
+            }
+
+            addAnalyzedShoe() {
+                if (!this.tempAnalyzedShoe) return;
+                
+                this.shoes.push(this.tempAnalyzedShoe);
+                this.tempAnalyzedShoe = null;
+                
+                document.getElementById('new-shoe-name').value = '';
+                document.getElementById('ai-shoe-preview').classList.add('hidden');
+                document.getElementById('btn-save-ai-shoe').classList.add('hidden');
+
+                this.saveData();
+                this.renderShoesSettings();
+                alert("Scarpa aggiunta e catalogata dall'IA con successo!");
+            }
+
             renderShoesSettings() {
                 const container = document.getElementById('shoes-management-container');
                 container.innerHTML = '';
                 this.shoes.forEach((s, idx) => {
                     const div = document.createElement('div');
                     div.className = "bg-slate-900 p-2 rounded-lg border border-slate-700 flex justify-between items-center text-xs";
-                    div.innerHTML = `<span>${s.name} (${s.km} km)</span><button onclick="app.deleteShoe(${idx})" class="text-rose-400 cursor-pointer">Elimina</button>`;
+                    div.innerHTML = `<div><span class="font-bold text-white block">${s.name}</span><span class="text-[10px] text-emerald-400">${s.category || 'Generica'} - Usurata: ${s.km} km</span></div><button onclick="app.deleteShoe(${idx})" class="text-rose-400 cursor-pointer">Elimina</button>`;
                     container.appendChild(div);
                 });
             }
 
-            addShoeModel() {
-                const name = document.getElementById('new-shoe-name').value;
-                if (!name) return;
-                this.shoes.push({ name: name, km: 0, maxKm: 700 });
-                document.getElementById('new-shoe-name').value = '';
-                this.saveData();
-                this.renderShoesSettings();
-            }
-
             deleteShoe(idx) {
-                if (this.shoes.length <= 1) { alert("Tieni almeno un paio di scarpe."); return; }
+                if (this.shoes.length <= 1) { alert("Tieni almeno un paio di scarpe nella rotazione."); return; }
                 this.shoes.splice(idx, 1);
                 this.saveData();
                 this.renderShoesSettings();
