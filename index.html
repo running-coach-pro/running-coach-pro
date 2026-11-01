@@ -38,6 +38,7 @@
         <div id="screen-auth" class="space-y-4 my-auto py-4">
             <div class="text-center space-y-1">
                 <h1 class="text-3xl font-extrabold text-emerald-400">Running Coach Pro</h1>
+                <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Running Coach Pro – Designed by Jovy</p>
                 <p class="text-slate-400 text-xs">Accedi o registrati per salvare i tuoi programmi nel Cloud.</p>
             </div>
             
@@ -66,6 +67,7 @@
         <div id="screen-onboarding" class="hidden space-y-3 my-auto py-2 max-h-[92vh] overflow-y-auto">
             <div class="text-center space-y-1">
                 <h1 class="text-3xl font-extrabold text-emerald-400">Running Coach Pro</h1>
+                <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Running Coach Pro – Designed by Jovy</p>
                 <p class="text-slate-400 text-xs">Il tuo coach personale per la preparazione atletica.</p>
             </div>
             
@@ -353,6 +355,7 @@
             <div class="bg-slate-800 border border-emerald-500/40 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl animate-in fade-in zoom-in duration-200">
                 <div class="text-center space-y-1">
                     <h3 class="font-extrabold text-emerald-400 text-base">📖 Benvenuto in Running Coach Pro</h3>
+                    <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Running Coach Pro – Designed by Jovy</p>
                     <p class="text-[11px] text-slate-400">Il tuo assistente personale per la preparazione atletica.</p>
                 </div>
                 
@@ -384,6 +387,7 @@
                 <button type="button" onclick="app.closeInfo()" class="text-slate-400 text-xs cursor-pointer">✕ Chiudi</button>
             </div>
             <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+                <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider text-center">Running Coach Pro – Designed by Jovy</p>
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
                     <strong class="text-white block text-emerald-400 font-bold">🎯 Creazione del Programma</strong>
                     <p>Inserisci i tuoi dati fisici, seleziona il tipo di obiettivo (gara breve, maratona o ultramaratona a tempo) e la durata. L'app calcola automaticamente i ritmi di allenamento personalizzati.</p>
@@ -423,7 +427,7 @@
         </div>
 
         <footer class="text-center text-[10px] text-slate-500 py-1">
-            Running Coach Pro - Cloud Edition
+            Running Coach Pro – Designed by Jovy
         </footer>
     </div>
 
@@ -503,7 +507,6 @@
                     document.getElementById('cloud-status').className = "bg-slate-800 text-center text-[10px] text-emerald-400 py-1 border-b border-slate-700";
                     await this.loadUserData();
                     
-                    // Mostra il pop-up di benvenuto al primo accesso dopo il login
                     this.checkAndShowWelcomeModal();
                 }
             }
@@ -534,7 +537,6 @@
             }
 
             checkAndShowWelcomeModal() {
-                // Controlla se l'utente ha già visto il pop-up in questa sessione o browser
                 const hasSeenWelcome = localStorage.getItem('running_coach_welcomed');
                 if (!hasSeenWelcome) {
                     document.getElementById('welcome-modal').classList.remove('hidden');
@@ -1056,6 +1058,7 @@
                 let containerHtml = `
                     <div style="font-family: Arial, sans-serif; color: #111; padding: 20px; background: #fff;">
                         <h1 style="color: #059669; font-size: 24px; margin-bottom: 5px;">Running Coach Pro</h1>
+                        <p style="font-size: 10px; color: #059669; font-weight: bold; margin-bottom: 5px;">Running Coach Pro – Designed by Jovy</p>
                         <p style="font-size: 12px; color: #555; margin-bottom: 20px;">Piano di Preparazione Atletica Completo - Obiettivo: ${this.profile.raceType.toUpperCase()}</p>
                 `;
 
@@ -1092,7 +1095,7 @@
 
                 containerHtml += `
                         <div style="font-size: 9px; color: #9ca3af; text-align: center; margin-top: 30px;">
-                            Running Coach Pro - Programma generato automaticamente per uso amatoriale.
+                            Running Coach Pro – Designed by Jovy - Programma generato automaticamente per uso amatoriale.
                         </div>
                     </div>
                 `;
