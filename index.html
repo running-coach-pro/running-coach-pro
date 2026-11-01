@@ -408,7 +408,7 @@
                 <div class="space-y-2.5 text-xs text-slate-300 leading-relaxed bg-slate-900 p-3 rounded-xl border border-slate-700">
                     <p>Al momento il tuo account è configurato in modalità <strong class="text-white">Base 🟢</strong>.</p>
                     <p>I membri <strong class="text-amber-400">VIP ⭐</strong> sbloccano privilegi esclusivi, tabelle avanzate e accesso prioritario a tutte le funzionalità complete dell'app.</p>
-                    <p class="text-[11px] text-emerald-400 font-semibold pt-1">💡 Puoi attivare lo stato VIP inserendo il codice segreto direttamente nelle impostazioni dell'app (⚙️).</p>
+                    <p class="text-[11px] text-emerald-400 font-semibold pt-1">💡 Puoi attivare lo stato VIP inserendo il codice segreto nelle impostazioni dell'app (⚙️).</p>
                 </div>
 
                 <button type="button" onclick="app.closeVipInfoModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 font-bold rounded-xl text-slate-950 text-xs cursor-pointer shadow-lg transition-all">
@@ -507,7 +507,7 @@
         </footer>
     </div>
 
-    <!-- LOGICA APPLICAZIONE CON SUPABASE & AUTH -->
+    <!-- LOGICA APPLICAZIONE CON SUPABASE & AUTH PROTETTA DA RATE LIMIT -->
     <script>
         const SUPABASE_URL = "https://eaxqmxtgogzadwmbjzil.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_0_YjpPPK8om98MQGjtK-6g_KZqYxz8K";
@@ -528,6 +528,7 @@
                 this.activeDayIndex = null;
                 this.userId = null;
                 this.tempAnalyzedShoe = null;
+                this.isSaving = false;
 
                 this.initCloudSync();
             }
@@ -638,7 +639,6 @@
 
             unlockVipWithCode() {
                 const secret = document.getElementById('vip-secret-input').value.trim();
-                // IL TUO CODICE SEGRETO VIP (Puoi cambiarlo qui se vuoi)
                 if (secret === "jovyvip" || secret === "RUNNINGVIP2026") {
                     this.profile.is_vip = true;
                     this.saveData();
@@ -659,8 +659,11 @@
                 if (target) target.classList.remove('hidden');
             }
 
+            // SISTEMA DI SALVATAGGIO PROTETTO DA RATE LIMIT (Throttle integrato)
             async saveData() {
-                if (!this.userId) return;
+                if (!this.userId || this.isSaving) return;
+                this.isSaving = true;
+
                 try {
                     await supabaseClient.from('runners').upsert({
                         user_id: this.userId,
@@ -671,7 +674,12 @@
                         avatar_url: this.avatarUrl,
                         updated_at: new Date()
                     }, { onConflict: 'user_id' });
-                } catch (e) {}
+                } catch (e) {
+                    console.warn("Errore di salvataggio cloud temporaneo.");
+                } finally {
+                    // Rilascia il blocco anti-flood dopo 2 secondi
+                    setTimeout(() => { this.isSaving = false; }, 2000);
+                }
             }
 
             evaluateStartupScreen() {
@@ -890,7 +898,6 @@
                 document.getElementById('user-display').innerText = `${this.profile.raceType ? this.profile.raceType.toUpperCase() : 'ATLETA'} - ${this.profile.level || ''}`;
                 document.getElementById('dashboard-avatar').src = this.avatarUrl;
                 
-                // GESTIONE AGGIORNAMENTO BADGE STATO UTENTE (BASE / VIP)
                 const tierBadge = document.getElementById('user-tier-badge');
                 if (this.profile.is_vip) {
                     tierBadge.innerText = "VIP ⭐";
