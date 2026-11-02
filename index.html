@@ -722,16 +722,13 @@
             }
 
             openVipEmailRequest() {
-                // Imposta lo stato su richiesto
                 this.profile.vip_requested = true;
                 this.saveData();
 
-                // Email inserita: jovy1972@gmail.com
                 const myAdminEmail = "jovy1972@gmail.com"; 
                 const subject = encodeURIComponent("Richiesta Accesso VIP - Running Coach Pro");
                 const body = encodeURIComponent(`Ciao Jovy,\n\nVorrei richiedere l'accesso al piano VIP per la mia applicazione Running Coach Pro.\n\nLa mia email di registrazione è: ${this.userEmail}\n\nGrazie!`);
                 
-                // Apre il client di posta
                 window.location.href = `mailto:${myAdminEmail}?subject=${subject}&body=${body}`;
             }
 
@@ -852,6 +849,7 @@
                     slow: this.formatSecondsToPace(paceSec + 45),
                     race: this.formatSecondsToPace(paceSec),
                     intervalFast: this.formatSecondsToPace(paceSec - 15),
+                    intervalMedium: this.formatSecondsToPace(paceSec - 5),
                     intervalRec: this.formatSecondsToPace(paceSec + 30)
                 };
             }
@@ -894,19 +892,48 @@
                     trainDays: selectedDays
                 };
 
+                // Determina quale giorno tra quelli scelti sarà dedicato alla Qualità (il giorno centrale o il secondo)
+                let qualityDayIndex = Math.floor(selectedDays.length / 2);
+                if (selectedDays.length >= 3 && qualityDayIndex === 0) qualityDayIndex = 1;
+
                 let weeks = [];
                 let baseKm = 25;
 
+                // Libreria di allenamenti di qualità variati a rotazione
+                const qualityWorkouts = [
+                    {
+                        name: "Ripetute Brevi (Velocità)",
+                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta.\n• Blocco: 10 x 400m a ${paces.intervalFast}/km (Recupero 1'30\" da fermo o trotto).\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
+                    },
+                    {
+                        name: "Fartlek Strutturato",
+                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta.\n• Blocco: 8 x (1 min forte a ${paces.intervalFast}/km / 1 min lento).\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
+                    },
+                    {
+                        name: "Ripetute Medie (Soglia)",
+                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta.\n• Blocco: 4 x 1000m a ${paces.race}/km (Recupero 2 min).\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
+                    },
+                    {
+                        name: "Fartlek Piramidale",
+                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta.\n• Blocco: Variazioni 1'-2'-3'-4'-3'-2'-1' a ritmo sostenuto (${paces.intervalMedium}/km) con recupero pari tempo di corsa lenta.\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
+                    },
+                    {
+                        name: "Ripetute Lunghe (Potenza Aerobica)",
+                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta.\n• Blocco: 3 x 2000m a ${paces.intervalMedium}/km (Recupero 2'30\").\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
+                    }
+                ];
+
                 for (let w = 1; w <= weeksCount; w++) {
                     let weekKm = baseKm + (w * 2);
-                    if (w % 4 === 0) weekKm *= 0.8;
+                    if (w % 4 === 0) weekKm *= 0.8; // Settimana di scarico
 
                     let daysData = selectedDays.map((dayName, idx) => {
                         let isLong = (dayName === 'Domenica' || idx === selectedDays.length - 1);
-                        let isQuality = (dayName === 'Mercoledì' || idx === 1);
+                        let isQuality = (idx === qualityDayIndex && !isLong);
+                        
                         let sessionKm = Math.round(weekKm / selectedDays.length);
                         if (isLong) sessionKm = Math.round(weekKm * 0.35);
-                        if (isQuality) sessionKm = Math.round(weekKm * 0.25);
+                        if (isQuality) sessionKm = Math.round(weekKm * 0.30);
 
                         let title = "Corsa Lenta Rigenerante";
                         let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento (${paces.slow}/km).\n• Defaticamento: 5 min allungamento.`;
@@ -922,8 +949,10 @@
                             title = "Lungo Specifico (Metodo 9+1)";
                             desc = `• Modalità: Alterna 9 min corsa lenta (${paces.slow}/km) e 1 min camminata.\n• Distanza: ${sessionKm} km.`;
                         } else if (isQuality) {
-                            title = "Allenamento di Qualità: Ripetute";
-                            desc = `• Riscaldamento: 2 km corsa lenta.\n• Blocco: 4 x 1000m a ${paces.intervalFast}/km (Recupero 2 min).\n• Defaticamento: 1 km.`;
+                            // Seleziona un allenamento di qualità diverso ogni settimana dalla libreria
+                            let qWorkout = qualityWorkouts[(w - 1) % qualityWorkouts.length];
+                            title = `Qualità: ${qWorkout.name}`;
+                            desc = qWorkout.buildDesc(sessionKm, paces);
                         }
 
                         return {
@@ -1407,7 +1436,7 @@
                     return;
                 }
                 
-                DataRows = [];
+                let dataRows = [];
                 this.fullPlan.weeks.forEach(w => {
                     w.days.forEach(d => {
                         dataRows.push({
