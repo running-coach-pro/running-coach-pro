@@ -840,17 +840,22 @@
             calculatePaces() {
                 const raceType = document.getElementById('profile-race-type').value;
                 const targetInput = document.getElementById('profile-target-time').value;
+                const level = document.getElementById('profile-level').value;
                 let paceSec = 300;
 
                 if (raceType === '5k') paceSec = this.parseTimeToSeconds(targetInput) / 5;
                 else paceSec = this.parseTimeToSeconds(targetInput) / 10;
 
+                // Modificatore di sicurezza per i principianti o corporature robuste per evitare ritmi troppo tirati
+                let slowOffset = 75; // +1 minuto e 15 secondi per renderla realmente rigenerante e lenta
+                if (level === 'evoluto') slowOffset = 50;
+
                 return {
-                    slow: this.formatSecondsToPace(paceSec + 45),
+                    slow: this.formatSecondsToPace(paceSec + slowOffset), // Ritmo lento / rigenerante reale
                     race: this.formatSecondsToPace(paceSec),
                     intervalFast: this.formatSecondsToPace(paceSec - 15),
                     intervalMedium: this.formatSecondsToPace(paceSec - 5),
-                    intervalRec: this.formatSecondsToPace(paceSec + 30)
+                    intervalRec: this.formatSecondsToPace(paceSec + 40)
                 };
             }
 
@@ -892,40 +897,38 @@
                     trainDays: selectedDays
                 };
 
-                // Determina quale giorno tra quelli scelti sarà dedicato alla Qualità (il giorno centrale o il secondo)
                 let qualityDayIndex = Math.floor(selectedDays.length / 2);
                 if (selectedDays.length >= 3 && qualityDayIndex === 0) qualityDayIndex = 1;
 
                 let weeks = [];
                 let baseKm = 25;
 
-                // Libreria di allenamenti di qualità variati a rotazione
                 const qualityWorkouts = [
                     {
                         name: "Ripetute Brevi (Velocità)",
-                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta.\n• Blocco: 10 x 400m a ${paces.intervalFast}/km (Recupero 1'30\" da fermo o trotto).\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
+                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta (${paces.slow}/km).\n• Blocco: 10 x 400m a ${paces.intervalFast}/km (Recupero 1'30\" da fermo o trotto).\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
                     },
                     {
                         name: "Fartlek Strutturato",
-                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta.\n• Blocco: 8 x (1 min forte a ${paces.intervalFast}/km / 1 min lento).\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
+                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta (${paces.slow}/km).\n• Blocco: 8 x (1 min forte a ${paces.intervalFast}/km / 1 min lento a ${paces.slow}/km).\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
                     },
                     {
                         name: "Ripetute Medie (Soglia)",
-                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta.\n• Blocco: 4 x 1000m a ${paces.race}/km (Recupero 2 min).\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
+                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta (${paces.slow}/km).\n• Blocco: 4 x 1000m a ${paces.race}/km (Recupero 2 min in camminata/trotto).\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
                     },
                     {
                         name: "Fartlek Piramidale",
-                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta.\n• Blocco: Variazioni 1'-2'-3'-4'-3'-2'-1' a ritmo sostenuto (${paces.intervalMedium}/km) con recupero pari tempo di corsa lenta.\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
+                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta (${paces.slow}/km).\n• Blocco: Variazioni 1'-2'-3'-4'-3'-2'-1' a ritmo sostenuto (${paces.intervalMedium}/km) con recupero pari tempo di corsa lenta (${paces.slow}/km).\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
                     },
                     {
                         name: "Ripetute Lunghe (Potenza Aerobica)",
-                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta.\n• Blocco: 3 x 2000m a ${paces.intervalMedium}/km (Recupero 2'30\").\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
+                        buildDesc: (sessionKm, paces) => `• Riscaldamento: 2 km corsa lenta (${paces.slow}/km).\n• Blocco: 3 x 2000m a ${paces.intervalMedium}/km (Recupero 2'30\").\n• Defaticamento: 1 km (Totale sessione: ${sessionKm} km).`
                     }
                 ];
 
                 for (let w = 1; w <= weeksCount; w++) {
                     let weekKm = baseKm + (w * 2);
-                    if (w % 4 === 0) weekKm *= 0.8; // Settimana di scarico
+                    if (w % 4 === 0) weekKm *= 0.8;
 
                     let daysData = selectedDays.map((dayName, idx) => {
                         let isLong = (dayName === 'Domenica' || idx === selectedDays.length - 1);
@@ -936,7 +939,7 @@
                         if (isQuality) sessionKm = Math.round(weekKm * 0.30);
 
                         let title = "Corsa Lenta Rigenerante";
-                        let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento (${paces.slow}/km).\n• Defaticamento: 5 min allungamento.`;
+                        let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento/Rigenerante (${paces.slow}/km).\n• Defaticamento: 5 min allungamento.`;
                         
                         let defaultShoe = this.shoes[0] ? this.shoes[0].name : "Standard";
                         if (isLong && this.shoes.some(s => s.category && s.category.includes('Lungo'))) {
@@ -949,7 +952,6 @@
                             title = "Lungo Specifico (Metodo 9+1)";
                             desc = `• Modalità: Alterna 9 min corsa lenta (${paces.slow}/km) e 1 min camminata.\n• Distanza: ${sessionKm} km.`;
                         } else if (isQuality) {
-                            // Seleziona un allenamento di qualità diverso ogni settimana dalla libreria
                             let qWorkout = qualityWorkouts[(w - 1) % qualityWorkouts.length];
                             title = `Qualità: ${qWorkout.name}`;
                             desc = qWorkout.buildDesc(sessionKm, paces);
