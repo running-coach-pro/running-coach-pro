@@ -396,7 +396,7 @@
                 
                 <div id="agenda-info-box" class="hidden bg-slate-900 p-3 rounded-xl border border-amber-500/30 text-[11px] text-slate-300 space-y-2 leading-relaxed">
                     <p class="font-bold text-amber-400 uppercase tracking-wider text-[10px]">Logica Universale VIP</p>
-                    <p>Qualsiasi sia il tuo obiettivo principale (5k, 10k, Maratona o Ultra), l'Agenda Gare sostituisce i lunghi domenicali con la competizione e applica lo scarico preventivo automatico.</p>
+                    <p>Qualsiasi sia il tuo obiettivo principale (5k, 10k, Maratona o Ultra), l'Agenda Gare sostituisce i lunghi domenicali con la competizione e applica lo scarico preventivo automatico basato sulle date esatte.</p>
                 </div>
             </div>
 
@@ -463,7 +463,7 @@
                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Running Coach Pro – Designed by Jovy</p>
                 </div>
                 <div class="space-y-2 text-xs text-slate-300 bg-slate-900 p-3 rounded-xl border border-slate-700">
-                    <p>Sblocca distanze personalizzate, ultramaratone, agenda gare universale con sincronizzazione automatica dei carichi e report completi inserendo il codice segreto nelle impostazioni (⚙️).</p>
+                    <p>Sblocca distanze personalizzate, ultramaratone, agenda gare universale con sincronizzazione automatica dei carichi basata su date esatte e report completi inserendo il codice segreto nelle impostazioni (⚙️).</p>
                 </div>
                 <button type="button" onclick="app.closeVipInfoModal()" class="w-full py-2.5 bg-amber-500 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">
                     Ho capito 👍
@@ -797,6 +797,13 @@
                 };
             }
 
+            formatDateKey(d) {
+                let year = d.getFullYear();
+                let month = String(d.getMonth() + 1).padStart(2, '0');
+                let day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
             generatePlan() {
                 if (!document.getElementById('disclaimer-check').checked) {
                     alert("Per favore, accetta l'esonero di responsabilità.");
@@ -866,6 +873,7 @@
                 ];
 
                 let startDate = new Date(); startDate.setHours(0,0,0,0);
+                const dayNameToIndex = { 'Lunedì': 0, 'Martedì': 1, 'Mercoledì': 2, 'Giovedì': 3, 'Venerdì': 4, 'Sabato': 5, 'Domenica': 6 };
 
                 for (let w = 1; w <= weeksCount; w++) {
                     let weekKm = baseKm + (w * 2.5);
@@ -875,22 +883,35 @@
                     let maxInfrasettimanaleKm = Math.round(longSessionKm * 0.65);
                     if (age > 50) maxInfrasettimanaleKm = Math.min(maxInfrasettimanaleKm, 14);
 
-                    let weekStart = new Date(startDate); weekStart.setDate(startDate.getDate() + (w - 1) * 7);
-                    let weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
+                    // Calcolo del Lunedì della settimana w (ancoraggio preciso delle date)
+                    let firstWeekMonday = new Date(startDate);
+                    let dow = firstWeekMonday.getDay();
+                    let distToMon = dow === 0 ? -6 : 1 - dow;
+                    firstWeekMonday.setDate(firstWeekMonday.getDate() + distToMon + (w - 1) * 7);
 
-                    // Riconoscimento universale gara in agenda in questa settimana
-                    let matchedRace = this.races.find(r => {
+                    // Controllo preliminare se in questa settimana cade una gara in agenda
+                    let weekStart = new Date(firstWeekMonday);
+                    let weekEnd = new Date(firstWeekMonday); weekEnd.setDate(weekEnd.getDate() + 6);
+
+                    let hasRaceThisWeek = this.races.some(r => {
                         if (!r.date) return false;
                         let rDate = new Date(r.date);
                         return rDate >= weekStart && rDate <= weekEnd;
                     });
 
-                    let hasRaceThisWeek = !!matchedRace;
                     if (hasRaceThisWeek) {
-                        weekKm *= 0.85; // Scarico preventivo globale settimanale
+                        weekKm *= 0.80; // Scarico reale dei volumi settimanali in vista della gara
                     }
 
                     let daysData = selectedDays.map((dayName) => {
+                        let dayIndex = dayNameToIndex[dayName];
+                        let exactDayDate = new Date(firstWeekMonday);
+                        exactDayDate.setDate(firstWeekMonday.getDate() + dayIndex);
+                        let dateKey = this.formatDateKey(exactDayDate);
+
+                        // Controllo preventivo: verifica se in questa esatta data c'è una gara in agenda VIP
+                        let matchedRaceForDay = this.races.find(r => r.date === dateKey);
+
                         let isLong = (dayName === longDay);
                         let isQuality = (dayName === qualityDay);
                         
@@ -900,7 +921,7 @@
                         } else if (isQuality) {
                             sessionKm = Math.round(weekKm * 0.28);
                             if (hasRaceThisWeek) {
-                                sessionKm = Math.max(6, Math.round(sessionKm * 0.75));
+                                sessionKm = Math.max(5, Math.round(sessionKm * 0.70)); // Reale scarico pre-gara riducendo i km di qualità
                             }
                         } else {
                             sessionKm = Math.min(sessionKm, maxInfrasettimanaleKm);
@@ -917,27 +938,19 @@
                             defaultShoe = this.shoes.find(s => s.category.includes('Veloci')).name;
                         }
 
-                        // REGOLA UNIVERSALE 1: Sostituzione del lungo domenicale o del giorno gara con l'evento in agenda
-                        let isRaceDay = false;
-                        if (matchedRace) {
-                            let rDayName = this.getDayNameFromDate(matchedRace.date);
-                            if (dayName === rDayName || (isLong && dayName === 'Domenica')) {
-                                isRaceDay = true;
-                            }
-                        }
-
-                        if (isRaceDay) {
-                            let raceDistLabel = matchedRace.dist || "Gara";
-                            title = `🏅 Gara Ufficiale: ${matchedRace.name}`;
-                            let parsedRaceKm = parseFloat(matchedRace.dist) || sessionKm;
+                        // REGOLA FORZATA: Sostituzione assoluta se la data corrisponde a una gara in agenda
+                        if (matchedRaceForDay) {
+                            let raceDistLabel = matchedRaceForDay.dist || "Gara";
+                            title = `🏅 Gara in Programma: ${matchedRaceForDay.name}`;
+                            let parsedRaceKm = parseFloat(matchedRaceForDay.dist) || sessionKm;
                             sessionKm = isNaN(parsedRaceKm) ? sessionKm : parsedRaceKm;
-                            desc = `• Gara in Agenda Universale VIP (${matchedRace.name} - ${raceDistLabel}).\n• Sostituzione automatica del lungo: gestisci la competizione in autonomia senza doppiare i carichi.`;
+                            desc = `• Gara Ufficiale in Agenda VIP (${matchedRaceForDay.name} - ${raceDistLabel}).\n• Sostituzione forzata: nessun lungo di tabella pianificato in questa data. Gestisci la competizione in totale autonomia.`;
                         } else if (isLong) {
                             title = isUltra ? "Lungo Endurance Ultra (Metodo 9+1)" : "Lungo Specifico (Metodo 9+1)";
                             desc = `• Modalità Time on Feet: Alterna 9 min corsa lenta (${paces.slow}/km) e 1 min camminata.\n• Distanza Obiettivo: ${sessionKm} km (Focus su gestione idratazione e ristori).`;
                         } else if (isQuality) {
                             let qWorkout = qualityWorkouts[(w - 1) % qualityWorkouts.length];
-                            title = `Qualità (Scarico Pre-Gara): ${qWorkout.name}`;
+                            title = hasRaceThisWeek ? `Qualità (Scarico Pre-Gara): ${qWorkout.name}` : `Qualità: ${qWorkout.name}`;
                             desc = qWorkout.buildDesc(sessionKm, paces);
                         }
 
@@ -953,14 +966,7 @@
                 this.saveData();
                 this.renderDashboard();
                 this.showScreen('screen-dashboard');
-                alert("✨ Tabella generata con successo: Agenda Gare Universale e scarichi preventivi applicati!");
-            }
-
-            getDayNameFromDate(dateStr) {
-                if (!dateStr) return 'Domenica';
-                const d = new Date(dateStr);
-                const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
-                return days[d.getDay()];
+                alert("✨ Tabella generata con successo: Agenda Gare verificata per data e scarichi preventivi applicati!");
             }
 
             renderDashboard() {
