@@ -481,7 +481,7 @@
             <div class="space-y-3 leading-relaxed">
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-1.5">
                     <h4 class="font-bold text-emerald-400 uppercase tracking-wider text-[11px]">🎯 La Filosofia dell'App</h4>
-                    <p><strong>Running Coach Pro</strong> è il tuo assistente intelligente progettato per calcolare tabelle di allenamento specifiche in base ad età, peso, livello ed obiettivo (dai 5 km alle ultramaratone). L'algoritmo calcola i ritmi ideali (lento, gara, ripetute) e gestisce la rotazione delle scarpe.</p>
+                    <p><strong>Running Coach Pro</strong> è il tuo assistente intelligente progettato per calcolare tabelle di allenamento specifiche in base ad età, peso, livello ed obiettivo (dai 5 km alle ultramaratone). L'algoritmo calcola i ritmi ideali (lento, gara, ripetute), gestisce i carichi e la rotazione delle scarpe.</p>
                 </div>
 
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-1.5">
@@ -553,6 +553,13 @@
                             <input type="text" id="new-shoe-name" placeholder="Modello scarpa..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
                             <button type="button" onclick="app.analyzeShoeWithAI()" class="px-3 bg-amber-500 font-bold rounded-lg text-slate-950 cursor-pointer text-xs">✨ Analizza</button>
                         </div>
+                        
+                        <!-- CAMPO CHILOMETRI INIZIALI SCARPA -->
+                        <div>
+                            <label class="block text-[9px] uppercase text-slate-400 mb-1">Chilometri già percorsi (opzionale)</label>
+                            <input type="number" id="new-shoe-initial-km" value="0" placeholder="Es. 150" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                        </div>
+
                         <div id="ai-shoe-preview" class="hidden text-[10px] bg-slate-800 p-2 rounded-lg border border-amber-500/30 text-amber-300 space-y-1">
                             <div class="flex justify-between font-bold"><span id="ai-preview-category"></span><span id="ai-preview-maxkm"></span></div>
                             <p id="ai-preview-desc" class="text-slate-400 text-[9px]"></p>
@@ -1249,14 +1256,20 @@
             analyzeShoeWithAI() {
                 const nameInput = document.getElementById('new-shoe-name').value.trim();
                 if (!nameInput) { alert("Inserisci il nome della scarpa."); return; }
+                
+                let initialKm = parseFloat(document.getElementById('new-shoe-initial-km').value) || 0;
+
                 document.getElementById('ai-shoe-preview').classList.remove('hidden');
                 document.getElementById('ai-preview-category').innerText = "Analisi IA in corso... 🔄";
                 setTimeout(() => {
                     let cat = "Lungo / Massimo Ammortizzamento 🟢", max = 750, desc = "Ottima protezione ammortizzata.";
-                    if (nameInput.toLowerCase().includes('superblast')) { cat = "Lavori Veloci / Fartlek 🔵"; max = 600; desc = "Reattiva per ripetute."; }
-                    this.tempAnalyzedShoe = { name: nameInput, category: cat, km: 0, maxKm: max, description: desc };
+                    if (nameInput.toLowerCase().includes('superblast') || nameInput.toLowerCase().includes('neo')) { 
+                        cat = "Lavori Veloci / Fartlek 🔵"; max = 600; desc = "Reattiva per ripetute e ritmi medi."; 
+                    }
+                    this.tempAnalyzedShoe = { name: nameInput, category: cat, km: initialKm, maxKm: max, description: desc };
+                    
                     document.getElementById('ai-preview-category').innerText = `Categoria: ${cat}`;
-                    document.getElementById('ai-preview-maxkm').innerText = `Max: ${max} km`;
+                    document.getElementById('ai-preview-maxkm').innerText = `Max: ${max} km (Partenza: ${initialKm} km)`;
                     document.getElementById('ai-preview-desc').innerText = desc;
                     document.getElementById('btn-save-ai-shoe').classList.remove('hidden');
                 }, 600);
@@ -1267,6 +1280,7 @@
                 this.shoes.push(this.tempAnalyzedShoe);
                 this.tempAnalyzedShoe = null;
                 document.getElementById('new-shoe-name').value = '';
+                document.getElementById('new-shoe-initial-km').value = '0';
                 document.getElementById('ai-shoe-preview').classList.add('hidden');
                 document.getElementById('btn-save-ai-shoe').classList.add('hidden');
                 this.saveData();
