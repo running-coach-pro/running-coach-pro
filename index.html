@@ -187,12 +187,36 @@
                     <label class="block text-xs uppercase text-emerald-400 font-bold">Giorni di allenamento settimanali</label>
                     <div class="grid grid-cols-4 gap-1.5 text-xs">
                         <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="train-day" value="Lunedì" checked> <span>Lun</span></label>
-                        <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="train-day" value="Martedì"> <span>Mar</span></label>
+                        <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="train-day" value="Martedì" checked> <span>Mar</span></label>
                         <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="train-day" value="Mercoledì" checked> <span>Mer</span></label>
                         <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="train-day" value="Giovedì"> <span>Gio</span></label>
                         <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="train-day" value="Venerdì" checked> <span>Ven</span></label>
                         <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="train-day" value="Sabato"> <span>Sab</span></label>
-                        <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700 col-span-2"><input type="checkbox" name="train-day" value="Domenica" checked> <span>Domenica (Lungo)</span></label>
+                        <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700 col-span-2"><input type="checkbox" name="train-day" value="Domenica" checked> <span>Domenica</span></label>
+                    </div>
+                </div>
+
+                <!-- SELEZIONE PERSONALIZZATA GIORNO QUALITÀ E GIORNO LUNGO ⭐ VIP -->
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2.5">
+                    <span class="text-[10px] uppercase text-amber-400 font-bold block">⭐ Gestione Personalizzata Sedute Chiave</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1">Giorno di Qualità</label>
+                            <select id="profile-quality-day" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                                <option value="Mercoledì" selected>Mercoledì</option>
+                                <option value="Martedì">Martedì</option>
+                                <option value="Giovedì">Giovedì</option>
+                                <option value="Venerdì">Venerdì</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1">Giorno del Lungo</label>
+                            <select id="profile-long-day" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                                <option value="Domenica" selected>Domenica</option>
+                                <option value="Sabato">Sabato</option>
+                                <option value="Venerdì">Venerdì</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -735,9 +759,8 @@
                     paceSec = 330;
                 }
 
-                // Correttore basato sull'età per calibrare i ritmi rigeneranti in sicurezza
                 let slowOffset = 75;
-                if (age > 45) slowOffset = 90; // Maggiore margine rigenerante per atleti over 45
+                if (age > 45) slowOffset = 90; // Offset maggiore per atleti over 45 per garantire corsa rigenerante sicura
                 if (level === 'evoluto') slowOffset = 50;
 
                 return {
@@ -764,6 +787,14 @@
                 const selectedDays = Array.from(document.querySelectorAll('input[name="train-day"]:checked')).map(cb => cb.value);
                 if (selectedDays.length === 0) { alert("Seleziona almeno un giorno di allenamento!"); return; }
 
+                const qualityDay = document.getElementById('profile-quality-day').value;
+                const longDay = document.getElementById('profile-long-day').value;
+
+                if (!selectedDays.includes(qualityDay) || !selectedDays.includes(longDay)) {
+                    alert(`Attenzione: Il giorno di qualità (${qualityDay}) e il giorno del lungo (${longDay}) devono essere inclusi tra i giorni di allenamento selezionati!`);
+                    return;
+                }
+
                 const raceType = document.getElementById('profile-race-type').value;
                 let targetInput = document.getElementById('profile-target-time').value;
                 const age = parseInt(document.getElementById('profile-age').value) || 40;
@@ -775,7 +806,6 @@
                     baseKm = 35;
                 }
 
-                // Se l'atleta è pesante o over 50, calibriamo leggermente il volume iniziale per preservare le articolazioni
                 if (build === 'pesante' || age > 50) {
                     baseKm = Math.max(22, baseKm - 5);
                 }
@@ -792,11 +822,10 @@
                     raceType: raceType,
                     targetTime: targetInput,
                     weeksCount: weeksCount,
-                    trainDays: selectedDays
+                    trainDays: selectedDays,
+                    qualityDay: qualityDay,
+                    longDay: longDay
                 };
-
-                let qualityDayIndex = Math.floor(selectedDays.length / 2);
-                if (selectedDays.length >= 3 && qualityDayIndex === 0) qualityDayIndex = 1;
 
                 let weeks = [];
                 const qualityWorkouts = [
@@ -809,11 +838,11 @@
 
                 for (let w = 1; w <= weeksCount; w++) {
                     let weekKm = baseKm + (w * 2);
-                    if (w % 4 === 0) weekKm *= 0.8; // Settimana di scarico
+                    if (w % 4 === 0) weekKm *= 0.8;
 
-                    let daysData = selectedDays.map((dayName, idx) => {
-                        let isLong = (dayName === 'Domenica' || idx === selectedDays.length - 1);
-                        let isQuality = (idx === qualityDayIndex && !isLong);
+                    let daysData = selectedDays.map((dayName) => {
+                        let isLong = (dayName === longDay);
+                        let isQuality = (dayName === qualityDay);
                         
                         let sessionKm = Math.round(weekKm / selectedDays.length);
                         if (isLong) sessionKm = Math.round(weekKm * 0.35);
