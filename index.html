@@ -472,11 +472,46 @@
         </div>
 
         <!-- 6. SCHERMATA INFO -->
-        <div id="screen-info" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
+        <div id="screen-info" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto text-xs text-slate-300">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                 <h3 class="font-bold text-emerald-400 text-sm">📖 Come funziona Running Coach Pro</h3>
                 <button type="button" onclick="app.closeInfo()" class="text-slate-400 text-xs cursor-pointer">✕ Chiudi</button>
             </div>
+
+            <div class="space-y-3 leading-relaxed">
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-1.5">
+                    <h4 class="font-bold text-emerald-400 uppercase tracking-wider text-[11px]">🎯 La Filosofia dell'App</h4>
+                    <p><strong>Running Coach Pro</strong> è il tuo assistente intelligente progettato per calcolare tabelle di allenamento specifiche in base ad età, peso, livello ed obiettivo (dai 5 km alle ultramaratone). L'algoritmo calcola i ritmi ideali (lento, gara, ripetute) e gestisce la rotazione delle scarpe.</p>
+                </div>
+
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-1.5">
+                    <h4 class="font-bold text-emerald-400 uppercase tracking-wider text-[11px]">🟢 Versione Base (Free)</h4>
+                    <p>Ideale per chi inizia o si allena per distanze classiche:</p>
+                    <ul class="list-disc pl-4 space-y-1 text-slate-400">
+                        <li>Obiettivi standard: 5 km e 10 km.</li>
+                        <li>Durata tabelle: fino a 8 settimane.</li>
+                        <li>Gestione flessibile giornaliera (segna completato, salta/riposo, registra gara).</li>
+                        <li>Tracciamento chilometraggio scarpe e storico nel Cloud (Supabase).</li>
+                    </ul>
+                </div>
+
+                <div class="bg-slate-900 p-3 rounded-xl border border-amber-500/40 space-y-1.5">
+                    <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[11px]">⭐ Versione VIP & Beta (Avanzata)</h4>
+                    <p>Pensata per i runner più esigenti e per la gestione di competizioni multiple:</p>
+                    <ul class="list-disc pl-4 space-y-1 text-slate-400">
+                        <li><strong>Distanze e Obiettivi illimitati:</strong> Mezza Maratona (21.1 km), Maratona (42.2 km), distanze custom (es. 15km, 33km) e Ultramaratone a km o a tempo (6 ore, 12 ore, ecc.).</li>
+                        <li><strong>Agenda Gare Universale:</strong> Inserisci le tue gare in calendario con data esatta. L'app riconosce l'evento, sostituisce automaticamente il lungo domenicale con la gara ufficiale e applica uno scarico preventivo dei volumi nei giorni precedenti.</li>
+                        <li><strong>Personalizzazione Totale:</strong> Scelta libera dei giorni di qualità e dei lunghi, tabelle estese fino a 16 settimane.</li>
+                        <li><strong>Esportazione Report:</strong> Download della tabella ufficiale in formato PDF impaginato o foglio di calcolo Excel.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-1">
+                    <h4 class="font-bold text-emerald-400 uppercase tracking-wider text-[11px]">💡 Come sbloccare il profilo VIP</h4>
+                    <p>Vai nelle <strong>Impostazioni (⚙️)</strong> e inserisci il codice segreto fornito oppure invia una richiesta rapida tramite l'apposito bottone email.</p>
+                </div>
+            </div>
+
             <button type="button" onclick="app.closeInfo()" class="w-full py-2 bg-slate-700 font-bold rounded-xl text-white cursor-pointer mt-2">Torna alla Dashboard</button>
         </div>
 
@@ -883,13 +918,11 @@
                     let maxInfrasettimanaleKm = Math.round(longSessionKm * 0.65);
                     if (age > 50) maxInfrasettimanaleKm = Math.min(maxInfrasettimanaleKm, 14);
 
-                    // Calcolo del Lunedì della settimana w (ancoraggio preciso delle date)
                     let firstWeekMonday = new Date(startDate);
                     let dow = firstWeekMonday.getDay();
                     let distToMon = dow === 0 ? -6 : 1 - dow;
                     firstWeekMonday.setDate(firstWeekMonday.getDate() + distToMon + (w - 1) * 7);
 
-                    // Controllo preliminare se in questa settimana cade una gara in agenda
                     let weekStart = new Date(firstWeekMonday);
                     let weekEnd = new Date(firstWeekMonday); weekEnd.setDate(weekEnd.getDate() + 6);
 
@@ -900,7 +933,7 @@
                     });
 
                     if (hasRaceThisWeek) {
-                        weekKm *= 0.80; // Scarico reale dei volumi settimanali in vista della gara
+                        weekKm *= 0.80;
                     }
 
                     let daysData = selectedDays.map((dayName) => {
@@ -909,7 +942,6 @@
                         exactDayDate.setDate(firstWeekMonday.getDate() + dayIndex);
                         let dateKey = this.formatDateKey(exactDayDate);
 
-                        // Controllo preventivo: verifica se in questa esatta data c'è una gara in agenda VIP
                         let matchedRaceForDay = this.races.find(r => r.date === dateKey);
 
                         let isLong = (dayName === longDay);
@@ -921,7 +953,7 @@
                         } else if (isQuality) {
                             sessionKm = Math.round(weekKm * 0.28);
                             if (hasRaceThisWeek) {
-                                sessionKm = Math.max(5, Math.round(sessionKm * 0.70)); // Reale scarico pre-gara riducendo i km di qualità
+                                sessionKm = Math.max(5, Math.round(sessionKm * 0.70));
                             }
                         } else {
                             sessionKm = Math.min(sessionKm, maxInfrasettimanaleKm);
@@ -938,7 +970,6 @@
                             defaultShoe = this.shoes.find(s => s.category.includes('Veloci')).name;
                         }
 
-                        // REGOLA FORZATA: Sostituzione assoluta se la data corrisponde a una gara in agenda
                         if (matchedRaceForDay) {
                             let raceDistLabel = matchedRaceForDay.dist || "Gara";
                             title = `🏅 Gara in Programma: ${matchedRaceForDay.name}`;
