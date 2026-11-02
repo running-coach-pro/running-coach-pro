@@ -779,7 +779,7 @@
                     const customKm = parseFloat(document.getElementById('profile-custom-km-input').value) || 21;
                     paceSec = this.parseTimeToSeconds(targetInput) / customKm;
                 } else if (raceType === 'ultra_km' || raceType === 'ultra_time') {
-                    paceSec = 360; // Ritmo ultra di base (6'00"/km) confortevole e sostenibile
+                    paceSec = 360;
                 } else {
                     paceSec = 330;
                 }
@@ -826,14 +826,13 @@
                 const weight = parseFloat(document.getElementById('profile-weight').value) || 70;
                 const build = document.getElementById('profile-build').value;
                 
-                // Calibrazione base km e potenziamento lunghi per le Ultra
                 let baseKm = 25;
                 let isUltra = (raceType === 'ultra_km' || raceType === 'ultra_time');
                 
                 if (raceType === 'half' || raceType === 'marathon' || raceType === 'custom_km') {
                     baseKm = 35;
                 } else if (isUltra) {
-                    baseKm = 48; // Volumi settimanali robusti per l'ultramaratona
+                    baseKm = 48;
                 }
 
                 if (build === 'pesante' || age > 50) {
@@ -868,7 +867,15 @@
 
                 for (let w = 1; w <= weeksCount; w++) {
                     let weekKm = baseKm + (w * 2.5);
-                    if (w % 4 === 0) weekKm *= 0.8; // Scarico
+                    if (w % 4 === 0) weekKm *= 0.8;
+
+                    // 1. Prima calcoliamo la distanza del Lungo domenicale di riferimento per questa settimana
+                    let longSessionKm = isUltra ? Math.min(36, Math.round(weekKm * 0.42)) : Math.round(weekKm * 0.35);
+                    
+                    // Vincolo di proporzionalità rigorosa: il fondo lento infrasettimanale non supera il 65% del lungo
+                    let maxInfrasettimanaleKm = Math.round(longSessionKm * 0.65);
+                    // Coefficiente di protezione età (per master > 50 anni riduciamo ulteriormente di sicurezza il carico infrasettimanale)
+                    if (age > 50) maxInfrasettimanaleKm = Math.min(maxInfrasettimanaleKm, 14);
 
                     let daysData = selectedDays.map((dayName) => {
                         let isLong = (dayName === longDay);
@@ -876,10 +883,14 @@
                         
                         let sessionKm = Math.round(weekKm / selectedDays.length);
                         if (isLong) {
-                            // Per le Ultra, il lungo è la pietra miliare: scala generosamente fino a 30-34+ km
-                            sessionKm = isUltra ? Math.min(36, Math.round(weekKm * 0.42)) : Math.round(weekKm * 0.35);
+                            sessionKm = longSessionKm;
+                        } else if (isQuality) {
+                            sessionKm = Math.round(weekKm * 0.28);
+                        } else {
+                            // Seduta di fondo lento infrasettimanale: applichiamo il vincolo di proporzionalità al 65% del lungo
+                            sessionKm = Math.min(sessionKm, maxInfrasettimanaleKm);
+                            sessionKm = Math.max(8, sessionkm = sessionKm); // Minimo di attivazione sensata
                         }
-                        if (isQuality) sessionKm = Math.round(weekKm * 0.28);
 
                         let title = "Corsa Lenta Rigenerante";
                         let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento/Rigenerante (${paces.slow}/km).\n• Defaticamento: 5 min allungamento.`;
@@ -903,7 +914,9 @@
                         return { day: dayName, title: title, km: sessionKm, instructions: desc, completed: false, skipped: false, shoe: defaultShoe, notes: "" };
                     });
 
-                    weeks.push({ weekNumber: w, totalKm: Math.round(weekKm), days: daysData });
+                    // Ricalcoliamo il totale effettivo della settimana sommando le sedute non saltate
+                    let actualWeekKm = daysData.reduce((acc, d) => acc + d.km, 0);
+                    weeks.push({ weekNumber: w, totalKm: actualWeekKm, days: daysData });
                 }
 
                 this.fullPlan = { weeks: weeks };
@@ -1266,7 +1279,7 @@
             exportCompleteExcel() {
                 if (!this.profile.is_vip) { alert("⭐ Esportazione riservata agli account VIP."); return; }
                 let rows = [];
-                this.fullPlan.weeks.weeks.forEach(w => w.days.forEach(d => rows.push({ Settimana: w.weekNumber, Giorno: d.day, Allenamento: d.title, Km: d.km, Scarpa: d.shoe })));
+                this.fullPlan.weeks.forEach(w => w.days.forEach(d => rows.push({ Settimana: w.weekNumber, Giorno: d.day, Allenamento: d.title, Km: d.km, Scarpa: d.shoe })));
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), "Allenamenti");
                 XLSX.writeFile(wb, "Running_Coach_Pro_Report.xlsx");
