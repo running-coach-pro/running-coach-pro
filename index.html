@@ -146,7 +146,6 @@
                         <input type="text" id="profile-target-time" value="50:00" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
                     </div>
 
-                    <!-- CAMPO DISTANZA PERSONALIZZATA VIP -->
                     <div id="field-custom-goal-km" class="hidden">
                         <label class="block text-[10px] uppercase text-amber-400 mb-1 font-bold">Km Gara Specifica (es. 15, 18, 25, 33)</label>
                         <input type="number" step="0.5" id="profile-custom-km-input" value="25" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
@@ -657,8 +656,6 @@
 
             handleRaceTypeChange() {
                 const raceType = document.getElementById('profile-race-type').value;
-                
-                // Protezione VIP per distanze avanzate e personalizzate
                 if (!this.profile.is_vip && raceType !== '5k' && raceType !== '10k') {
                     alert("⭐ Questa distanza personalizzata o avanzata è riservata agli account VIP.");
                     document.getElementById('profile-race-type').value = '10k';
@@ -730,7 +727,7 @@
                     const customKm = parseFloat(document.getElementById('profile-custom-km-input').value) || 21;
                     paceSec = this.parseTimeToSeconds(targetInput) / customKm;
                 } else {
-                    paceSec = 330; // Default ultra
+                    paceSec = 330;
                 }
 
                 let slowOffset = 75;
@@ -763,7 +760,6 @@
                 const raceType = document.getElementById('profile-race-type').value;
                 let targetInput = document.getElementById('profile-target-time').value;
                 
-                // Gestione specifica chilometri base di partenza in base all'obiettivo scelto
                 let baseKm = 25;
                 if (raceType === 'half' || raceType === 'marathon' || raceType === 'custom_km' || raceType === 'ultra_km') {
                     baseKm = 35;
@@ -1072,16 +1068,68 @@
 
             exportCompletePDF() {
                 if (!this.profile.is_vip) { alert("⭐ Esportazione riservata agli account VIP."); return; }
+                if (!this.fullPlan || !this.fullPlan.weeks) { alert("Nessun programma da esportare."); return; }
+
                 const container = document.createElement('div');
-                container.style.padding = "20px"; container.style.background = "#fff"; container.style.color = "#000";
-                let html = `<h1 style="color:#065f46">Running Coach Pro - Obiettivo: ${this.profile.raceType.toUpperCase()}</h1>`;
+                container.style.padding = "20px";
+                container.style.fontFamily = "Arial, sans-serif";
+                container.style.color = "#000";
+                container.style.background = "#fff";
+
+                let htmlContent = `
+                    <div style="text-align: center; border-bottom: 2px solid #334155; padding-bottom: 12px; margin-bottom: 20px;">
+                        <h1 style="color: #0f172a; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px;">RUNNING COACH PRO</h1>
+                        <p style="font-size: 9px; color: #64748b; font-weight: bold; text-transform: uppercase; margin: 4px 0;">Running Coach Pro – Designed by Jovy</p>
+                        <h2 style="color: #334155; font-size: 14px; margin: 4px 0;">Programma di Allenamento Ufficiale</h2>
+                        <p style="font-size: 11px; margin: 3px 0; color: #475569;"><strong>Obiettivo:</strong> ${this.profile.raceType ? this.profile.raceType.toUpperCase() : 'PERSONALIZZATO'} | <strong>Livello:</strong> ${this.profile.level || 'N/D'}</p>
+                    </div>
+                `;
+
                 this.fullPlan.weeks.forEach(w => {
-                    html += `<h3>Settimana ${w.weekNumber} (${w.totalKm} km)</h3><ul>`;
-                    w.days.forEach(d => { html += `<li><strong>${d.day}</strong>: ${d.title} (${d.km} km)</li>`; });
-                    html += `</ul>`;
+                    htmlContent += `
+                        <div style="margin-bottom: 18px; page-break-inside: avoid;">
+                            <h3 style="background: #e2e8f0; color: #0f172a; padding: 6px 10px; font-size: 13px; margin: 0 0 6px 0; border-radius: 3px; border-left: 4px solid #059669;">Settimana ${w.weekNumber} (Km Totali: ${w.totalKm} km)</h3>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                                <thead>
+                                    <tr style="background: #f8fafc; border-bottom: 2px solid #cbd5e1;">
+                                        <th style="padding: 6px; text-align: left; width: 16%; color: #334155;">Giorno</th>
+                                        <th style="padding: 6px; text-align: left; width: 44%; color: #334155;">Allenamento</th>
+                                        <th style="padding: 6px; text-align: center; width: 15%; color: #334155;">Km</th>
+                                        <th style="padding: 6px; text-align: left; width: 25%; color: #334155;">Scarpa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+
+                    w.days.forEach(d => {
+                        htmlContent += `
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 6px; font-weight: bold; vertical-align: top; color: #0f172a;">${d.day}</td>
+                                <td style="padding: 6px; vertical-align: top;"><strong style="color: #0f172a;">${d.title}</strong><br><span style="font-size: 9px; color: #475569; white-space: pre-line; line-height: 1.3;">${d.instructions}</span></td>
+                                <td style="padding: 6px; text-align: center; font-weight: bold; vertical-align: top; color: #059669;">${d.km} km</td>
+                                <td style="padding: 6px; font-size: 9px; color: #64748b; vertical-align: top;">${d.shoe}</td>
+                            </tr>
+                        `;
+                    });
+
+                    htmlContent += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
                 });
-                container.innerHTML = html;
-                html2pdf().from(container).set({ filename: 'Running_Coach_Pro_Tabella.pdf' }).save();
+
+                container.innerHTML = htmlContent;
+
+                const opt = {
+                    margin:       10,
+                    filename:     'Running_Coach_Pro_Tabella_Ufficiale.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().from(container).set(opt).save();
             }
 
             exportCompleteExcel() {
