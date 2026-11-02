@@ -94,7 +94,7 @@
             </div>
             
             <div class="bg-slate-800 p-4 rounded-2xl space-y-3 border border-slate-700">
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-3 gap-2">
                     <div>
                         <label class="block text-xs uppercase text-slate-400 mb-1">Genere</label>
                         <select id="profile-gender" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs">
@@ -103,8 +103,12 @@
                         </select>
                     </div>
                     <div>
+                        <label class="block text-xs uppercase text-slate-400 mb-1">Età</label>
+                        <input type="number" id="profile-age" value="53" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs font-bold text-center">
+                    </div>
+                    <div>
                         <label class="block text-xs uppercase text-slate-400 mb-1">Peso (kg)</label>
-                        <input type="number" id="profile-weight" value="70" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs">
+                        <input type="number" id="profile-weight" value="85" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs font-bold text-center">
                     </div>
                 </div>
 
@@ -113,15 +117,15 @@
                         <label class="block text-xs uppercase text-slate-400 mb-1">Struttura</label>
                         <select id="profile-build" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs">
                             <option value="leggero">Leggero</option>
-                            <option value="medio" selected>Medio Spessore</option>
-                            <option value="pesante">Pesante</option>
+                            <option value="medio">Medio Spessore</option>
+                            <option value="pesante" selected>Pesante</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs uppercase text-slate-400 mb-1">Livello</label>
                         <select id="profile-level" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs">
-                            <option value="principiante">Principiante</option>
-                            <option value="intermedio" selected>Intermedio</option>
+                            <option value="principiante" selected>Principiante</option>
+                            <option value="intermedio">Intermedio</option>
                             <option value="evoluto">Evoluto</option>
                         </select>
                     </div>
@@ -195,7 +199,7 @@
                 <!-- BOX DISCLAIMER ESONERO RESPONSABILITÀ -->
                 <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 space-y-2">
                     <p class="text-[10px] text-slate-400 leading-relaxed text-justify">
-                        <strong class="text-amber-400">Note e Esonero di Responsabilità:</strong> Le tabelle generate da <strong class="text-white">Running Coach Pro</strong> sono puramente indicative. Si raccomanda caldamente un consulto medico sportivo preventivo.
+                        <strong class="text-amber-400">Note e Esonero di Responsabilità:</strong> Le tabelle generate da <strong class="text-white">Running Coach Pro</strong> sono puramente indicative in base ad età, peso e livello. Si raccomanda consulto medico preventivo.
                     </p>
                     <label class="flex items-start space-x-2 pt-1 cursor-pointer">
                         <input type="checkbox" id="disclaimer-check" class="mt-0.5 rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0">
@@ -717,6 +721,7 @@
                 const raceType = document.getElementById('profile-race-type').value;
                 const targetInput = document.getElementById('profile-target-time').value;
                 const level = document.getElementById('profile-level').value;
+                const age = parseInt(document.getElementById('profile-age').value) || 40;
                 let paceSec = 300;
 
                 if (raceType === '5k') paceSec = this.parseTimeToSeconds(targetInput) / 5;
@@ -730,7 +735,9 @@
                     paceSec = 330;
                 }
 
+                // Correttore basato sull'età per calibrare i ritmi rigeneranti in sicurezza
                 let slowOffset = 75;
+                if (age > 45) slowOffset = 90; // Maggiore margine rigenerante per atleti over 45
                 if (level === 'evoluto') slowOffset = 50;
 
                 return {
@@ -759,10 +766,18 @@
 
                 const raceType = document.getElementById('profile-race-type').value;
                 let targetInput = document.getElementById('profile-target-time').value;
+                const age = parseInt(document.getElementById('profile-age').value) || 40;
+                const weight = parseFloat(document.getElementById('profile-weight').value) || 70;
+                const build = document.getElementById('profile-build').value;
                 
                 let baseKm = 25;
                 if (raceType === 'half' || raceType === 'marathon' || raceType === 'custom_km' || raceType === 'ultra_km') {
                     baseKm = 35;
+                }
+
+                // Se l'atleta è pesante o over 50, calibriamo leggermente il volume iniziale per preservare le articolazioni
+                if (build === 'pesante' || age > 50) {
+                    baseKm = Math.max(22, baseKm - 5);
                 }
 
                 const paces = this.calculatePaces();
@@ -770,8 +785,9 @@
                 this.profile = {
                     ...this.profile,
                     gender: document.getElementById('profile-gender').value,
-                    weight: document.getElementById('profile-weight').value,
-                    build: document.getElementById('profile-build').value,
+                    age: age,
+                    weight: weight,
+                    build: build,
                     level: document.getElementById('profile-level').value,
                     raceType: raceType,
                     targetTime: targetInput,
@@ -793,7 +809,7 @@
 
                 for (let w = 1; w <= weeksCount; w++) {
                     let weekKm = baseKm + (w * 2);
-                    if (w % 4 === 0) weekKm *= 0.8;
+                    if (w % 4 === 0) weekKm *= 0.8; // Settimana di scarico
 
                     let daysData = selectedDays.map((dayName, idx) => {
                         let isLong = (dayName === 'Domenica' || idx === selectedDays.length - 1);
@@ -836,7 +852,7 @@
             }
 
             renderDashboard() {
-                document.getElementById('user-display').innerText = `${this.profile.raceType ? this.profile.raceType.toUpperCase() : 'ATLETA'} - ${this.profile.level || ''}`;
+                document.getElementById('user-display').innerText = `${this.profile.raceType ? this.profile.raceType.toUpperCase() : 'ATLETA'} - ${this.profile.age || ''} anni`;
                 document.getElementById('dashboard-avatar').src = this.avatarUrl;
                 
                 const tierBadge = document.getElementById('user-tier-badge');
@@ -1081,7 +1097,7 @@
                         <h1 style="color: #0f172a; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px;">RUNNING COACH PRO</h1>
                         <p style="font-size: 9px; color: #64748b; font-weight: bold; text-transform: uppercase; margin: 4px 0;">Running Coach Pro – Designed by Jovy</p>
                         <h2 style="color: #334155; font-size: 14px; margin: 4px 0;">Programma di Allenamento Ufficiale</h2>
-                        <p style="font-size: 11px; margin: 3px 0; color: #475569;"><strong>Obiettivo:</strong> ${this.profile.raceType ? this.profile.raceType.toUpperCase() : 'PERSONALIZZATO'} | <strong>Livello:</strong> ${this.profile.level || 'N/D'}</p>
+                        <p style="font-size: 11px; margin: 3px 0; color: #475569;"><strong>Obiettivo:</strong> ${this.profile.raceType ? this.profile.raceType.toUpperCase() : 'PERSONALIZZATO'} | <strong>Età:</strong> ${this.profile.age || 'N/D'} anni | <strong>Livello:</strong> ${this.profile.level || 'N/D'}</p>
                     </div>
                 `;
 
