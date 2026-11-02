@@ -869,12 +869,11 @@
                     let weekKm = baseKm + (w * 2.5);
                     if (w % 4 === 0) weekKm *= 0.8;
 
-                    // 1. Prima calcoliamo la distanza del Lungo domenicale di riferimento per questa settimana
+                    // 1. Calcoliamo la distanza del Lungo domenicale di riferimento per questa settimana
                     let longSessionKm = isUltra ? Math.min(36, Math.round(weekKm * 0.42)) : Math.round(weekKm * 0.35);
                     
                     // Vincolo di proporzionalità rigorosa: il fondo lento infrasettimanale non supera il 65% del lungo
                     let maxInfrasettimanaleKm = Math.round(longSessionKm * 0.65);
-                    // Coefficiente di protezione età (per master > 50 anni riduciamo ulteriormente di sicurezza il carico infrasettimanale)
                     if (age > 50) maxInfrasettimanaleKm = Math.min(maxInfrasettimanaleKm, 14);
 
                     let daysData = selectedDays.map((dayName) => {
@@ -889,7 +888,7 @@
                         } else {
                             // Seduta di fondo lento infrasettimanale: applichiamo il vincolo di proporzionalità al 65% del lungo
                             sessionKm = Math.min(sessionKm, maxInfrasettimanaleKm);
-                            sessionKm = Math.max(8, sessionkm = sessionKm); // Minimo di attivazione sensata
+                            sessionKm = Math.max(8, sessionKm); // Minimo di attivazione sensata
                         }
 
                         let title = "Corsa Lenta Rigenerante";
@@ -914,7 +913,6 @@
                         return { day: dayName, title: title, km: sessionKm, instructions: desc, completed: false, skipped: false, shoe: defaultShoe, notes: "" };
                     });
 
-                    // Ricalcoliamo il totale effettivo della settimana sommando le sedute non saltate
                     let actualWeekKm = daysData.reduce((acc, d) => acc + d.km, 0);
                     weeks.push({ weekNumber: w, totalKm: actualWeekKm, days: daysData });
                 }
