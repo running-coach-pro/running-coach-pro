@@ -800,6 +800,8 @@
             }
 
             formatSecondsToPace(secPerKm) {
+                // Blocco di sicurezza anti-bug: impedisce valori inferiori a 2'30"/km o negativi
+                if (isNaN(secPerKm) || secPerKm < 150) secPerKm = 300; 
                 let mins = Math.floor(secPerKm / 60);
                 let secs = Math.round(secPerKm % 60);
                 return `${mins}'${secs < 10 ? '0' : ''}${secs}"/km`;
@@ -810,6 +812,7 @@
                 const targetInput = document.getElementById('profile-target-time').value;
                 const level = document.getElementById('profile-level').value;
                 const age = parseInt(document.getElementById('profile-age').value) || 40;
+                const build = document.getElementById('profile-build').value;
                 let paceSec = 300;
 
                 if (raceType === '5k') paceSec = this.parseTimeToSeconds(targetInput) / 5;
@@ -827,13 +830,14 @@
 
                 let slowOffset = 75;
                 if (age > 45) slowOffset = 90;
-                if (level === 'evoluto') slowOffset = 50;
+                if (build === 'pesante') slowOffset += 10;
+                if (level === 'evoluto') slowOffset = 45;
 
                 return {
                     slow: this.formatSecondsToPace(paceSec + slowOffset),
                     race: this.formatSecondsToPace(paceSec),
-                    intervalFast: this.formatSecondsToPace(paceSec - 15),
-                    intervalMedium: this.formatSecondsToPace(paceSec - 5),
+                    intervalFast: this.formatSecondsToPace(Math.max(180, paceSec - 15)),
+                    intervalMedium: this.formatSecondsToPace(Math.max(200, paceSec - 5)),
                     intervalRec: this.formatSecondsToPace(paceSec + 40)
                 };
             }
@@ -1195,7 +1199,7 @@
             dropPlan() { if (confirm("Vuoi cambiare obiettivo?")) { this.fullPlan = null; this.saveData(); this.showScreen('screen-onboarding'); } }
 
             openRaces() {
-                if (!this.profile.is_vip) { alert("⭐ L'Agenda Gare è riservata agli utenti VIP."); return; }
+                if (!this.profile.is_vip) { alert("⭐ L'Agenda Gare è riservata agli account VIP."); return; }
                 this.renderRacesList(); this.showScreen('screen-races');
             }
             closeRaces() { this.showScreen('screen-dashboard'); }
