@@ -571,7 +571,7 @@
         </footer>
     </div>
 
-    <!-- LOGICA APPLICAZIONE CON DATA GARA E CALCOLO SETTIMANE -->
+    <!-- LOGICA APPLICAZIONE CON VOLUMI E QUALITÀ BILANCIATI -->
     <script>
         const SUPABASE_URL = "https://eaxqmxtgogzadwmbjzil.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_0_YjpPPK8om98MQGjtK-6g_KZqYxz8K";
@@ -890,17 +890,18 @@
                 const weight = parseFloat(document.getElementById('profile-weight').value) || 70;
                 const build = document.getElementById('profile-build').value;
                 
-                let baseKm = 25;
+                // --- MODIFICA: BASE CHILOMETRICA PIÙ UMANA E SOSTENIBILE ---
+                let baseKm = 22;
                 let isUltra = (raceType === 'ultra_km' || raceType === 'ultra_time');
                 
                 if (raceType === 'half' || raceType === 'marathon' || raceType === 'custom_km') {
-                    baseKm = 35;
+                    baseKm = 28;
                 } else if (isUltra) {
-                    baseKm = 48;
+                    baseKm = 35;
                 }
 
                 if (build === 'pesante' || age > 50) {
-                    if (!isUltra) baseKm = Math.max(22, baseKm - 5);
+                    if (!isUltra) baseKm = Math.max(20, baseKm - 4);
                 }
 
                 const paces = this.calculatePaces();
@@ -922,23 +923,23 @@
 
                 let weeks = [];
                 const qualityWorkouts = [
-                    { name: "Ripetute Brevi (Velocità)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 10 x 400m a ${p.intervalFast}/km (Recupero 1'30" camminata).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Fartlek Strutturato", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 8 x (1 min forte a ${p.intervalFast}/km / 1 min lento a ${p.slow}/km).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Ripetute Medie (Soglia)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 4 x 1000m a ${p.race}/km (Recupero 2 min attivo).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Fartlek Piramidale", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: Variazioni 1'-2'-3'-4'-3'-2'-1' a ritmo sostenuto (${p.intervalMedium}/km).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Ripetute Lunghe", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 3 x 2000m a ${p.intervalMedium}/km (Recupero 2'30" recupero attivo).\n• Defaticamento: 1 km (Totale: ${sKm} km).` }
+                    { name: "Ripetute Brevi (Velocità)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 8 x 400m a ${p.intervalFast}/km (Recupero 1'30" camminata).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Fartlek Strutturato", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 6 x (1 min forte a ${p.intervalFast}/km / 1 min lento a ${p.slow}/km).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Ripetute Medie (Soglia)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 3 x 1000m a ${p.race}/km (Recupero 2 min attivo).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Fartlek Piramidale", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: Variazioni 1'-2'-3'-2'-1' a ritmo sostenuto (${p.intervalMedium}/km).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Ripetute Lunghe", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 2 x 2000m a ${p.intervalMedium}/km (Recupero 2'30" recupero attivo).\n• Defaticamento: 1 km (Totale: ${sKm} km).` }
                 ];
 
                 let startDate = new Date(); startDate.setHours(0,0,0,0);
                 const dayNameToIndex = { 'Lunedì': 0, 'Martedì': 1, 'Mercoledì': 2, 'Giovedì': 3, 'Venerdì': 4, 'Sabato': 5, 'Domenica': 6 };
 
                 for (let w = 1; w <= weeksCount; w++) {
-                    let weekKm = baseKm + (w * 2.5);
-                    if (w % 4 === 0) weekKm *= 0.8;
+                    // --- CURVA DI CRESCITA DOLCE (1.5 km a settimana invece di 2.5) ---
+                    let weekKm = baseKm + (w * 1.5);
+                    if (w % 4 === 0) weekKm *= 0.8; // Scarico
 
-                    let longSessionKm = isUltra ? Math.min(36, Math.round(weekKm * 0.42)) : Math.round(weekKm * 0.35);
-                    let maxInfrasettimanaleKm = Math.round(longSessionKm * 0.65);
-                    if (age > 50) maxInfrasettimanaleKm = Math.min(maxInfrasettimanaleKm, 14);
+                    let longSessionKm = isUltra ? Math.min(28, Math.round(weekKm * 0.38)) : Math.min(22, Math.round(weekKm * 0.32));
+                    let maxInfrasettimanaleKm = Math.min(10, Math.round(longSessionKm * 0.55)); // Massimo 10 km in settimana per preservare i tendini
 
                     let firstWeekMonday = new Date(startDate);
                     let dow = firstWeekMonday.getDay();
@@ -973,13 +974,13 @@
                         if (isLong) {
                             sessionKm = longSessionKm;
                         } else if (isQuality) {
-                            sessionKm = Math.round(weekKm * 0.28);
+                            sessionKm = Math.min(12, Math.round(weekKm * 0.28)); // Lavori di qualità protetti e mai sopra i 12 km
                             if (hasRaceThisWeek) {
                                 sessionKm = Math.max(5, Math.round(sessionKm * 0.70));
                             }
                         } else {
                             sessionKm = Math.min(sessionKm, maxInfrasettimanaleKm);
-                            sessionKm = Math.max(8, sessionKm);
+                            sessionKm = Math.max(7, sessionKm); // Corsa lenta rigenerante umana (7-10 km)
                         }
 
                         let title = "Corsa Lenta Rigenerante (Fondo Lento)";
@@ -1019,7 +1020,7 @@
                 this.saveData();
                 this.renderDashboard();
                 this.showScreen('screen-dashboard');
-                alert(`✨ Tabella generata con successo (${weeksCount} settimane calcolate) in base ai principi fisiologici!`);
+                alert(`✨ Tabella generata con successo (${weeksCount} settimane, volumi bilanciati e sostenibili)!`);
             }
 
             renderDashboard() {
