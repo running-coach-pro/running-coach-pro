@@ -185,16 +185,23 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-[10px] uppercase text-slate-400 mb-1 mt-2">Durata Tabella (Settimane)</label>
-                        <select id="profile-weeks" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
-                            <option value="4">4 Settimane (Base 🟢)</option>
-                            <option value="6" selected>6 Settimane (Base 🟢)</option>
-                            <option value="8">8 Settimane (Base 🟢)</option>
-                            <option value="10">10 Settimane ⭐ VIP</option>
-                            <option value="12">12 Settimane ⭐ VIP</option>
-                            <option value="16">16 Settimane ⭐ VIP</option>
-                        </select>
+                    <!-- DURATA TABELLA & DATA GARA OBIETTIVO ⭐ VIP -->
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+                        <div>
+                            <label class="block text-[10px] uppercase text-slate-400 mb-1">Durata Standard (Settimane)</label>
+                            <select id="profile-weeks" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
+                                <option value="4">4 Settimane (Base 🟢)</option>
+                                <option value="6" selected>6 Settimane (Base 🟢)</option>
+                                <option value="8">8 Settimane (Base 🟢)</option>
+                                <option value="10">10 Settimane ⭐ VIP</option>
+                                <option value="12">12 Settimane ⭐ VIP</option>
+                                <option value="16">16 Settimane ⭐ VIP</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase text-amber-400 mb-1 font-bold">Data Gara Obiettivo ⭐</label>
+                            <input type="date" id="profile-race-target-date" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                        </div>
                     </div>
                 </div>
 
@@ -564,7 +571,7 @@
         </footer>
     </div>
 
-    <!-- LOGICA APPLICAZIONE CON ORE/MINUTI A FRECCETTE E MOTORE FISIOLOGICO -->
+    <!-- LOGICA APPLICAZIONE CON DATA GARA E CALCOLO SETTIMANE -->
     <script>
         const SUPABASE_URL = "https://eaxqmxtgogzadwmbjzil.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_0_YjpPPK8om98MQGjtK-6g_KZqYxz8K";
@@ -838,7 +845,26 @@
                     return;
                 }
 
-                const weeksCount = parseInt(document.getElementById('profile-weeks').value) || 6;
+                let weeksCount = parseInt(document.getElementById('profile-weeks').value) || 6;
+                const targetDateInput = document.getElementById('profile-race-target-date').value;
+
+                if (targetDateInput) {
+                    if (!this.profile.is_vip) {
+                        alert("⭐ Il calcolo automatico basato sulla data della gara è una funzione VIP.");
+                    } else {
+                        let raceDate = new Date(targetDateInput);
+                        let today = new Date(); today.setHours(0,0,0,0);
+                        let diffTime = raceDate - today;
+                        let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        let calculatedWeeks = Math.floor(diffDays / 7);
+                        if (calculatedWeeks > 0) {
+                            weeksCount = Math.min(24, Math.max(2, calculatedWeeks));
+                        } else {
+                            alert("⚠️ La data della gara selezionata è già passata o troppo vicina! Verrà usata la durata standard.");
+                        }
+                    }
+                }
+
                 if (!this.profile.is_vip && weeksCount > 8) {
                     alert("⭐ Le tabelle superiori a 8 settimane sono riservate agli account VIP.");
                     return;
@@ -993,7 +1019,7 @@
                 this.saveData();
                 this.renderDashboard();
                 this.showScreen('screen-dashboard');
-                alert("✨ Tabella generata con successo secondo i principi fisiologici corretti!");
+                alert(`✨ Tabella generata con successo (${weeksCount} settimane calcolate) in base ai principi fisiologici!`);
             }
 
             renderDashboard() {
