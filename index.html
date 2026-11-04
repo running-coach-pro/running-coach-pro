@@ -145,9 +145,19 @@
                 </div>
 
                 <div id="dynamic-goal-container" class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
-                    <div id="field-time-target">
-                        <label id="label-time-target" class="block text-[10px] uppercase text-slate-400 mb-1">Tempo Obiettivo (es. 50:00 o 1:45:00)</label>
-                        <input type="text" id="profile-target-time" value="50:00" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                    <!-- TEMPO OBIETTIVO CON FRECCETTE (ORE / MINUTI) -->
+                    <div id="field-time-target" class="space-y-1">
+                        <label id="label-time-target" class="block text-[10px] uppercase text-slate-400 mb-1">Tempo Obiettivo</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center space-x-1 bg-slate-800 p-2 rounded-lg border border-slate-700">
+                                <input type="number" id="target-hours" value="0" min="0" max="24" class="w-full bg-transparent text-white text-xs font-bold text-center">
+                                <span class="text-[10px] text-slate-400">ore</span>
+                            </div>
+                            <div class="flex items-center space-x-1 bg-slate-800 p-2 rounded-lg border border-slate-700">
+                                <input type="number" id="target-minutes" value="50" min="0" max="59" class="w-full bg-transparent text-white text-xs font-bold text-center">
+                                <span class="text-[10px] text-slate-400">min</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="field-custom-goal-km" class="hidden">
@@ -481,7 +491,7 @@
             <div class="space-y-3 leading-relaxed">
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-1.5">
                     <h4 class="font-bold text-emerald-400 uppercase tracking-wider text-[11px]">🎯 La Filosofia dell'App</h4>
-                    <p><strong>Running Coach Pro</strong> applica la manipolazione scientifica di volume e intensità (Periodizzazione, Fondo Lento in Zona 2, Ripetute e Lungus) in base ad età, peso, struttura e livello.</p>
+                    <p><strong>Running Coach Pro</strong> applica la manipolazione scientifica di volume e intensità (Periodizzazione, Fondo Lento in Zona 2, Ripetute e Lunghi) in base ad età, peso, struttura e livello.</p>
                 </div>
 
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-1.5">
@@ -554,7 +564,7 @@
         </footer>
     </div>
 
-    <!-- LOGICA APPLICAZIONE CON MOTORE FISIOLOGICO CORRETTO -->
+    <!-- LOGICA APPLICAZIONE CON ORE/MINUTI A FRECCETTE E MOTORE FISIOLOGICO -->
     <script>
         const SUPABASE_URL = "https://eaxqmxtgogzadwmbjzil.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_0_YjpPPK8om98MQGjtK-6g_KZqYxz8K";
@@ -740,7 +750,7 @@
 
                 if (raceType === '5k' || raceType === '10k' || raceType === 'half' || raceType === 'marathon') {
                     fieldTime.classList.remove('hidden');
-                    labelTime.innerText = `Tempo Obiettivo ${raceType === 'half' ? 'Mezza Maratona' : raceType === 'marathon' ? 'Maratona' : raceType} (es. 50:00 o 1:45:00)`;
+                    labelTime.innerText = `Tempo Obiettivo ${raceType === 'half' ? 'Mezza Maratona' : raceType === 'marathon' ? 'Maratona' : raceType}`;
                 } else if (raceType === 'custom_km') {
                     fieldCustomKm.classList.remove('hidden');
                 } else if (raceType === 'ultra_km') {
@@ -761,22 +771,10 @@
                 document.getElementById('field-custom-time').classList.toggle('hidden', val !== 'custom_time');
             }
 
-            parseTimeToSeconds(timeStr) {
-                if (!timeStr) return 3000;
-                timeStr = timeStr.toLowerCase().trim();
-                let totalSec = 0;
-                try {
-                    if (timeStr.includes(':')) {
-                        let sub = timeStr.split(':');
-                        if (sub.length === 3) {
-                            totalSec += (parseInt(sub[0]) || 0) * 3600 + (parseInt(sub[1]) || 0) * 60 + (parseInt(sub[2]) || 0);
-                        } else {
-                            totalSec += (parseInt(sub[0]) || 0) * 60 + (parseInt(sub[1]) || 0);
-                        }
-                    } else {
-                        totalSec += (parseInt(timeStr) || 0) * 60;
-                    }
-                } catch(e) { totalSec = 3000; }
+            parseTimeToSeconds() {
+                const hrs = parseInt(document.getElementById('target-hours').value) || 0;
+                const mins = parseInt(document.getElementById('target-minutes').value) || 0;
+                let totalSec = (hrs * 3600) + (mins * 60);
                 return totalSec > 0 ? totalSec : 3000;
             }
 
@@ -787,16 +785,14 @@
                 return `${mins}'${secs < 10 ? '0' : ''}${secs}"`;
             }
 
-            // MOTORE FISIOLOGICO CORRETTO PER I RITMI
             calculatePaces() {
                 const raceType = document.getElementById('profile-race-type').value;
-                const targetInput = document.getElementById('profile-target-time').value;
                 const level = document.getElementById('profile-level').value;
                 const age = parseInt(document.getElementById('profile-age').value) || 40;
                 const weight = parseFloat(document.getElementById('profile-weight').value) || 70;
                 const build = document.getElementById('profile-build').value;
 
-                let totalSec = this.parseTimeToSeconds(targetInput);
+                let totalSec = this.parseTimeToSeconds();
                 let distanceKm = 10;
 
                 if (raceType === '5k') distanceKm = 5;
@@ -806,11 +802,9 @@
                 else if (raceType === 'custom_km') distanceKm = parseFloat(document.getElementById('profile-custom-km-input').value) || 21;
                 else if (raceType === 'ultra_km' || raceType === 'ultra_time') distanceKm = 42.2;
 
-                // Ritmo Gara al km (in secondi)
                 let racePaceSec = totalSec / distanceKm;
-                if (racePaceSec < 210) racePaceSec = 300; // Valore di sicurezza anti-bug
+                if (racePaceSec < 210) racePaceSec = 300;
 
-                // Fondo Lento / Rigenerante (Zona 2): Deve essere SEMPRE più lento del ritmo gara (+45" a +75" al km in base ad età e struttura)
                 let slowOffset = 55;
                 if (age > 45) slowOffset += 15;
                 if (build === 'pesante' || weight > 80) slowOffset += 15;
@@ -818,7 +812,6 @@
 
                 let slowPaceSec = racePaceSec + slowOffset;
 
-                // Ripetute e Intervalli (più veloci del ritmo gara o calibrati sulla soglia)
                 let intervalFastSec = Math.max(210, racePaceSec - 15);
                 let intervalMediumSec = Math.max(220, racePaceSec - 5);
                 let intervalRecSec = slowPaceSec + 15;
@@ -863,7 +856,10 @@
                 }
 
                 const raceType = document.getElementById('profile-race-type').value;
-                let targetInput = document.getElementById('profile-target-time').value;
+                const hrs = document.getElementById('target-hours').value;
+                const mins = document.getElementById('target-minutes').value;
+                const targetInputStr = `${hrs}h ${mins}m`;
+
                 const age = parseInt(document.getElementById('profile-age').value) || 40;
                 const weight = parseFloat(document.getElementById('profile-weight').value) || 70;
                 const build = document.getElementById('profile-build').value;
@@ -891,7 +887,7 @@
                     build: build,
                     level: document.getElementById('profile-level').value,
                     raceType: raceType,
-                    targetTime: targetInput,
+                    targetTime: targetInputStr,
                     weeksCount: weeksCount,
                     trainDays: selectedDays,
                     qualityDay: qualityDay,
@@ -912,7 +908,7 @@
 
                 for (let w = 1; w <= weeksCount; w++) {
                     let weekKm = baseKm + (w * 2.5);
-                    if (w % 4 === 0) weekKm *= 0.8; // Settimana di scarico periodizzazione
+                    if (w % 4 === 0) weekKm *= 0.8;
 
                     let longSessionKm = isUltra ? Math.min(36, Math.round(weekKm * 0.42)) : Math.round(weekKm * 0.35);
                     let maxInfrasettimanaleKm = Math.round(longSessionKm * 0.65);
@@ -933,7 +929,7 @@
                     });
 
                     if (hasRaceThisWeek) {
-                        weekKm *= 0.80; // Tapering preventivo per gara
+                        weekKm *= 0.80;
                     }
 
                     let daysData = selectedDays.map((dayName) => {
