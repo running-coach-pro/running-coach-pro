@@ -967,7 +967,7 @@
                         }
 
                         let title = "Corsa Lenta Rigenerante";
-                        let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento/Rigenerante (${pocketsSlowFix(paces.slow)}).\n• Defaticamento: 5 min allungamento.`;
+                        let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento/Rigenerante (${paces.slow}).\n• Defaticamento: 5 min allungamento.`;
                         
                         let defaultShoe = this.shoes[0] ? this.shoes[0].name : "Standard";
                         if (isLong && this.shoes.some(s => s.category && s.category.includes('Lungo'))) {
@@ -997,8 +997,6 @@
                     let actualWeekKm = daysData.reduce((acc, d) => acc + d.km, 0);
                     weeks.push({ weekNumber: w, totalKm: actualWeekKm, days: daysData });
                 }
-
-                function pocketsSlowFix(val) { return val; }
 
                 this.fullPlan = { weeks: weeks };
                 this.selectedWeekIndex = 0;
@@ -1120,7 +1118,6 @@
                     btnComp.innerText = "✔ Segna come Completato";
                 }
 
-                // REGOLA AGGIORNATA >14km per Integrazione Avanzata
                 const nutritionBox = document.getElementById('nutrition-strategy-box');
                 if (dayObj.km > 14 || dayObj.title.includes('Gara') || dayObj.title.includes('Lungo')) {
                     nutritionBox.classList.remove('hidden');
@@ -1392,4 +1389,3 @@
     </script>
 </body>
 </html>
- 
