@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Running Coach Pro - Professional Edition</title>
+    <title>Running Coach Pro - Go&Race Edition</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="theme-color" content="#0f172a">
@@ -27,6 +27,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col">
 
+    <!-- Indicatore di stato Cloud -->
     <div id="cloud-status" class="bg-slate-800 text-center text-[10px] text-amber-400 py-1 border-b border-slate-700">
         Connessione a Supabase in corso... 🔄
     </div>
@@ -46,7 +47,6 @@
                     <label class="block text-xs uppercase text-slate-400 mb-1">Email</label>
                     <input type="email" id="auth-email" placeholder="latuaemail@email.com" class="w-full p-2.5 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs">
                 </div>
-                
                 <div>
                     <label class="block text-xs uppercase text-slate-400 mb-1">Password</label>
                     <div class="relative">
@@ -56,7 +56,6 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="flex gap-2 pt-2">
                     <button type="button" onclick="app.handleLogin()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">Accedi</button>
                     <button type="button" onclick="app.handleSignup()" class="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 font-bold rounded-xl text-white text-xs cursor-pointer">Registrati</button>
@@ -64,91 +63,122 @@
             </div>
         </div>
 
-        <!-- 1. SCHERMATA OBIETTIVO (ONBOARDING) -->
+        <!-- 1. SCHERMATA OBIETTIVO (STILE GO&RACE + PROFILO PROTETTIVO) -->
         <div id="screen-onboarding" class="hidden space-y-3 my-auto py-2 max-h-[92vh] overflow-y-auto">
             <div class="text-center space-y-1">
                 <h1 class="text-3xl font-extrabold text-emerald-400">Running Coach Pro</h1>
                 <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Running Coach Pro – Designed by Jovy</p>
-                <p class="text-slate-400 text-xs">Pianificazione mirata con criteri professionali.</p>
+                <p class="text-slate-400 text-xs">Configuratore Obiettivi & Biometria Avanzata.</p>
             </div>
             
             <div class="bg-slate-800 p-4 rounded-2xl space-y-3 border border-slate-700">
+                <!-- Profilo Biometrico & Struttura (Protezione articolazioni e polpacci) -->
                 <div class="grid grid-cols-3 gap-2">
                     <div>
-                        <label class="block text-xs uppercase text-slate-400 mb-1">Genere</label>
+                        <label class="block text-[10px] uppercase text-slate-400 mb-1">Genere</label>
                         <select id="profile-gender" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs">
                             <option value="uomo">Uomo</option>
                             <option value="donna">Donna</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs uppercase text-slate-400 mb-1">Età</label>
+                        <label class="block text-[10px] uppercase text-slate-400 mb-1">Età</label>
                         <input type="number" id="profile-age" value="53" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs font-bold text-center">
                     </div>
                     <div>
-                        <label class="block text-xs uppercase text-slate-400 mb-1">Peso (kg)</label>
+                        <label class="block text-[10px] uppercase text-slate-400 mb-1">Peso (kg)</label>
                         <input type="number" id="profile-weight" value="85" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs font-bold text-center">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-xs uppercase text-slate-400 mb-1">Struttura</label>
+                        <label class="block text-[10px] uppercase text-slate-400 mb-1">Struttura Corporea</label>
                         <select id="profile-build" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs">
                             <option value="leggero">Leggero</option>
-                            <option value="medio">Medio Spessore</option>
-                            <option value="pesante" selected>Pesante / Robusta</option>
+                            <option value="medio">Medio</option>
+                            <option value="pesante" selected>Pesante (Protezione Polpacci)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs uppercase text-slate-400 mb-1">Livello</label>
+                        <label class="block text-[10px] uppercase text-slate-400 mb-1">Livello Atleta</label>
                         <select id="profile-level" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs">
-                            <option value="principiante" selected>Principiante (Protetto 🟢)</option>
-                            <option value="intermedio">Intermedio (Costante 🟡)</option>
-                            <option value="evoluto">Evoluto (Spinto 🔴)</option>
+                            <option value="principiante" selected>Principiante 🟢</option>
+                            <option value="intermedio">Intermedio 🟡</option>
+                            <option value="evoluto">Evoluto 🔴</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="block text-xs uppercase text-emerald-400 font-bold">Tipo di Gara / Obiettivo</label>
-                    <select id="profile-race-type" onchange="app.handleRaceTypeChange()" class="w-full p-2.5 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs font-semibold">
-                        <option value="5k">5 km (Base 🟢)</option>
-                        <option value="10k" selected>10 km (Base 🟢)</option>
-                        <option value="custom_km">Gara a Distanza Specifica ⭐ VIP</option>
-                        <option value="half">Mezza Maratona (21.1 km) ⭐ VIP</option>
-                        <option value="marathon">Maratona (42.2 km) ⭐ VIP</option>
-                        <option value="ultra_km">Ultramaratona (Km) ⭐ VIP</option>
-                        <option value="ultra_time">Ultramaratona (Tempo) ⭐ VIP</option>
-                    </select>
-                </div>
-
-                <div id="dynamic-goal-container" class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
-                    <div id="field-time-target">
-                        <label id="label-time-target" class="block text-[10px] uppercase text-slate-400 mb-1 font-bold">Tempo Obiettivo Previsto (es. 55:00 o 1:55:00)</label>
-                        <input type="text" id="profile-target-time" value="55:00" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
-                    </div>
-
-                    <div id="field-custom-goal-km" class="hidden">
-                        <label class="block text-[10px] uppercase text-amber-400 mb-1 font-bold">Km Gara Specifica ⭐ VIP</label>
-                        <input type="number" step="0.5" id="profile-custom-km-input" value="25" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
-                    </div>
-
+                <!-- BOX IMPOSTA IL TUO OBIETTIVO (STILE GO&RACE)[cite: 3] -->
+                <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-3">
+                    <span class="text-xs uppercase font-bold text-emerald-400 block tracking-wider">🎯 Imposta il tuo obiettivo</span>
+                    
                     <div>
-                        <label class="block text-[10px] uppercase text-slate-400 mb-1 mt-2 font-bold">Durata Tabella (Settimane)</label>
-                        <select id="profile-weeks" onchange="app.handleWeeksChange()" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold text-emerald-400">
-                            <option value="4">4 Settimane (Base 🟢)</option>
-                            <option value="6" selected>6 Settimane (Base 🟢)</option>
-                            <option value="8">8 Settimane (Base 🟢)</option>
-                            <option value="12">12 Settimane ⭐ VIP</option>
-                            <option value="16">16 Settimane ⭐ VIP</option>
-                            <option value="20">20 Settimane (Max Ciclo) ⭐ VIP</option>
+                        <label class="block text-[10px] uppercase text-slate-400 mb-1">Tipologia di Gara / Unità</label>
+                        <select id="profile-race-type" onchange="app.handleRaceTypeChange()" class="w-full p-2.5 bg-slate-800 rounded-xl border border-slate-700 text-white text-xs font-semibold">
+                            <option value="5k">5 km</option>
+                            <option value="10k" selected>10 km</option>
+                            <option value="15k">15 km (Distanza Specifica ⭐ VIP)</option>
+                            <option value="21.1">Mezza Maratona - 21.1 km ⭐ VIP</option>
+                            <option value="42.2">Maratona - 42.2 km ⭐ VIP</option>
+                            <option value="custom_km">Altra Distanza in Km (es. 33, 50, 100) ⭐ VIP</option>
+                            <option value="ultra_time">Ultramaratona a Tempo (es. 6, 8, 12, 24 ore) ⭐ VIP</option>
                         </select>
+                    </div>
+
+                    <!-- Input km personalizzati se selezionato "Altra Distanza" -->
+                    <div id="field-custom-km" class="hidden">
+                        <label class="block text-[10px] uppercase text-amber-400 mb-1 font-bold">Chilometri Gara Specifica</label>
+                        <input type="number" step="0.5" id="profile-custom-km-val" value="33" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                    </div>
+
+                    <!-- Input ore se ultramaratona a tempo -->
+                    <div id="field-ultra-time" class="hidden">
+                        <label class="block text-[10px] uppercase text-amber-400 mb-1 font-bold">Durata Ultramaratona (Ore)</label>
+                        <select id="profile-ultra-hours" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                            <option value="6">Gara delle 6 Ore</option>
+                            <option value="8">Gara delle 8 Ore</option>
+                            <option value="12">Gara delle 12 Ore</option>
+                            <option value="24">Gara delle 24 Ore</option>
+                        </select>
+                    </div>
+
+                    <!-- Tempo Obiettivo con input Ore / Minuti e Bottoni Rapidi stile Go&Race[cite: 3] -->
+                    <div id="field-time-target" class="space-y-1">
+                        <label class="block text-[10px] uppercase text-slate-400">Tempo Obiettivo</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center space-x-1 bg-slate-800 p-2 rounded-lg border border-slate-700">
+                                <input type="number" id="target-hours" value="0" min="0" max="24" class="w-12 bg-transparent text-white text-xs font-bold text-center">
+                                <span class="text-[10px] text-slate-400">ore</span>
+                            </div>
+                            <div class="flex items-center space-x-1 bg-slate-800 p-2 rounded-lg border border-slate-700">
+                                <input type="number" id="target-minutes" value="50" min="0" max="59" class="w-12 bg-transparent text-white text-xs font-bold text-center">
+                                <span class="text-[10px] text-slate-400">min</span>
+                            </div>
+                        </div>
+                        <!-- Bottoni Rapidi Minuti (Stile Go&Race)[cite: 3] -->
+                        <div class="flex items-center gap-1 pt-1 flex-wrap">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase">Rapidi:</span>
+                            <button type="button" onclick="app.quickSetMin(40)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] font-bold rounded border border-slate-700 cursor-pointer">40'</button>
+                            <button type="button" onclick="app.quickSetMin(45)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] font-bold rounded border border-slate-700 cursor-pointer">45'</button>
+                            <button type="button" onclick="app.quickSetMin(50)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] font-bold rounded border border-slate-700 cursor-pointer">50'</button>
+                            <button type="button" onclick="app.quickSetMin(55)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] font-bold rounded border border-slate-700 cursor-pointer">55'</button>
+                            <button type="button" onclick="app.quickSetMin(60)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] font-bold rounded border border-slate-700 cursor-pointer">1h 00'</button>
+                        </div>
+                    </div>
+
+                    <!-- Data della Gara (Stile Go&Race con calcolo automatico settimane)[cite: 3] -->
+                    <div>
+                        <label class="block text-[10px] uppercase text-slate-400 mb-1">Data della Gara (Domenica consigliata)[cite: 3]</label>
+                        <input type="date" id="race-date-picker" onchange="app.calculateWeeksFromDate()" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                        <span id="calculated-weeks-label" class="text-[9px] text-emerald-400 block mt-1">Durata programma calcolata: 6 settimane</span>
                     </div>
                 </div>
 
-                <div class="space-y-1.5 pt-1 border-t border-slate-700">
-                    <label class="block text-xs uppercase text-emerald-400 font-bold">Giorni di allenamento</label>
+                <!-- Frequenza Allenamenti -->
+                <div class="space-y-1">
+                    <label class="block text-[10px] uppercase text-slate-400 font-bold">Frequenza di Allenamento</label>
                     <div class="grid grid-cols-4 gap-1.5 text-xs">
                         <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="train-day" value="Lunedì" checked> <span>Lun</span></label>
                         <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="train-day" value="Martedì" checked> <span>Mar</span></label>
@@ -160,11 +190,12 @@
                     </div>
                 </div>
 
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2.5">
-                    <span class="text-[10px] uppercase text-amber-400 font-bold block">⭐ Sedute Chiave Personalizzate</span>
+                <!-- Gestione Personalizzata Giorni Chiave -->
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
+                    <span class="text-[10px] uppercase text-amber-400 font-bold block">⭐ Sedute Chiave</span>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[10px] text-slate-400 mb-1">Giorno Qualità</label>
+                            <label class="block text-[9px] text-slate-400 mb-1">Giorno di Qualità</label>
                             <select id="profile-quality-day" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
                                 <option value="Mercoledì" selected>Mercoledì</option>
                                 <option value="Martedì">Martedì</option>
@@ -172,7 +203,7 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] text-slate-400 mb-1">Giorno Lungo</label>
+                            <label class="block text-[9px] text-slate-400 mb-1">Giorno del Lungo</label>
                             <select id="profile-long-day" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
                                 <option value="Domenica" selected>Domenica</option>
                                 <option value="Sabato">Sabato</option>
@@ -181,15 +212,15 @@
                     </div>
                 </div>
 
-                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 space-y-2">
+                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700">
                     <label class="flex items-start space-x-2 cursor-pointer">
                         <input type="checkbox" id="disclaimer-check" class="mt-0.5 rounded bg-slate-800 border-slate-600 text-emerald-500">
-                        <span class="text-[10px] text-emerald-300 font-semibold">Accetto le condizioni, rispetto la gradualità intelligente e sollevo da responsabilità.</span>
+                        <span class="text-[10px] text-emerald-300 font-semibold">Accetto le condizioni, idoneità fisica e sollevo da responsabilità.</span>
                     </label>
                 </div>
 
                 <button type="button" onclick="app.generatePlan()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">
-                    Genera Programma Professionale
+                    Genera Programma Specifico Go&Race
                 </button>
             </div>
         </div>
@@ -214,7 +245,7 @@
                 </div>
             </div>
 
-            <!-- COUNTDOWN GARA -->
+            <!-- COUNTDOWN ALLA PROSSIMA GARA -->
             <div id="race-countdown-box" class="bg-gradient-to-r from-emerald-900/40 to-slate-800 p-3 rounded-2xl border border-emerald-500/30 flex justify-between items-center hidden">
                 <div>
                     <span class="text-[10px] uppercase font-bold text-emerald-400 block tracking-wider">⏳ Prossima Gara in Agenda</span>
@@ -289,7 +320,7 @@
                 </div>
                 
                 <div id="nutrition-strategy-box" class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-amber-300 hidden space-y-1.5">
-                    <span class="font-bold block text-[11px] uppercase text-amber-400">🍌 Strategia Integrazione Intelligente (>14km):</span>
+                    <span class="font-bold block text-[11px] uppercase text-amber-400">🍌 Strategia Integrazione Avanzata (>14km):</span>
                     <p id="nutrition-plan-text" class="text-[11px] leading-relaxed"></p>
                 </div>
 
@@ -299,7 +330,7 @@
                 </div>
 
                 <div>
-                    <span class="text-slate-400 block uppercase font-semibold text-[10px]">Come Svolgere l'Allenamento & Ritmi Sicuri</span>
+                    <span class="text-slate-400 block uppercase font-semibold text-[10px]">Come Svolgere l'Allenamento & Ritmi Target</span>
                     <p id="detail-instructions" class="leading-relaxed bg-slate-900 p-2.5 rounded-xl border border-slate-700 mt-1 whitespace-pre-line text-[11px]"></p>
                 </div>
 
@@ -330,8 +361,8 @@
             
             <div class="space-y-3 text-xs text-slate-300 pt-1">
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
-                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Pianifica Nuova Gara in Agenda (es. Controguerra)</span>
-                    <input type="text" id="race-name" placeholder="Nome Gara" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs mb-2">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Pianifica Nuova Gara in Agenda</span>
+                    <input type="text" id="race-name" placeholder="Nome Gara (es. Controguerra)" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs mb-2">
                     
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <div>
@@ -355,11 +386,11 @@
             <button type="button" onclick="app.closeRaces()" class="w-full py-2 bg-slate-700 font-bold rounded-xl text-white cursor-pointer">Torna alla Dashboard</button>
         </div>
 
-        <!-- 5. MODALI E SCHERMATE DI SERVIZIO -->
+        <!-- 5. MODALI DI SERVIZIO -->
         <div id="welcome-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-slate-800 border border-emerald-500/40 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-center">
                 <h3 class="font-extrabold text-emerald-400 text-base">📖 Benvenuto in Running Coach Pro</h3>
-                <p class="text-[10px] text-slate-300">Moduli di allenamento mirati con criteri professionali e blocco VIP attivati.</p>
+                <p class="text-[10px] text-slate-300">Configuratore stile Go&Race integrato con protezione articolazioni e polpacci.</p>
                 <button type="button" onclick="app.closeWelcomeModal()" class="w-full py-3 bg-emerald-500 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">Iniziamo! 🚀</button>
             </div>
         </div>
@@ -367,21 +398,20 @@
         <div id="vip-info-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-slate-800 border border-amber-500/40 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-center">
                 <h3 class="font-extrabold text-amber-400 text-base">⭐ Account VIP</h3>
-                <p class="text-[10px] text-slate-300">Sblocca agenda gare intelligente, tabelle fino a 20 settimane e distanze avanzate.</p>
+                <p class="text-[10px] text-slate-300">Sblocca distanze avanzate, maratone, ultramaratone a tempo e agenda gare universale.</p>
                 <button type="button" onclick="app.closeVipInfoModal()" class="w-full py-2.5 bg-amber-500 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">Ho capito 👍</button>
             </div>
         </div>
 
         <div id="screen-info" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto text-xs text-slate-300">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-                <h3 class="font-bold text-emerald-400 text-sm">📖 Motore Professionale & Qualità</h3>
+                <h3 class="font-bold text-emerald-400 text-sm">📖 Come funziona</h3>
                 <button type="button" onclick="app.closeInfo()" class="text-slate-400 text-xs cursor-pointer">✕ Chiudi</button>
             </div>
-            <p>L'app struttura ogni lavoro di qualità con criterio (riscaldamento, ripetute/fartlek precise e defaticamento), proteggendo l'atleta e gestendo i livelli Base e VIP.</p>
+            <p>Il motore calcola i ritmi in modo rigoroso (senza decimali sballati, formattati esattamente in minuti e secondi al km) e adatta i volumi salvaguardando i polpacci e le articolazioni.</p>
             <button type="button" onclick="app.closeInfo()" class="w-full py-2 bg-slate-700 font-bold rounded-xl text-white cursor-pointer mt-2">Torna alla Dashboard</button>
         </div>
 
-        <!-- 7. IMPOSTAZIONI -->
         <div id="screen-settings" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                 <h3 class="font-bold text-base text-white">Profilo & Scarpe</h3>
@@ -393,7 +423,6 @@
                     <img id="settings-preview-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-16 h-16 rounded-full object-cover mx-auto border-2 border-emerald-400" alt="Avatar">
                     <input type="file" id="avatar-file-input" accept="image/*" onchange="app.handleImageUpload(event)" class="w-full text-[11px] text-slate-400 cursor-pointer">
                 </div>
-
                 <div class="bg-slate-900 p-3 rounded-xl border border-amber-500/40 space-y-2">
                     <span class="font-bold text-amber-400 uppercase text-[10px] block">⭐ Sblocca VIP con Codice</span>
                     <div class="flex space-x-1">
@@ -401,12 +430,6 @@
                         <button type="button" onclick="app.unlockVipWithCode()" class="px-3 bg-amber-500 font-bold rounded-lg text-slate-950 cursor-pointer text-xs">Sblocca</button>
                     </div>
                 </div>
-
-                <div class="space-y-2 pt-1 border-t border-slate-700">
-                    <span class="font-bold text-emerald-400 uppercase text-[10px] block">Rotazione Scarpe</span>
-                    <div id="shoes-management-container" class="space-y-1.5 max-h-[120px] overflow-y-auto"></div>
-                </div>
-
                 <button type="button" onclick="app.saveSettings()" class="w-full py-2 bg-emerald-500 font-bold text-slate-950 rounded-xl cursor-pointer">Salva Modifiche</button>
             </div>
         </div>
@@ -416,7 +439,7 @@
         </footer>
     </div>
 
-    <!-- LOGICA PROFESSIONALE CON QUALITÀ STRUTTURATA E BLOCCO VIP -->
+    <!-- LOGICA SCRIPT GO&RACE EDITION -->
     <script>
         const SUPABASE_URL = "https://eaxqmxtgogzadwmbjzil.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_0_YjpPPK8om98MQGjtK-6g_KZqYxz8K";
@@ -435,10 +458,34 @@
                 this.selectedWeekIndex = 0;
                 this.activeDayIndex = null;
                 this.userId = null;
-                this.userEmail = "";
-                this.isSaving = false;
+                this.calculatedWeeks = 6;
 
                 this.initCloudSync();
+                this.setDefaultRaceDate();
+            }
+
+            setDefaultRaceDate() {
+                let d = new Date();
+                d.setDate(d.getDate() + 42); // 6 settimane nel futuro
+                document.getElementById('race-date-picker').valueAsDate = d;
+                this.calculateWeeksFromDate();
+            }
+
+            calculateWeeksFromDate() {
+                let val = document.getElementById('race-date-picker').value;
+                if (!val) return;
+                let raceDate = new Date(val);
+                let today = new Date(); today.setHours(0,0,0,0);
+                let diffTime = raceDate - today;
+                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                let weeks = Math.max(3, Math.min(24, Math.round(diffDays / 7)));
+                this.calculatedWeeks = weeks;
+                document.getElementById('calculated-weeks-label').innerText = `Durata programma calcolata automaticamente: ${weeks} settimane`;
+            }
+
+            quickSetMin(min) {
+                document.getElementById('target-hours').value = 0;
+                document.getElementById('target-minutes').value = min;
             }
 
             async initCloudSync() {
@@ -446,16 +493,8 @@
                     const { data: { session } } = await supabaseClient.auth.getSession();
                     if (!session) { this.showScreen('screen-auth'); return; }
                     this.userId = session.user.id;
-                    this.userEmail = session.user.email || "";
                     await this.loadUserData();
                 } catch (e) { this.showScreen('screen-auth'); }
-            }
-
-            togglePasswordVisibility(fieldId, iconId) {
-                const input = document.getElementById(fieldId);
-                const icon = document.getElementById(iconId);
-                if (input.type === 'password') { input.type = 'text'; icon.innerText = '🙈'; }
-                else { input.type = 'password'; icon.innerText = '👁️'; }
             }
 
             async handleSignup() {
@@ -471,10 +510,7 @@
                 const password = document.getElementById('auth-password').value;
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if (error) alert("Credenziali non valide: " + error.message);
-                else {
-                    this.userId = data.session.user.id;
-                    await this.loadUserData();
-                }
+                else { this.userId = data.session.user.id; await this.loadUserData(); }
             }
 
             async logout() { await supabaseClient.auth.signOut(); location.reload(); }
@@ -522,14 +558,13 @@
             }
 
             async saveData() {
-                if (!this.userId || this.isSaving) return;
-                this.isSaving = true;
+                if (!this.userId) return;
                 try {
                     await supabaseClient.from('runners').upsert({
                         user_id: this.userId, profile: this.profile, full_plan: this.fullPlan,
                         shoes: this.shoes, races: this.races, avatar_url: this.avatarUrl, updated_at: new Date()
                     }, { onConflict: 'user_id' });
-                } catch (e) {} finally { setTimeout(() => { this.isSaving = false; }, 2000); }
+                } catch (e) {}
             }
 
             evaluateStartupScreen() {
@@ -542,36 +577,13 @@
             handleRaceTypeChange() {
                 const raceType = document.getElementById('profile-race-type').value;
                 if (!this.profile.is_vip && raceType !== '5k' && raceType !== '10k') {
-                    alert("⭐ Distanza avanzata riservata agli account VIP. Inserisci il codice VIP nelle impostazioni per sbloccarla.");
+                    alert("⭐ Questa distanza è riservata agli account VIP.");
                     document.getElementById('profile-race-type').value = '10k';
                     return;
                 }
-                document.getElementById('field-custom-goal-km').classList.toggle('hidden', raceType !== 'custom_km');
-            }
-
-            handleWeeksChange() {
-                const weeksVal = parseInt(document.getElementById('profile-weeks').value);
-                if (!this.profile.is_vip && weeksVal > 8) {
-                    alert("⭐ I cicli superiori a 8 settimane (fino a 20) sono riservati agli account VIP.");
-                    document.getElementById('profile-weeks').value = '6';
-                }
-            }
-
-            parseTimeToSeconds(timeStr) {
-                if (!timeStr) return 3300;
-                timeStr = timeStr.toLowerCase().trim();
-                let totalSec = 0;
-                try {
-                    if (timeStr.includes(':')) {
-                        let sub = timeStr.split(':');
-                        if (sub.length === 3) {
-                            totalSec += (parseInt(sub[0]) || 0) * 3600 + (parseInt(sub[1]) || 0) * 60 + (parseInt(sub[2]) || 0);
-                        } else if (sub.length === 2) {
-                            totalSec += (parseInt(sub[0]) || 0) * 60 + (parseInt(sub[1]) || 0);
-                        }
-                    } else { totalSec += (parseInt(timeStr) || 0) * 60; }
-                } catch(e) { totalSec = 3300; }
-                return totalSec > 0 ? totalSec : 3300;
+                document.getElementById('field-custom-km').classList.toggle('hidden', raceType !== 'custom_km');
+                document.getElementById('field-ultra-time').classList.toggle('hidden', raceType !== 'ultra_time');
+                document.getElementById('field-time-target').classList.toggle('hidden', raceType === 'ultra_time');
             }
 
             formatSecondsToPace(secPerKm) {
@@ -583,44 +595,36 @@
 
             calculatePaces() {
                 const raceType = document.getElementById('profile-race-type').value;
-                const targetInput = document.getElementById('profile-target-time').value;
-                const level = document.getElementById('profile-level').value;
+                const hrs = parseInt(document.getElementById('target-hours').value) || 0;
+                const mins = parseInt(document.getElementById('target-minutes').value) || 0;
+                const totalTargetSec = (hrs * 3600) + (mins * 60);
+
+                let distanceKm = 10;
+                if (raceType === '5k') distanceKm = 5;
+                else if (raceType === '10k') distanceKm = 10;
+                else if (raceType === '15k') distanceKm = 15;
+                else if (raceType === '21.1') distanceKm = 21.1;
+                else if (raceType === '42.2') distanceKm = 42.2;
+                else if (raceType === 'custom_km') distanceKm = parseFloat(document.getElementById('profile-custom-km-val').value) || 33;
+                else if (raceType === 'ultra_time') distanceKm = 50; // stima base time-on-feet
+
+                let paceSec = totalTargetSec > 0 ? totalTargetSec / distanceKm : 330;
+
                 const age = parseInt(document.getElementById('profile-age').value) || 40;
                 const build = document.getElementById('profile-build').value;
                 const weight = parseFloat(document.getElementById('profile-weight').value) || 70;
-                
-                let totalSeconds = this.parseTimeToSeconds(targetInput);
-                let distKm = 10;
-                if (raceType === '5k') distKm = 5;
-                else if (raceType === '10k') distKm = 10;
-                else if (raceType === 'half') distKm = 21.1;
-                else if (raceType === 'marathon') distKm = 42.2;
-                else if (raceType === 'custom_km') distKm = parseFloat(document.getElementById('profile-custom-km-input').value) || 15;
-                else if (raceType === 'ultra_km') distKm = 50;
-                else if (raceType === 'ultra_time') distKm = 40;
-
-                let paceSec = totalSeconds / distKm;
-
-                // PROTEZIONE PRINCIPIANTI
-                if (level === 'principiante') {
-                    let slowSec = Math.max(390, paceSec + 100);
-                    return {
-                        slow: this.formatSecondsToPace(slowSec),
-                        race: this.formatSecondsToPace(Math.max(330, paceSec)),
-                        intervalFast: this.formatSecondsToPace(Math.max(330, paceSec + 10)),
-                        intervalMedium: this.formatSecondsToPace(slowSec - 20)
-                    };
-                }
+                const level = document.getElementById('profile-level').value;
 
                 let slowOffset = 75;
                 if (age > 45) slowOffset += 15;
-                if (build === 'pesante' || weight > 80) slowOffset += 15;
+                if (build === 'pesante' || weight > 80) slowOffset += 20; // Protezione polpacci e articolazioni
+                if (level === 'principiante') slowOffset += 20;
 
                 return {
                     slow: this.formatSecondsToPace(paceSec + slowOffset),
                     race: this.formatSecondsToPace(paceSec),
-                    intervalFast: this.formatSecondsToPace(Math.max(240, paceSec - 10)),
-                    intervalMedium: this.formatSecondsToPace(paceSec + 15)
+                    intervalFast: this.formatSecondsToPace(Math.max(210, paceSec - 15)),
+                    intervalMedium: this.formatSecondsToPace(paceSec + 10)
                 };
             }
 
@@ -633,31 +637,27 @@
 
             generatePlan() {
                 if (!document.getElementById('disclaimer-check').checked) {
-                    alert("Accetta le condizioni di gradualità intelligente.");
+                    alert("Accetta le condizioni di sicurezza e protezione.");
                     return;
                 }
 
-                const weeksCount = parseInt(document.getElementById('profile-weeks').value) || 6;
-                const level = document.getElementById('profile-level').value;
-                const raceType = document.getElementById('profile-race-type').value;
                 const selectedDays = Array.from(document.querySelectorAll('input[name="train-day"]:checked')).map(cb => cb.value);
-                if (selectedDays.length === 0) { alert("Seleziona almeno un giorno!"); return; }
+                if (selectedDays.length === 0) { alert("Seleziona almeno un giorno di allenamento!"); return; }
 
                 const qualityDay = document.getElementById('profile-quality-day').value;
                 const longDay = document.getElementById('profile-long-day').value;
-                const age = parseInt(document.getElementById('profile-age').value) || 40;
-                const weight = parseFloat(document.getElementById('profile-weight').value) || 70;
+                const level = document.getElementById('profile-level').value;
                 const build = document.getElementById('profile-build').value;
 
-                let baseKm = level === 'principiante' ? 12 : level === 'intermedio' ? 20 : 28;
-                if ((build === 'pesante' || weight > 80) && level === 'principiante') baseKm = 10;
+                let baseKm = level === 'principiante' ? 14 : level === 'intermedio' ? 22 : 32;
+                if (build === 'pesante') baseKm = Math.max(12, baseKm - 4); // Carico snello e protettivo
 
                 const paces = this.calculatePaces();
+                const weeksCount = this.calculatedWeeks;
 
                 this.profile = {
                     ...this.profile,
                     level: level,
-                    raceType: raceType,
                     weeksCount: weeksCount,
                     trainDays: selectedDays,
                     qualityDay: qualityDay,
@@ -669,8 +669,8 @@
                 const dayNameToIndex = { 'Lunedì': 0, 'Martedì': 1, 'Mercoledì': 2, 'Giovedì': 3, 'Venerdì': 4, 'Sabato': 5, 'Domenica': 6 };
 
                 for (let w = 1; w <= weeksCount; w++) {
-                    let weekKm = baseKm + (w * 0.8);
-                    if (w % 4 === 0) weekKm *= 0.75; // Settimana di scarico periodica
+                    let weekKm = baseKm + (w * 1.8);
+                    if (w % 4 === 0) weekKm *= 0.75; // Settimana di scarico
 
                     let firstWeekMonday = new Date(startDate);
                     let dow = firstWeekMonday.getDay();
@@ -680,72 +680,33 @@
                     let weekStart = new Date(firstWeekMonday);
                     let weekEnd = new Date(firstWeekMonday); weekEnd.setDate(weekEnd.getDate() + 6);
 
-                    let racesThisWeek = this.races.filter(r => {
-                        if (!r.date) return false;
-                        let rDate = new Date(r.date);
-                        return rDate >= weekStart && rDate <= weekEnd;
-                    });
-
-                    let hasRaceThisWeek = racesThisWeek.length > 0;
-                    if (hasRaceThisWeek) weekKm *= 0.70;
-
                     let daysData = selectedDays.map((dayName) => {
                         let dayIndex = dayNameToIndex[dayName];
                         let exactDayDate = new Date(firstWeekMonday);
                         exactDayDate.setDate(firstWeekMonday.getDate() + dayIndex);
                         let dateKey = this.formatDateKey(exactDayDate);
 
-                        let matchedRaceForDay = this.races.find(r => r.date === dateKey);
                         let isLong = (dayName === longDay);
                         let isQuality = (dayName === qualityDay);
-                        
                         let sessionKm = Math.round(weekKm / selectedDays.length);
                         let title = "Corsa Lenta Rigenerante";
                         let desc = "";
-                        let defaultShoe = this.shoes[0] ? this.shoes[0].name : "Standard";
 
-                        if (matchedRaceForDay) {
-                            title = `🏅 Gara Ufficiale: ${matchedRaceForDay.name}`;
-                            sessionKm = parseFloat(matchedRaceForDay.dist) || 10;
-                            desc = `• Gara inserita in Agenda (${matchedRaceForDay.name}).\n• Gestisci lo sforzo e goditi la competizione!`;
-                        } else if (hasRaceThisWeek) {
-                            let daysToRace = racesThisWeek.map(r => Math.ceil((new Date(r.date) - exactDayDate) / (1000 * 60 * 60 * 24)));
-                            let nearestToRace = Math.min(...daysToRace.filter(d => d >= 0));
-
-                            if (nearestToRace === 1) {
-                                sessionKm = 3;
-                                title = "Scarico Pre-Gara (Vigilia)";
-                                desc = `• Sessione leggera: ${sessionKm} km di corsa molto lenta (${paces.slow}) + allunghi sciolti.`;
-                            } else if (nearestToRace === 2) {
-                                sessionKm = 4;
-                                title = "Corsa di Avvicinamento";
-                                desc = `• Corsa facile: ${sessionKm} km a ${paces.slow}.`;
-                            } else {
-                                sessionKm = 4;
-                                title = "Mantenimento Leggero";
-                                desc = `• Corsa agile: ${sessionKm} km a ${paces.slow}.`;
-                            }
+                        if (isLong) {
+                            sessionKm = level === 'principiante' ? 12 : level === 'intermedio' ? 16 : 22;
+                            title = "Lungo Protettivo (Metodo 9+1)";
+                            desc = `• Modalità Time-on-Feet: 9 min corsa lenta (${paces.slow}) + 1 min camminata.\n• Distanza: ${sessionKm} km.`;
+                        } else if (isQuality) {
+                            sessionKm = 6;
+                            title = "Variazioni di Ritmo / Fartlek";
+                            desc = `• Riscaldamento + Intervalli a ${paces.intervalFast}.\n• Totale: ${sessionKm} km.`;
                         } else {
-                            if (isLong) {
-                                sessionKm = level === 'principiante' ? 9 : level === 'intermedio' ? 14 : 20;
-                                title = level === 'principiante' ? "Lungo Protettivo (Metodo 9+1)" : "Lungo Mirato all'Obiettivo";
-                                desc = `• ${sessionKm} km a ritmo costante (${paces.slow}).\n• Focus: gestione passo gara (${paces.race}) e idratazione costante.`;
-                            } else if (isQuality) {
-                                sessionKm = level === 'principiante' ? 4 : 6;
-                                title = level === 'principiante' ? "Fartlek Protettivo" : "Seduta di Qualità Strutturata";
-                                if (level === 'principiante') {
-                                    desc = `• Riscaldamento: 10 min camminata e mobilità.\n• Fartlek: 5 x (1 min corsa a ${paces.intervalFast} / 2 min camminata rigenerante).\n• Defaticamento: 5 min stretching.\n• Totale: ${sessionKm} km.`;
-                                } else {
-                                    desc = `• Riscaldamento: 2 km di corsa lenta (${paces.slow}).\n• Intervalli: 5 x 400m a ${paces.intervalFast} con recupero 90" di corsa lenta (${paces.slow}).\n• Defaticamento: 1 km finale di scioltezza.\n• Totale: ${sessionKm} km.`;
-                                }
-                            } else {
-                                sessionKm = level === 'principiante' ? 3 : 5;
-                                title = "Corsa Lenta Facile";
-                                desc = `• Corsa rigenerante: ${sessionKm} km a ritmo costante (${paces.slow}).`;
-                            }
+                            sessionKm = Math.max(5, sessionKm);
+                            title = "Corsa Lenta Facile";
+                            desc = `• Corsa costante: ${sessionKm} km a ${paces.slow}.`;
                         }
 
-                        return { day: dayName, title: title, km: sessionKm, instructions: desc, completed: false, skipped: false, shoe: defaultShoe, notes: "" };
+                        return { day: dayName, title: title, km: sessionKm, instructions: desc, completed: false, skipped: false, shoe: this.shoes[0].name, notes: "" };
                     });
 
                     let actualWeekKm = daysData.reduce((acc, d) => acc + d.km, 0);
@@ -757,7 +718,7 @@
                 this.saveData();
                 this.renderDashboard();
                 this.showScreen('screen-dashboard');
-                alert("✨ Programma professionale generato con successo!");
+                alert("✨ Programma Go&Race generato con successo!");
             }
 
             renderDashboard() {
@@ -765,13 +726,7 @@
                 document.getElementById('dashboard-avatar').src = this.avatarUrl;
                 
                 const tierBadge = document.getElementById('user-tier-badge');
-                if (this.profile.is_vip) {
-                    tierBadge.innerText = "VIP ⭐";
-                    tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 cursor-pointer";
-                } else {
-                    tierBadge.innerText = "Base 🟢";
-                    tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-slate-700 text-slate-300 cursor-pointer";
-                }
+                tierBadge.innerText = this.profile.is_vip ? "VIP ⭐" : "Base 🟢";
 
                 let totalPlanKm = 0, doneKm = 0;
                 if (this.fullPlan && this.fullPlan.weeks) {
@@ -785,8 +740,6 @@
                 let percent = totalPlanKm > 0 ? Math.min(100, Math.round((doneKm / totalPlanKm) * 100)) : 0;
                 document.getElementById('progress-bar-fill').style.width = `${percent}%`;
                 document.getElementById('progress-percent-text').innerText = `${percent}%`;
-
-                this.updateRaceCountdown();
 
                 const weekContainer = document.getElementById('week-selector-container');
                 weekContainer.innerHTML = '';
@@ -807,39 +760,13 @@
                 if (this.fullPlan && this.fullPlan.weeks[this.selectedWeekIndex]) {
                     this.fullPlan.weeks[this.selectedWeekIndex].days.forEach((dayObj, dayIdx) => {
                         const div = document.createElement('div');
-                        let statusColor = 'bg-slate-900 border-slate-700 hover:border-slate-500';
-                        let statusText = 'Da fare';
-                        let textClass = 'text-white';
-
-                        if (dayObj.completed) {
-                            statusColor = 'bg-emerald-950/30 border-emerald-500/40';
-                            statusText = 'Completato';
-                        } else if (dayObj.skipped) {
-                            statusColor = 'bg-slate-900/50 border-slate-800 opacity-60';
-                            statusText = 'Saltato';
-                            textClass = 'text-slate-400 line-through';
-                        }
-
+                        let statusColor = dayObj.completed ? 'bg-emerald-950/30 border-emerald-500/40' : dayObj.skipped ? 'bg-slate-900/50 opacity-60' : 'bg-slate-900 border-slate-700';
                         div.className = `p-2.5 rounded-xl border flex justify-between items-center cursor-pointer ${statusColor}`;
                         div.onclick = () => this.openDetail(dayIdx);
-                        div.innerHTML = `<div><span class="text-[10px] uppercase font-bold text-emerald-400 block">${dayObj.day}</span><span class="text-xs font-bold ${textClass}">${dayObj.title}</span></div><div class="text-right"><span class="text-xs font-extrabold ${textClass}">${dayObj.km} km</span><span class="block text-[9px] ${dayObj.completed ? 'text-emerald-400' : 'text-slate-500'}">${statusText}</span></div>`;
+                        div.innerHTML = `<div><span class="text-[10px] uppercase font-bold text-emerald-400 block">${dayObj.day}</span><span class="text-xs font-bold text-white">${dayObj.title}</span></div><div class="text-right"><span class="text-xs font-extrabold text-white">${dayObj.km} km</span></div>`;
                         scheduleContainer.appendChild(div);
                     });
                 }
-            }
-
-            updateRaceCountdown() {
-                const box = document.getElementById('race-countdown-box');
-                const today = new Date(); today.setHours(0,0,0,0);
-                let futureRaces = this.races.filter(r => r.date && new Date(r.date) >= today);
-                futureRaces.sort((a, b) => new Date(a.date) - new Date(b.date));
-                if (futureRaces.length > 0) {
-                    let nextRace = futureRaces[0];
-                    let diffDays = Math.ceil((new Date(nextRace.date) - today) / (1000 * 60 * 60 * 24));
-                    document.getElementById('countdown-race-name').innerText = `${nextRace.name} (${nextRace.dist})`;
-                    document.getElementById('countdown-days-val').innerText = diffDays;
-                    box.classList.remove('hidden');
-                } else { box.classList.add('hidden'); }
             }
 
             openDetail(dayIdx) {
@@ -850,20 +777,10 @@
                 document.getElementById('detail-instructions').innerText = dayObj.instructions;
                 document.getElementById('detail-notes').value = dayObj.notes || "";
                 
-                const badge = document.getElementById('detail-completed-badge');
-                const btnComp = document.getElementById('btn-toggle-complete');
-                if (dayObj.completed) {
-                    badge.innerText = "Completato ✔"; badge.className = "text-[10px] px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded-lg font-bold";
-                    btnComp.innerText = "Annulla Completamento";
-                } else {
-                    badge.innerText = "Da svolgere"; badge.className = "text-[10px] px-2 py-1 bg-slate-800 text-slate-400 rounded-lg";
-                    btnComp.innerText = "✔ Segna come Completato";
-                }
-
                 const nutritionBox = document.getElementById('nutrition-strategy-box');
-                if (dayObj.km > 14 || dayObj.title.includes('Gara') || dayObj.title.includes('Lungo')) {
+                if (dayObj.km > 14 || dayObj.title.includes('Lungo')) {
                     nutritionBox.classList.remove('hidden');
-                    document.getElementById('nutrition-plan-text').innerText = `• Protocollo Idrico: Sorsi regolari di acqua e sali minerali ogni 20-25 minuti.`;
+                    document.getElementById('nutrition-plan-text').innerText = `• Protocollo Idrico e Sali: Acqua/elettroliti ogni 20 min. Gel energetici ogni 40 min oltre i 14 km.`;
                 } else { nutritionBox.classList.add('hidden'); }
 
                 const shoeSelect = document.getElementById('detail-shoe-select');
@@ -883,8 +800,8 @@
                 dayObj.completed = !dayObj.completed;
                 if (dayObj.completed) {
                     dayObj.shoe = document.getElementById('detail-shoe-select').value;
-                    const shoeObj = this.shoes.find(s => s.name === dayObj.shoe);
-                    if (shoeObj) shoeObj.km += dayObj.km;
+                    let sObj = this.shoes.find(s => s.name === dayObj.shoe);
+                    if (sObj) sObj.km += dayObj.km;
                 }
                 this.saveData();
                 this.closeDetail();
@@ -894,99 +811,39 @@
             skipCurrentWorkout() {
                 if (this.activeDayIndex === null) return;
                 const dayObj = this.fullPlan.weeks[this.selectedWeekIndex].days[this.activeDayIndex];
-                dayObj.skipped = true;
-                dayObj.completed = false;
-                this.saveData();
-                this.closeDetail();
-                this.renderDashboard();
+                dayObj.skipped = true; dayObj.completed = false;
+                this.saveData(); this.closeDetail(); this.renderDashboard();
             }
 
             recordRaceAsWorkout() {
                 if (this.activeDayIndex === null) return;
                 const dayObj = this.fullPlan.weeks[this.selectedWeekIndex].days[this.activeDayIndex];
-                let raceKmInput = prompt("Quanti chilometri hai percorso in gara?", dayObj.km);
-                if (raceKmInput === null) return;
-                let raceKm = parseFloat(raceKmInput) || dayObj.km;
-
-                dayObj.completed = true;
-                dayObj.skipped = false;
-                dayObj.km = raceKm;
+                let kmInp = prompt("Chilometri percorsi in gara?", dayObj.km);
+                if (kmInp === null) return;
+                let km = parseFloat(kmInp) || dayObj.km;
+                dayObj.completed = true; dayObj.skipped = false; dayObj.km = km;
                 dayObj.title = "🏅 Partecipazione a Gara";
-                dayObj.instructions = `• Gara completata con successo (${raceKm} km).`;
-                this.saveData();
-                this.closeDetail();
-                this.renderDashboard();
-                alert(`🏆 Gara registrata (${raceKm} km)!`);
+                this.saveData(); this.closeDetail(); this.renderDashboard();
+                alert(`🏆 Gara registrata (${km} km)!`);
             }
 
             closeDetail() { this.showScreen('screen-dashboard'); }
             dropPlan() { if (confirm("Vuoi cambiare obiettivo?")) { this.fullPlan = null; this.saveData(); this.showScreen('screen-onboarding'); } }
-
-            openRaces() {
-                if (!this.profile.is_vip) { alert("⭐ L'Agenda Gare è riservata agli account VIP."); return; }
-                this.renderRacesList(); this.showScreen('screen-races');
-            }
+            openRaces() { if (!this.profile.is_vip) { alert("⭐ Funzione VIP."); return; } this.showScreen('screen-races'); }
             closeRaces() { this.showScreen('screen-dashboard'); }
             openInfo() { this.showScreen('screen-info'); }
             closeInfo() { this.showScreen('screen-dashboard'); }
-
-            renderRacesList() {
-                const container = document.getElementById('races-list-container');
-                container.innerHTML = '';
-                if (this.races.length === 0) { container.innerHTML = '<p class="text-slate-500 text-center py-2">Nessuna gara in agenda VIP.</p>'; return; }
-                this.races.forEach((r, idx) => {
-                    const div = document.createElement('div');
-                    div.className = "bg-slate-800 p-2 rounded-lg border border-slate-700 flex justify-between items-center text-xs";
-                    div.innerHTML = `<div><span class="font-bold text-white block">${r.name}</span><span class="text-[10px] text-slate-400">${r.dist} - ${r.date}</span></div><button onclick="app.deleteRace(${idx})" class="text-rose-400 cursor-pointer">Elimina</button>`;
-                    container.appendChild(div);
-                });
-            }
-
-            addRace() {
-                const name = document.getElementById('race-name').value;
-                const dist = `${document.getElementById('race-dist-select').value} km`;
-                const date = document.getElementById('race-date').value;
-                if (!name || !date) { alert("Inserisci nome e data."); return; }
-                this.races.push({ name, dist, date });
-                this.saveData();
-                this.renderRacesList();
-            }
-
-            deleteRace(idx) { this.races.splice(idx, 1); this.saveData(); this.renderRacesList(); }
-
-            openSettings() { this.renderShoesSettings(); this.showScreen('screen-settings'); }
+            openSettings() { this.showScreen('screen-settings'); }
             closeSettings() { this.showScreen('screen-dashboard'); }
-
-            handleImageUpload(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (e) => { this.avatarUrl = e.target.result; document.getElementById('settings-preview-avatar').src = this.avatarUrl; };
-                reader.readAsDataURL(file);
+            handleImageUpload(e) {
+                const f = e.target.files[0]; if(!f)return;
+                const r = new FileReader();
+                r.onload = (ev) => { this.avatarUrl = ev.target.result; document.getElementById('settings-preview-avatar').src = this.avatarUrl; };
+                r.readAsDataURL(f);
             }
-
-            renderShoesSettings() {
-                const container = document.getElementById('shoes-management-container');
-                container.innerHTML = '';
-                this.shoes.forEach((s, idx) => {
-                    const div = document.createElement('div');
-                    div.className = "bg-slate-900 p-2 rounded-lg border border-slate-700 flex justify-between items-center text-xs";
-                    div.innerHTML = `<div><span class="font-bold text-white block">${s.name}</span><span class="text-[10px] text-emerald-400">Usurata: ${s.km} km</span></div>`;
-                    container.appendChild(div);
-                });
-            }
-
-            saveSettings() { this.saveData(); this.closeSettings(); alert("Impostazioni salvate!"); }
-
-            exportCompletePDF() {
-                if (!this.profile.is_vip) { alert("⭐ Esportazione PDF riservata agli account VIP."); return; }
-                alert("Generazione PDF in corso...");
-            }
-
-            exportCompleteExcel() {
-                if (!this.profile.is_vip) { alert("⭐ Esportazione Excel riservata agli account VIP."); return; }
-                alert("Esportazione Excel in corso...");
-            }
+            saveSettings() { this.saveData(); this.closeSettings(); alert("Salvato!"); }
+            exportCompletePDF() { if (!this.profile.is_vip) { alert("⭐ Riservato VIP."); return; } alert("Esportazione PDF in corso..."); }
+            exportCompleteExcel() { if (!this.profile.is_vip) { alert("⭐ Riservato VIP."); return; } alert("Esportazione Excel in corso..."); }
         }
 
         const app = new RunnerApp();
