@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Running Coach Pro - Intelligent Edition</title>
+    <title>Running Coach Pro - Impeccable Edition</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="theme-color" content="#0f172a">
@@ -69,7 +69,7 @@
             <div class="text-center space-y-1">
                 <h1 class="text-3xl font-extrabold text-emerald-400">Running Coach Pro</h1>
                 <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Running Coach Pro – Designed by Jovy</p>
-                <p class="text-slate-400 text-xs">Algoritmo intelligente basato su profilo e biometria.</p>
+                <p class="text-slate-400 text-xs">Motore intelligente adattivo anti-infortunio.</p>
             </div>
             
             <div class="bg-slate-800 p-4 rounded-2xl space-y-3 border border-slate-700">
@@ -103,7 +103,7 @@
                     <div>
                         <label class="block text-xs uppercase text-slate-400 mb-1">Livello</label>
                         <select id="profile-level" class="w-full p-2 bg-slate-900 rounded-xl border border-slate-700 text-white text-xs">
-                            <option value="principiante" selected>Principiante (Graduale 🟢)</option>
+                            <option value="principiante" selected>Principiante (Protetto 🟢)</option>
                             <option value="intermedio">Intermedio (Costante 🟡)</option>
                             <option value="evoluto">Evoluto (Spinto 🔴)</option>
                         </select>
@@ -187,7 +187,7 @@
                 </div>
 
                 <button type="button" onclick="app.generatePlan()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">
-                    Genera Programma Intelligente
+                    Genera Programma Impeccabile
                 </button>
             </div>
         </div>
@@ -357,7 +357,7 @@
         <div id="welcome-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-slate-800 border border-emerald-500/40 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-center">
                 <h3 class="font-extrabold text-emerald-400 text-base">📖 Benvenuto in Running Coach Pro</h3>
-                <p class="text-[10px] text-slate-300">Intelligenza adattiva attivata in base al tuo profilo bio-metrico.</p>
+                <p class="text-[10px] text-slate-300">Motore intelligente adattivo attivato con successo.</p>
                 <button type="button" onclick="app.closeWelcomeModal()" class="w-full py-3 bg-emerald-500 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">Iniziamo! 🚀</button>
             </div>
         </div>
@@ -372,10 +372,10 @@
 
         <div id="screen-info" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto text-xs text-slate-300">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-                <h3 class="font-bold text-emerald-400 text-sm">📖 Motore Intelligente</h3>
+                <h3 class="font-bold text-emerald-400 text-sm">📖 Motore Impeccabile</h3>
                 <button type="button" onclick="app.closeInfo()" class="text-slate-400 text-xs cursor-pointer">✕ Chiudi</button>
             </div>
-            <p>L'app pondera età, peso, struttura e livello, adattando i volumi e i ritmi in modo protettivo e integrando automaticamente gli scarichi prima delle gare in agenda.</p>
+            <p>L'app modula volumi e ritmi in base all'età, al peso e alla struttura fisica, impedendo ritmi estremi e sincronizzando automaticamente gli scarichi prima delle gare.</p>
             <button type="button" onclick="app.closeInfo()" class="w-full py-2 bg-slate-700 font-bold rounded-xl text-white cursor-pointer mt-2">Torna alla Dashboard</button>
         </div>
 
@@ -414,7 +414,7 @@
         </footer>
     </div>
 
-    <!-- LOGICA INTELLIGENTE ADATTIVA -->
+    <!-- LOGICA DEFINITIVA BLINDATA E IMPECCABILE -->
     <script>
         const SUPABASE_URL = "https://eaxqmxtgogzadwmbjzil.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_0_YjpPPK8om98MQGjtK-6g_KZqYxz8K";
@@ -582,11 +582,21 @@
                 else if (raceType === 'marathon') paceSec = this.parseTimeToSeconds(targetInput) / 42.2;
                 else paceSec = 360;
 
-                // Calcolo intelligente dei delta basati su biometria e struttura
+                // MOTORE BLINDATO PER PRINCIPIANTI: NESSUN RITMO ESTREMO
+                if (level === 'principiante') {
+                    let slowSec = Math.max(390, paceSec + 100); // Corsa lenta protetta e confortevole (es. 6'30"+)
+                    return {
+                        slow: this.formatSecondsToPace(slowSec),
+                        race: this.formatSecondsToPace(Math.max(330, paceSec)),
+                        intervalFast: this.formatSecondsToPace(Math.max(330, paceSec + 10)), // Mai ritmi da 4'00" per principianti!
+                        intervalMedium: this.formatSecondsToPace(slowSec - 20)
+                    };
+                }
+
+                // Logica per Intermedi ed Evoluti
                 let slowOffset = 75;
                 if (age > 45) slowOffset += 15;
                 if (build === 'pesante' || weight > 80) slowOffset += 15;
-                if (level === 'principiante') slowOffset += 20;
 
                 return {
                     slow: this.formatSecondsToPace(paceSec + slowOffset),
@@ -620,9 +630,9 @@
                 const weight = parseFloat(document.getElementById('profile-weight').value) || 70;
                 const build = document.getElementById('profile-build').value;
 
-                // Volume base intelligente ponderato su livello, peso e struttura
-                let baseKm = level === 'principiante' ? 14 : level === 'intermedio' ? 22 : 32;
-                if ((build === 'pesante' || weight > 80) && level === 'principiante') baseKm = 12;
+                // Volume base intelligente ponderato su livello, peso e struttura (PRINCIPIANTI = 12 KM MAX DI BASE)
+                let baseKm = level === 'principiante' ? 12 : level === 'intermedio' ? 20 : 28;
+                if ((build === 'pesante' || weight > 80) && level === 'principiante') baseKm = 10;
 
                 const paces = this.calculatePaces();
 
@@ -640,7 +650,7 @@
                 const dayNameToIndex = { 'Lunedì': 0, 'Martedì': 1, 'Mercoledì': 2, 'Giovedì': 3, 'Venerdì': 4, 'Sabato': 5, 'Domenica': 6 };
 
                 for (let w = 1; w <= weeksCount; w++) {
-                    let weekKm = baseKm + (w * 1.5);
+                    let weekKm = baseKm + (w * 1.0); // Incremento prudente (+1 km a settimana)
                     if (w % 4 === 0) weekKm *= 0.75; // Settimana di scarico
 
                     let firstWeekMonday = new Date(startDate);
@@ -699,17 +709,17 @@
                             }
                         } else {
                             if (isLong) {
-                                sessionKm = level === 'principiante' ? 10 : level === 'intermedio' ? 14 : 18;
+                                sessionKm = level === 'principiante' ? 8 : level === 'intermedio' ? 12 : 16;
                                 title = level === 'principiante' ? "Lungo Protettivo (Metodo 9+1)" : "Lungo Specifico";
-                                desc = `• ${sessionKm} km a ritmo costante (${paces.slow}). Focus su regolarità e idratazione.`;
+                                desc = `• ${sessionKm} km a ritmo costante protettivo (${paces.slow}). Focus su regolarità e idratazione.`;
                             } else if (isQuality) {
-                                sessionKm = 5;
+                                sessionKm = 4;
                                 title = level === 'principiante' ? "Fartlek Dolce" : "Variazioni di Ritmo";
-                                desc = `• Riscaldamento + Variazioni controllate a ${paces.intervalFast}. Totale: ${sessionKm} km.`;
+                                desc = `• Variazioni controllate e sicure. Totale: ${sessionKm} km.`;
                             } else {
-                                sessionKm = level === 'principiante' ? 4 : 6;
+                                sessionKm = level === 'principiante' ? 3 : 5;
                                 title = "Corsa Lenta Facile";
-                                desc = `• Corsa rigenerante: ${sessionKm} km a ${paces.slow}.`;
+                                desc = `• Corsa rigenerante e breve: ${sessionKm} km a ${paces.slow}.`;
                             }
                         }
 
@@ -725,7 +735,7 @@
                 this.saveData();
                 this.renderDashboard();
                 this.showScreen('screen-dashboard');
-                alert("✨ Programma intelligente generato in base al tuo profilo e alle gare in agenda!");
+                alert("✨ Programma impeccabile generato in base al tuo profilo e alle gare in agenda!");
             }
 
             renderDashboard() {
