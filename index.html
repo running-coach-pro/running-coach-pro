@@ -341,7 +341,7 @@
                 </div>
                 
                 <div id="nutrition-strategy-box" class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-amber-300 hidden space-y-1.5">
-                    <span class="font-bold block text-[11px] uppercase text-amber-400">🍌 Strategia Integrazione:</span>
+                    <span class="font-bold block text-[11px] uppercase text-amber-400">🍌 Strategia Integrazione Avanzata (>14km):</span>
                     <p id="nutrition-plan-text" class="text-[11px] leading-relaxed"></p>
                 </div>
 
@@ -500,7 +500,7 @@
                     <p>Pensata per i runner più esigenti e per la gestione di competizioni multiple:</p>
                     <ul class="list-disc pl-4 space-y-1 text-slate-400">
                         <li><strong>Distanze e Obiettivi illimitati:</strong> Mezza Maratona (21.1 km), Maratona (42.2 km), distanze custom (es. 15km, 33km) e Ultramaratone a km o a tempo (6 ore, 12 ore, ecc.).</li>
-                        <li><strong>Agenda Gare Universale:</strong> Inserisci le tue gare in calendario con data esatta. L'app riconosce l'evento, sostituisce automaticamente il lungo domenicale con la gara ufficiale e applica uno scarico preventivo dei volumi nei giorni precedenti.</li>
+                        <li><strong>Agenda Gare Universale:</strong> Inserisci le tue gare in calendario con data esatta. L'app riconosce l'evento, sostituisce automaticamente il lungo domenicale con la competizione ufficiale e applica uno scarico preventivo dei volumi nei giorni precedenti.</li>
                         <li><strong>Personalizzazione Totale:</strong> Scelta libera dei giorni di qualità e dei lunghi, tabelle estese fino a 16 settimane.</li>
                         <li><strong>Esportazione Report:</strong> Download della tabella ufficiale in formato PDF impaginato o foglio di calcolo Excel.</li>
                     </ul>
@@ -554,7 +554,6 @@
                             <button type="button" onclick="app.analyzeShoeWithAI()" class="px-3 bg-amber-500 font-bold rounded-lg text-slate-950 cursor-pointer text-xs">✨ Analizza</button>
                         </div>
                         
-                        <!-- CAMPO CHILOMETRI INIZIALI SCARPA -->
                         <div>
                             <label class="block text-[9px] uppercase text-slate-400 mb-1">Chilometri già percorsi (opzionale)</label>
                             <input type="number" id="new-shoe-initial-km" value="0" placeholder="Es. 150" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
@@ -803,7 +802,7 @@
             formatSecondsToPace(secPerKm) {
                 let mins = Math.floor(secPerKm / 60);
                 let secs = Math.round(secPerKm % 60);
-                return `${mins}'${secs < 10 ? '0' : ''}${secs}"`;
+                return `${mins}'${secs < 10 ? '0' : ''}${secs}"/km`;
             }
 
             calculatePaces() {
@@ -907,11 +906,11 @@
 
                 let weeks = [];
                 const qualityWorkouts = [
-                    { name: "Ripetute Brevi (Velocità)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 10 x 400m a ${p.intervalFast}/km (Recupero 1'30\").\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Fartlek Strutturato", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 8 x (1 min forte a ${p.intervalFast}/km / 1 min lento).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Ripetute Medie (Soglia)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 4 x 1000m a ${p.race}/km (Recupero 2 min).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Fartlek Piramidale", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: Variazioni 1'-2'-3'-4'-3'-2'-1' a ritmo sostenuto (${p.intervalMedium}/km).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Ripetute Lunghe", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 3 x 2000m a ${p.intervalMedium}/km (Recupero 2'30\").\n• Defaticamento: 1 km (Totale: ${sKm} km).` }
+                    { name: "Ripetute Brevi (Velocità)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}).\n• Blocco: 10 x 400m a ${p.intervalFast} (Recupero 1'30\").\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Fartlek Strutturato", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}).\n• Blocco: 8 x (1 min forte a ${p.intervalFast} / 1 min lento).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Ripetute Medie (Soglia)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}).\n• Blocco: 4 x 1000m a ${p.race} (Recupero 2 min).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Fartlek Piramidale", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}).\n• Blocco: Variazioni 1'-2'-3'-4'-3'-2'-1' a ritmo sostenuto (${p.intervalMedium}).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Ripetute Lunghe", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}).\n• Blocco: 3 x 2000m a ${p.intervalMedium} (Recupero 2'30\").\n• Defaticamento: 1 km (Totale: ${sKm} km).` }
                 ];
 
                 let startDate = new Date(); startDate.setHours(0,0,0,0);
@@ -968,7 +967,7 @@
                         }
 
                         let title = "Corsa Lenta Rigenerante";
-                        let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento/Rigenerante (${paces.slow}/km).\n• Defaticamento: 5 min allungamento.`;
+                        let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento/Rigenerante (${pocketsSlowFix(paces.slow)}).\n• Defaticamento: 5 min allungamento.`;
                         
                         let defaultShoe = this.shoes[0] ? this.shoes[0].name : "Standard";
                         if (isLong && this.shoes.some(s => s.category && s.category.includes('Lungo'))) {
@@ -985,7 +984,7 @@
                             desc = `• Gara Ufficiale in Agenda VIP (${matchedRaceForDay.name} - ${raceDistLabel}).\n• Sostituzione forzata: nessun lungo di tabella pianificato in questa data. Gestisci la competizione in totale autonomia.`;
                         } else if (isLong) {
                             title = isUltra ? "Lungo Endurance Ultra (Metodo 9+1)" : "Lungo Specifico (Metodo 9+1)";
-                            desc = `• Modalità Time on Feet: Alterna 9 min corsa lenta (${paces.slow}/km) e 1 min camminata.\n• Distanza Obiettivo: ${sessionKm} km (Focus su gestione idratazione e ristori).`;
+                            desc = `• Modalità Time on Feet: Alterna 9 min corsa lenta (${paces.slow}) e 1 min camminata.\n• Distanza Obiettivo: ${sessionKm} km (Focus su gestione idratazione e ristori).`;
                         } else if (isQuality) {
                             let qWorkout = qualityWorkouts[(w - 1) % qualityWorkouts.length];
                             title = hasRaceThisWeek ? `Qualità (Scarico Pre-Gara): ${qWorkout.name}` : `Qualità: ${qWorkout.name}`;
@@ -999,12 +998,14 @@
                     weeks.push({ weekNumber: w, totalKm: actualWeekKm, days: daysData });
                 }
 
+                function pocketsSlowFix(val) { return val; }
+
                 this.fullPlan = { weeks: weeks };
                 this.selectedWeekIndex = 0;
                 this.saveData();
                 this.renderDashboard();
                 this.showScreen('screen-dashboard');
-                alert("✨ Tabella generata con successo: Agenda Gare verificata per data e scarichi preventivi applicati!");
+                alert("✨ Tabella generata con successo: Parametri profilo analizzati, ritmi calibrati e carichi ottimizzati!");
             }
 
             renderDashboard() {
@@ -1119,8 +1120,17 @@
                     btnComp.innerText = "✔ Segna come Completato";
                 }
 
-                document.getElementById('nutrition-strategy-box').classList.toggle('hidden', !(dayObj.title.includes('Lungo') || dayObj.km >= 18 || dayObj.title.includes('Gara')));
-                document.getElementById('nutrition-plan-text').innerText = "Gestisci l'integrazione con gel o sali a seconda della distanza e dell'intensità della competizione in programma.";
+                // REGOLA AGGIORNATA >14km per Integrazione Avanzata
+                const nutritionBox = document.getElementById('nutrition-strategy-box');
+                if (dayObj.km > 14 || dayObj.title.includes('Gara') || dayObj.title.includes('Lungo')) {
+                    nutritionBox.classList.remove('hidden');
+                    document.getElementById('nutrition-plan-text').innerText = 
+                        `• Protocollo Idrico: Sorsi regolari di acqua e sali minerali (elettroliti) ogni 20-25 minuti.\n` +
+                        `• Gel Energetici: 1 gel ogni 35-45 min (iniziando dal 45°/50° minuto), sempre abbinato a un sorso d'acqua.\n` +
+                        `• Supporto Solido (Dolce/Salato): Per sessioni e gare molto lunghe (>2 ore), alterna gel a piccoli snack salati (es. mini pretzel o parmigiano) o dolci (frutta secca/barrette) ogni 60-90 minuti per evitare la fatica da gusto dolce e reintegrare il sodio.`;
+                } else {
+                    nutritionBox.classList.add('hidden');
+                }
 
                 const shoeSelect = document.getElementById('detail-shoe-select');
                 shoeSelect.innerHTML = '';
