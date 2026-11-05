@@ -530,17 +530,35 @@
                     <input type="file" id="avatar-file-input" accept="image/*" onchange="app.handleImageUpload(event)" class="w-full text-[11px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600 file:cursor-pointer cursor-pointer">
                 </div>
 
-                <div class="bg-slate-900 p-3 rounded-xl border border-amber-500/40 space-y-2">
-                    <span class="font-bold text-amber-400 uppercase tracking-wider text-[10px] block">⭐ Gestione Stato VIP</span>
-                    <p class="text-[10px] text-slate-400">Inserisci il codice segreto per sbloccare tutte le funzioni avanzate.</p>
-                    <div class="flex space-x-1">
-                        <input type="password" id="vip-secret-input" placeholder="Codice segreto..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
-                        <button type="button" onclick="app.unlockVipWithCode()" class="px-3 bg-amber-500 font-bold rounded-lg text-slate-950 cursor-pointer text-xs">Sblocca</button>
+                <!-- SEZIONE VIP AGGIORNATA CON SUPPORTO 3€ E CODICE PERSONALE VIA EMAIL -->
+                <div class="bg-slate-900 p-3 rounded-xl border border-amber-500/40 space-y-2.5">
+                    <span class="font-bold text-amber-400 uppercase tracking-wider text-[10px] block">⭐ Versione VIP - Supporta il Progetto (3€)</span>
+                    <p class="text-[10px] text-slate-400 leading-relaxed">
+                        Sblocca tutte le funzioni avanzate con un piccolo contributo volontario di <strong>3€ una tantum</strong>.
+                    </p>
+
+                    <div class="bg-slate-800 p-2.5 rounded-lg border border-slate-700 text-[11px] text-slate-300 space-y-1">
+                        <strong>Come funziona:</strong><br>
+                        1. Clicca su <em>Richiedi Accesso VIP</em> per inviarmi la richiesta via email.<br>
+                        2. Effettua la donazione di supporto di 3€.<br>
+                        3. Riceverai il tuo <strong>codice personale univoco</strong> via email.<br>
+                        4. Inseriscilo qui sotto per attivare il VIP in modo permanente!
                     </div>
-                    <div class="pt-2 border-t border-slate-800 text-center">
-                        <a id="vip-email-link" href="#" onclick="app.openVipEmailRequest()" class="block w-full py-2 bg-amber-500/20 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/40 cursor-pointer text-center no-underline">
-                            ✉️ Invia Richiesta VIP via Email
-                        </a>
+
+                    <!-- Pulsante per richiedere via email -->
+                    <button type="button" onclick="app.openVipEmailRequest()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/30 cursor-pointer">
+                        ✉️ Richiedi Accesso VIP (Invia Email)
+                    </button>
+
+                    <!-- Link per donare (sostituisci paypal.me/TUONOMETODO con il tuo link reale) -->
+                    <a href="https://paypal.me/TUONOMETODO" target="_blank" class="block text-center py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/40 no-underline">
+                        ☕ Dona il tuo contributo di 3€ (Link esterno)
+                    </a>
+
+                    <!-- Campo di inserimento codice personale -->
+                    <div class="flex space-x-1 pt-1">
+                        <input type="text" id="vip-secret-input" placeholder="Codice (es. RUNGIOV2026)..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs uppercase">
+                        <button type="button" onclick="app.unlockVipWithCode()" class="px-3 bg-amber-500 font-bold rounded-lg text-slate-950 cursor-pointer text-xs">Attiva</button>
                     </div>
                 </div>
 
@@ -571,7 +589,7 @@
         </footer>
     </div>
 
-    <!-- LOGICA APPLICAZIONE CON VOLUMI E QUALITÀ BILANCIATI -->
+    <!-- LOGICA APPLICAZIONE COMPLETA -->
     <script>
         const SUPABASE_URL = "https://eaxqmxtgogzadwmbjzil.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_0_YjpPPK8om98MQGjtK-6g_KZqYxz8K";
@@ -687,24 +705,50 @@
             showVipInfoModal() { document.getElementById('vip-info-modal').classList.remove('hidden'); }
             closeVipInfoModal() { document.getElementById('vip-info-modal').classList.add('hidden'); }
 
+            // VERIFICA DEL CODICE PERSONALE BASATO SULL'EMAIL DELL'UTENTE
             unlockVipWithCode() {
-                const secret = document.getElementById('vip-secret-input').value.trim();
-                if (secret === "jovyvip" || secret === "RUNNINGVIP2026") {
+                const inputCode = document.getElementById('vip-secret-input').value.trim().toUpperCase();
+                if (!inputCode) {
+                    alert("Inserisci un codice valido.");
+                    return;
+                }
+
+                const email = (this.userEmail || "").trim().toLowerCase();
+                if (!email) {
+                    alert("Errore: effettua prima il login con la tua email.");
+                    return;
+                }
+
+                // Estrae la parte iniziale dell'email pulendo i caratteri speciali
+                const emailPrefix = email.split('@')[0].replace(/[^a-z0-9]/gi, '').toUpperCase();
+                
+                // Regola di generazione sicura: 'RUN' + prefisso email + '2026'
+                const expectedCode = ("RUN" + emailPrefix + "2026").toUpperCase();
+
+                if (inputCode === expectedCode) {
                     this.profile.is_vip = true;
                     this.profile.vip_requested = false;
                     this.saveData();
                     this.renderDashboard();
-                    alert("🎉 Account aggiornato a VIP ⭐ con successo!");
+                    alert("🎉 Codice verificato con successo! Account aggiornato a VIP ⭐.");
                     this.closeSettings();
                 } else {
-                    alert("❌ Codice non valido.");
+                    alert("❌ Codice non valido per questa email. Controlla di aver inserito il codice corretto ricevuto via email.");
                 }
             }
 
             openVipEmailRequest() {
                 this.profile.vip_requested = true;
                 this.saveData();
-                window.location.href = `mailto:jovy1972@gmail.com?subject=Richiesta Accesso VIP - Running Coach Pro&body=Ciao Jovy,%0D%0AVorrei l'accesso VIP per la mia email: ${this.userEmail}`;
+                const userEmail = this.userEmail || "Non specificata";
+                const subject = encodeURIComponent("Richiesta Accesso VIP - Running Coach Pro");
+                const body = encodeURIComponent(
+                    `Ciao Jovy,\n\nVorrei richiedere l'accesso VIP per Running Coach Pro.\n` +
+                    `La mia email registrata nell'app è: ${userEmail}\n\n` +
+                    `Desidero effettuare il piccolo contributo di supporto di 3€.\n\n` +
+                    `Grazie!`
+                );
+                window.location.href = `mailto:jovy1972@gmail.com?subject=${subject}&body=${body}`;
             }
 
             showScreen(screenId) {
@@ -890,7 +934,6 @@
                 const weight = parseFloat(document.getElementById('profile-weight').value) || 70;
                 const build = document.getElementById('profile-build').value;
                 
-                // --- MODIFICA: BASE CHILOMETRICA PIÙ UMANA E SOSTENIBILE ---
                 let baseKm = 22;
                 let isUltra = (raceType === 'ultra_km' || raceType === 'ultra_time');
                 
@@ -923,23 +966,22 @@
 
                 let weeks = [];
                 const qualityWorkouts = [
-                    { name: "Ripetute Brevi (Velocità)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 8 x 400m a ${p.intervalFast}/km (Recupero 1'30" camminata).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Ripetute Brevi (Velocità)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 8 x 400m a ${p.intervalFast}/km (Recupero 1'30\" camminata).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
                     { name: "Fartlek Strutturato", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 6 x (1 min forte a ${p.intervalFast}/km / 1 min lento a ${p.slow}/km).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
                     { name: "Ripetute Medie (Soglia)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 3 x 1000m a ${p.race}/km (Recupero 2 min attivo).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
                     { name: "Fartlek Piramidale", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: Variazioni 1'-2'-3'-2'-1' a ritmo sostenuto (${p.intervalMedium}/km).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Ripetute Lunghe", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 2 x 2000m a ${p.intervalMedium}/km (Recupero 2'30" recupero attivo).\n• Defaticamento: 1 km (Totale: ${sKm} km).` }
+                    { name: "Ripetute Lunghe", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 2 x 2000m a ${p.intervalMedium}/km (Recupero 2'30\" recupero attivo).\n• Defaticamento: 1 km (Totale: ${sKm} km).` }
                 ];
 
                 let startDate = new Date(); startDate.setHours(0,0,0,0);
                 const dayNameToIndex = { 'Lunedì': 0, 'Martedì': 1, 'Mercoledì': 2, 'Giovedì': 3, 'Venerdì': 4, 'Sabato': 5, 'Domenica': 6 };
 
                 for (let w = 1; w <= weeksCount; w++) {
-                    // --- CURVA DI CRESCITA DOLCE (1.5 km a settimana invece di 2.5) ---
                     let weekKm = baseKm + (w * 1.5);
-                    if (w % 4 === 0) weekKm *= 0.8; // Scarico
+                    if (w % 4 === 0) weekKm *= 0.8;
 
                     let longSessionKm = isUltra ? Math.min(28, Math.round(weekKm * 0.38)) : Math.min(22, Math.round(weekKm * 0.32));
-                    let maxInfrasettimanaleKm = Math.min(10, Math.round(longSessionKm * 0.55)); // Massimo 10 km in settimana per preservare i tendini
+                    let maxInfrasettimanaleKm = Math.min(10, Math.round(longSessionKm * 0.55));
 
                     let firstWeekMonday = new Date(startDate);
                     let dow = firstWeekMonday.getDay();
@@ -974,13 +1016,13 @@
                         if (isLong) {
                             sessionKm = longSessionKm;
                         } else if (isQuality) {
-                            sessionKm = Math.min(12, Math.round(weekKm * 0.28)); // Lavori di qualità protetti e mai sopra i 12 km
+                            sessionKm = Math.min(12, Math.round(weekKm * 0.28));
                             if (hasRaceThisWeek) {
                                 sessionKm = Math.max(5, Math.round(sessionKm * 0.70));
                             }
                         } else {
                             sessionKm = Math.min(sessionKm, maxInfrasettimanaleKm);
-                            sessionKm = Math.max(7, sessionKm); // Corsa lenta rigenerante umana (7-10 km)
+                            sessionKm = Math.max(7, sessionKm);
                         }
 
                         let title = "Corsa Lenta Rigenerante (Fondo Lento)";
@@ -998,10 +1040,10 @@
                             title = `🏅 Gara in Programma: ${matchedRaceForDay.name}`;
                             let parsedRaceKm = parseFloat(matchedRaceForDay.dist) || sessionKm;
                             sessionKm = isNaN(parsedRaceKm) ? sessionKm : parsedRaceKm;
-                            desc = `• Gara Ufficiale in Agenda VIP (${matchedRaceForDay.name} - ${raceDistLabel}).\n• Sostituzione forzata: nessun lungo di tabella pianificato in questa data. Gestisci la competizione in totale autonomia.`;
+                            desc = `• Gara Ufficiale in Agenda VIP (${matchedRaceForDay.name} - ${raceDistLabel}).\n• Sostituzione forzata: nessun lungo di tabella pianificato in questa data.`;
                         } else if (isLong) {
                             title = isUltra ? "Lungo Endurance Ultra (Metodo 9+1)" : "Lungo Specifico (Metodo 9+1 Protettivo)";
-                            desc = `• Modalità Time on Feet: Alterna 9 min corsa lenta (${paces.slow}/km) e 1 min camminata.\n• Distanza Obiettivo: ${sessionKm} km (Focus su gestione idratazione, ristori e protezione polpacci).`;
+                            desc = `• Modalità Time on Feet: Alterna 9 min corsa lenta (${paces.slow}/km) e 1 min camminata.\n• Distanza Obiettivo: ${sessionKm} km.`;
                         } else if (isQuality) {
                             let qWorkout = qualityWorkouts[(w - 1) % qualityWorkouts.length];
                             title = hasRaceThisWeek ? `Qualità (Scarico Pre-Gara): ${qWorkout.name}` : `Qualità: ${qWorkout.name}`;
@@ -1020,7 +1062,7 @@
                 this.saveData();
                 this.renderDashboard();
                 this.showScreen('screen-dashboard');
-                alert(`✨ Tabella generata con successo (${weeksCount} settimane, volumi bilanciati e sostenibili)!`);
+                alert(`✨ Tabella generata con successo (${weeksCount} settimane)!`);
             }
 
             renderDashboard() {
