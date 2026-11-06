@@ -332,14 +332,17 @@
                 <div id="weekly-schedule-container" class="space-y-2"></div>
             </div>
 
-            <div class="space-y-1.5">
-                <button type="button" onclick="app.dropPlan()" class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-semibold rounded-xl text-xs border border-rose-500/20 cursor-pointer">
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="app.openEditDaysModal()" class="py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold rounded-xl text-xs border border-amber-500/40 cursor-pointer">
+                    ⚙️ Modifica Giorni
+                </button>
+                <button type="button" onclick="app.dropPlan()" class="py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-semibold rounded-xl text-xs border border-rose-500/20 cursor-pointer">
                     Cambia Obiettivo
                 </button>
-                <button type="button" onclick="app.logout()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs border border-slate-700 cursor-pointer">
-                    🔒 Esci (Logout)
-                </button>
             </div>
+            <button type="button" onclick="app.logout()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs border border-slate-700 cursor-pointer">
+                🔒 Esci (Logout)
+            </button>
         </div>
 
         <!-- 3. DETTAGLIO ALLENAMENTO -->
@@ -485,6 +488,63 @@
                 <button type="button" onclick="app.closeVipInfoModal()" class="w-full py-2.5 bg-amber-500 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">
                     Ho capito 👍
                 </button>
+            </div>
+        </div>
+
+        <!-- 5.C MODALE MODIFICA GIORNI DI ALLENAMENTO -->
+        <div id="edit-days-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-slate-800 border border-emerald-500/40 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
+                <div class="text-center space-y-1">
+                    <h3 class="font-extrabold text-emerald-400 text-base">⚙️ Modifica Giorni di Allenamento</h3>
+                    <p class="text-[10px] text-slate-400">Aggiorna la tua disponibilità settimanale (lo storico resterà al sicuro).</p>
+                </div>
+                
+                <div class="space-y-3 text-xs">
+                    <div class="space-y-1.5">
+                        <label class="block uppercase text-emerald-400 font-bold">Giorni settimanali</label>
+                        <div class="grid grid-cols-4 gap-1.5 text-xs">
+                            <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="edit-train-day" value="Lunedì"> <span>Lun</span></label>
+                            <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="edit-train-day" value="Martedì"> <span>Mar</span></label>
+                            <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="edit-train-day" value="Mercoledì"> <span>Mer</span></label>
+                            <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="edit-train-day" value="Giovedì"> <span>Gio</span></label>
+                            <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="edit-train-day" value="Venerdì"> <span>Ven</span></label>
+                            <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700"><input type="checkbox" name="edit-train-day" value="Sabato"> <span>Sab</span></label>
+                            <label class="flex items-center space-x-1 bg-slate-900 p-2 rounded-lg border border-slate-700 col-span-2"><input type="checkbox" name="edit-train-day" value="Domenica"> <span>Domenica</span></label>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
+                        <span class="text-[10px] uppercase text-amber-400 font-bold block">Sedute Chiave</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">Qualità</label>
+                                <select id="edit-quality-day" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                                    <option value="Mercoledì">Mercoledì</option>
+                                    <option value="Martedì">Martedì</option>
+                                    <option value="Giovedì">Giovedì</option>
+                                    <option value="Venerdì">Venerdì</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">Lungo</label>
+                                <select id="edit-long-day" class="w-full p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs font-bold">
+                                    <option value="Domenica">Domenica</option>
+                                    <option value="Sabato">Sabato</option>
+                                    <option value="Venerdì">Venerdì</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="app.saveEditedDays()" class="flex-1 py-2.5 bg-emerald-500 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">
+                        Aggiorna Programma
+                    </button>
+                    <button type="button" onclick="app.closeEditDaysModal()" class="py-2.5 px-3 bg-slate-700 font-bold rounded-xl text-white text-xs cursor-pointer">
+                        Annulla
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -704,6 +764,177 @@
 
             showVipInfoModal() { document.getElementById('vip-info-modal').classList.remove('hidden'); }
             closeVipInfoModal() { document.getElementById('vip-info-modal').classList.add('hidden'); }
+
+            openEditDaysModal() {
+                if (!this.profile.trainDays) return;
+                const checkboxes = document.querySelectorAll('input[name="edit-train-day"]');
+                checkboxes.forEach(cb => { cb.checked = this.profile.trainDays.includes(cb.value); });
+                document.getElementById('edit-quality-day').value = this.profile.qualityDay || 'Mercoledì';
+                document.getElementById('edit-long-day').value = this.profile.longDay || 'Domenica';
+                document.getElementById('edit-days-modal').classList.remove('hidden');
+            }
+
+            closeEditDaysModal() {
+                document.getElementById('edit-days-modal').classList.add('hidden');
+            }
+
+            saveEditedDays() {
+                const selectedDays = Array.from(document.querySelectorAll('input[name="edit-train-day"]:checked')).map(cb => cb.value);
+                if (selectedDays.length === 0) { alert("Seleziona almeno un giorno di allenamento!"); return; }
+                
+                const qualityDay = document.getElementById('edit-quality-day').value;
+                const longDay = document.getElementById('edit-long-day').value;
+
+                if (!selectedDays.includes(qualityDay) || !selectedDays.includes(longDay)) {
+                    alert(`Attenzione: Il giorno di qualità (${qualityDay}) e il giorno del lungo (${longDay}) devono essere inclusi tra i giorni selezionati!`);
+                    return;
+                }
+
+                this.profile.trainDays = selectedDays;
+                this.profile.qualityDay = qualityDay;
+                this.profile.longDay = longDay;
+
+                this.closeEditDaysModal();
+                this.regeneratePlanPreservingHistory();
+                alert("✨ Giorni di allenamento aggiornati con successo!");
+            }
+
+            regeneratePlanPreservingHistory() {
+                if (!this.fullPlan || !this.fullPlan.weeks) return;
+                
+                // Mappa dei giorni completati salvati in precedenza per data
+                let completedMap = {};
+                this.fullPlan.weeks.forEach(w => {
+                    w.days.forEach(d => {
+                        if (d.completed || d.skipped) {
+                            // Troviamo la data esatta o salviamo per titolo/chiave
+                            completedMap[d.day + '-' + w.weekNumber] = { completed: d.completed, skipped: d.skipped, shoe: d.shoe, notes: d.notes, km: d.km, title: d.title };
+                        }
+                    });
+                });
+
+                let weeksCount = this.profile.weeksCount || this.fullPlan.weeks.length;
+                const selectedDays = this.profile.trainDays;
+                const qualityDay = this.profile.qualityDay;
+                const longDay = this.profile.longDay;
+                const raceType = this.profile.raceType;
+                
+                const age = this.profile.age || 40;
+                const weight = this.profile.weight || 70;
+                const build = this.profile.build || 'pesante';
+                
+                let baseKm = 22;
+                let isUltra = (raceType === 'ultra_km' || raceType === 'ultra_time');
+                if (raceType === 'half' || raceType === 'marathon' || raceType === 'custom_km') baseKm = 28;
+                else if (isUltra) baseKm = 35;
+                if (build === 'pesante' || age > 50) { if (!isUltra) baseKm = Math.max(20, baseKm - 4); }
+
+                const paces = this.calculatePaces();
+                let weeks = [];
+                const qualityWorkouts = [
+                    { name: "Ripetute Brevi (Velocità)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 8 x 400m a ${p.intervalFast}/km (Recupero 1'30\" camminata).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Fartlek Strutturato", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 6 x (1 min forte a ${p.intervalFast}/km / 1 min lento a ${p.slow}/km).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Ripetute Medie (Soglia)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 3 x 1000m a ${p.race}/km (Recupero 2 min attivo).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Fartlek Piramidale", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: Variazioni 1'-2'-3'-2'-1' a ritmo sostenuto (${p.intervalMedium}/km).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
+                    { name: "Ripetute Lunghe", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 2 x 2000m a ${p.intervalMedium}/km (Recupero 2'30\" recupero attivo).\n• Defaticamento: 1 km (Totale: ${sKm} km).` }
+                ];
+
+                let startDate = new Date(); startDate.setHours(0,0,0,0);
+                const dayNameToIndex = { 'Lunedì': 0, 'Martedì': 1, 'Mercoledì': 2, 'Giovedì': 3, 'Venerdì': 4, 'Sabato': 5, 'Domenica': 6 };
+
+                for (let w = 1; w <= weeksCount; w++) {
+                    let weekKm = baseKm + (w * 1.5);
+                    if (w % 4 === 0) weekKm *= 0.8;
+
+                    let longSessionKm = isUltra ? Math.min(28, Math.round(weekKm * 0.38)) : Math.min(22, Math.round(weekKm * 0.32));
+                    let maxInfrasettimanaleKm = Math.min(10, Math.round(longSessionKm * 0.55));
+
+                    let firstWeekMonday = new Date(startDate);
+                    let dow = firstWeekMonday.getDay();
+                    let distToMon = dow === 0 ? -6 : 1 - dow;
+                    firstWeekMonday.setDate(firstWeekMonday.getDate() + distToMon + (w - 1) * 7);
+
+                    let weekStart = new Date(firstWeekMonday);
+                    let weekEnd = new Date(firstWeekMonday); weekEnd.setDate(weekEnd.getDate() + 6);
+
+                    let hasRaceThisWeek = this.races.some(r => {
+                        if (!r.date) return false;
+                        let rDate = new Date(r.date);
+                        return rDate >= weekStart && rDate <= weekEnd;
+                    });
+                    if (hasRaceThisWeek) weekKm *= 0.80;
+
+                    let daysData = selectedDays.map((dayName) => {
+                        let dayIndex = dayNameToIndex[dayName];
+                        let exactDayDate = new Date(firstWeekMonday);
+                        exactDayDate.setDate(firstWeekMonday.getDate() + dayIndex);
+                        let dateKey = this.formatDateKey(exactDayDate);
+
+                        let matchedRaceForDay = this.races.find(r => r.date === dateKey);
+                        let isLong = (dayName === longDay);
+                        let isQuality = (dayName === qualityDay);
+                        
+                        let sessionKm = Math.round(weekKm / selectedDays.length);
+                        if (isLong) sessionKm = longSessionKm;
+                        else if (isQuality) {
+                            sessionKm = Math.min(12, Math.round(weekKm * 0.28));
+                            if (hasRaceThisWeek) sessionKm = Math.max(5, Math.round(sessionKm * 0.70));
+                        } else {
+                            sessionKm = Math.min(sessionKm, maxInfrasettimanaleKm);
+                            sessionKm = Math.max(7, sessionKm);
+                        }
+
+                        let title = "Corsa Lenta Rigenerante (Fondo Lento)";
+                        let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento/Rigenerante (${paces.slow}/km - Zona 2).\n• Defaticamento: 5 min allungamento.`;
+                        
+                        let defaultShoe = this.shoes[0] ? this.shoes[0].name : "Standard";
+                        if (isLong && this.shoes.some(s => s.category && s.category.includes('Lungo'))) {
+                            defaultShoe = this.shoes.find(s => s.category.includes('Lungo')).name;
+                        } else if (isQuality && this.shoes.some(s => s.category && s.category.includes('Veloci'))) {
+                            defaultShoe = this.shoes.find(s => s.category.includes('Veloci')).name;
+                        }
+
+                        if (matchedRaceForDay) {
+                            let raceDistLabel = matchedRaceForDay.dist || "Gara";
+                            title = `🏅 Gara in Programma: ${matchedRaceForDay.name}`;
+                            let parsedRaceKm = parseFloat(matchedRaceForDay.dist) || sessionKm;
+                            sessionKm = isNaN(parsedRaceKm) ? sessionKm : parsedRaceKm;
+                            desc = `• Gara Ufficiale in Agenda VIP (${matchedRaceForDay.name} - ${raceDistLabel}).`;
+                        } else if (isLong) {
+                            title = isUltra ? "Lungo Endurance Ultra (Metodo 9+1)" : "Lungo Specifico (Metodo 9+1 Protettivo)";
+                            desc = `• Modalità Time on Feet: Alterna 9 min corsa lenta (${paces.slow}/km) e 1 min camminata.\n• Distanza Obiettivo: ${sessionKm} km.`;
+                        } else if (isQuality) {
+                            let qWorkout = qualityWorkouts[(w - 1) % qualityWorkouts.length];
+                            title = hasRaceThisWeek ? `Qualità (Scarico Pre-Gara): ${qWorkout.name}` : `Qualità: ${qWorkout.name}`;
+                            desc = qWorkout.buildDesc(sessionKm, paces);
+                        }
+
+                        let dayObj = { day: dayName, title: title, km: sessionKm, instructions: desc, completed: false, skipped: false, shoe: defaultShoe, notes: "" };
+                        
+                        // Ripristina lo stato completato se esisteva nello storico precedente per quel giorno/settimana
+                        let histKey = dayName + '-' + w;
+                        if (completedMap[histKey]) {
+                            dayObj.completed = completedMap[histKey].completed;
+                            dayObj.skipped = completedMap[histKey].skipped;
+                            dayObj.shoe = completedMap[histKey].shoe;
+                            dayObj.notes = completedMap[histKey].notes;
+                            if (dayObj.completed) {
+                                dayObj.km = completedMap[histKey].km;
+                                dayObj.title = completedMap[histKey].title;
+                            }
+                        }
+
+                        return dayObj;
+                    });
+
+                    let actualWeekKm = daysData.reduce((acc, d) => acc + d.km, 0);
+                    weeks.push({ weekNumber: w, totalKm: actualWeekKm, days: daysData });
+                }
+
+                this.fullPlan = { weeks: weeks };
+                this.saveData();
+                this.renderDashboard();
+            }
 
             // VERIFICA DEL CODICE PERSONALE CON LA FORMULA DEFINITIVA "PRO"
             unlockVipWithCode() {
