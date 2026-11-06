@@ -353,10 +353,9 @@
                     <span id="detail-completed-badge" class="text-[10px] px-2 py-1 bg-slate-800 text-slate-400 rounded-lg">Da svolgere</span>
                 </div>
                 
-                <!-- STRATEGIA DI INTEGRAZIONE AGGIORNATA (DOLCE/SALATO) -->
+                <!-- TABELLA DI MARCIA RISTORI / INTEGRAZIONE -->
                 <div id="nutrition-strategy-box" class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-amber-300 hidden space-y-2">
-                    <span class="font-bold block text-[11px] uppercase text-amber-400">🍌 Strategia Integrazione Avanzata (>14km / Ultra):</span>
-                    <div id="nutrition-plan-text" class="text-[11px] leading-relaxed space-y-1"></div>
+                    <div id="nutrition-plan-text" class="text-[11px] leading-relaxed space-y-1.5"></div>
                 </div>
 
                 <div>
@@ -1159,17 +1158,30 @@
                     btnComp.innerText = "✔ Segna come Completato";
                 }
 
-                // ESTRAPPOLAZIONE DETTAGLIATA STRATEGIA DOLCE/SALATO PER DISTANZE > 14 KM E ULTRA
+                // TABELLA DI MARCIA RISTORI / INTEGRAZIONE DINAMICA AL KM
                 const showNutrition = (dayObj.title.includes('Lungo') || dayObj.km >= 14 || dayObj.title.includes('Gara'));
                 document.getElementById('nutrition-strategy-box').classList.toggle('hidden', !showNutrition);
                 
                 if (showNutrition) {
                     const nutritionContainer = document.getElementById('nutrition-plan-text');
-                    nutritionContainer.innerHTML = `
-                        <p><strong>1. Prima metà (fino al 40-50% dei km):</strong> Energia rapida. Via libera a carboidrati semplici, gel leggeri, bevande isotoniche o snack dolci (crostatine/frutta disidratata) per massima digeribilità immediata.</p>
-                        <p><strong>2. Seconda metà (subentra la fatica):</strong> Rotazione strategica salato/dolce. Usa cibi salati (mini panini con bresaola/fesa, gallette salate o cracker) per reintegrare il sodio, prevenire i crampi e spezzare la nausea da dolce.</p>
-                        <p><strong>3. Frequenza pratica:</strong> Alterna piccoli spunti solidi o gel ogni 45-60 minuti, accompagnati sempre da piccoli sorsi d'acqua o sali.</p>
-                    `;
+                    let kmTot = dayObj.km;
+                    let stepKm = kmTot > 30 ? 10 : (kmTot > 20 ? 7 : 5);
+                    
+                    let planHtml = `<div class="space-y-1.5 font-medium">`;
+                    planHtml += `<p class="text-amber-300 font-bold border-b border-amber-500/20 pb-1">⏱️ Tabella di Marcia Ristori & Integrazione (${kmTot} km):</p>`;
+                    
+                    for (let k = stepKm; k < kmTot; k += stepKm) {
+                        let isSecondHalf = k >= (kmTot * 0.45);
+                        if (!isSecondHalf) {
+                            planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>📍 <strong>Km ${k}</strong> (circa ${k * 5} min):</span> <span class="text-emerald-300">Gel Energetico / Snack Dolce + Acqua 💧</span></div>`;
+                        } else {
+                            planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>📍 <strong>Km ${k}</strong> (circa ${k * 5} min):</span> <span class="text-amber-200">Cibo Salato (panino/gallette) + Sali 🧂</span></div>`;
+                        }
+                    }
+                    planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>🏁 <strong>Arrivo (${kmTot} km)</strong>:</span> <span class="text-amber-400 font-bold">Recupero finale e reintegro idrico!</span></div>`;
+                    planHtml += `</div>`;
+                    
+                    nutritionContainer.innerHTML = planHtml;
                 }
 
                 const shoeSelect = document.getElementById('detail-shoe-select');
