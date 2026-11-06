@@ -550,12 +550,12 @@
                         ✉️ Richiedi Accesso VIP (Invia Email)
                     </button>
 
-                    <!-- Link per donare (sostituisci il link o personalizzalo quando desideri) -->
+                    <!-- Link per donare (sostituisci paypal.me/TUONOMETODO con il tuo link reale) -->
                     <a href="https://paypal.me/TUONOMETODO" target="_blank" class="block text-center py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/40 no-underline">
                         ☕ Dona il tuo contributo di 3€ (Link esterno)
                     </a>
 
-                    <!-- Campo di inserimento codice personale con placeholder aggiornato -->
+                    <!-- Campo di inserimento codice personale aggiornato -->
                     <div class="flex space-x-1 pt-1">
                         <input type="text" id="vip-secret-input" placeholder="Inserisci qui il tuo codice VIP" class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs uppercase">
                         <button type="button" onclick="app.unlockVipWithCode()" class="px-3 bg-amber-500 font-bold rounded-lg text-slate-950 cursor-pointer text-xs">Attiva</button>
@@ -705,7 +705,7 @@
             showVipInfoModal() { document.getElementById('vip-info-modal').classList.remove('hidden'); }
             closeVipInfoModal() { document.getElementById('vip-info-modal').classList.add('hidden'); }
 
-            // VERIFICA DEL CODICE PERSONALE BASATO SULL'EMAIL DELL'UTENTE
+            // VERIFICA DEL CODICE PERSONALE CON LA FORMULA DEFINITIVA "PRO" (SENZA ANNO)
             unlockVipWithCode() {
                 const inputCode = document.getElementById('vip-secret-input').value.trim().toUpperCase();
                 if (!inputCode) {
@@ -719,11 +719,10 @@
                     return;
                 }
 
-                // Estrae la parte iniziale dell'email pulendo i caratteri speciali
                 const emailPrefix = email.split('@')[0].replace(/[^a-z0-9]/gi, '').toUpperCase();
                 
-                // Regola di generazione sicura: 'RUN' + prefisso email + '2026'
-                const expectedCode = ("RUN" + emailPrefix + "2026").toUpperCase();
+                // Formula definitiva: RUN + PREFISSO EMAIL + PRO
+                const expectedCode = ("RUN" + emailPrefix + "PRO").toUpperCase();
 
                 if (inputCode === expectedCode) {
                     this.profile.is_vip = true;
