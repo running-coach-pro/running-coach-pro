@@ -530,7 +530,7 @@
                     <input type="file" id="avatar-file-input" accept="image/*" onchange="app.handleImageUpload(event)" class="w-full text-[11px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600 file:cursor-pointer cursor-pointer">
                 </div>
 
-                <!-- SEZIONE VIP AGGIORNATA CON SUPPORTO 3€ E CODICE PERSONALE VIA EMAIL -->
+                <!-- SEZIONE VIP AGGIORNATA CON SUPPORTO 3€ E FLUSSO CORRETTO -->
                 <div class="bg-slate-900 p-3 rounded-xl border border-amber-500/40 space-y-2.5">
                     <span class="font-bold text-amber-400 uppercase tracking-wider text-[10px] block">⭐ Versione VIP - Supporta il Progetto (3€)</span>
                     <p class="text-[10px] text-slate-400 leading-relaxed">
@@ -539,23 +539,23 @@
 
                     <div class="bg-slate-800 p-2.5 rounded-lg border border-slate-700 text-[11px] text-slate-300 space-y-1">
                         <strong>Come funziona:</strong><br>
-                        1. Clicca su <em>Richiedi Accesso VIP</em> per inviarmi la richiesta via email.<br>
-                        2. Effettua la donazione di supporto di 3€.<br>
+                        1. Effettua la donazione di supporto di 3€.<br>
+                        2. Invia la ricevuta di pagamento via email.<br>
                         3. Riceverai il tuo <strong>codice personale univoco</strong> via email.<br>
                         4. Inseriscilo qui sotto per attivare il VIP in modo permanente!
                     </div>
 
-                    <!-- Pulsante per richiedere via email -->
-                    <button type="button" onclick="app.openVipEmailRequest()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/30 cursor-pointer">
-                        ✉️ Richiedi Accesso VIP (Invia Email)
-                    </button>
-
-                    <!-- Link per donare (sostituisci paypal.me/TUONOMETODO con il tuo link reale) -->
+                    <!-- Link per donare (esterni) -->
                     <a href="https://paypal.me/TUONOMETODO" target="_blank" class="block text-center py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/40 no-underline">
                         ☕ Dona il tuo contributo di 3€ (Link esterno)
                     </a>
 
-                    <!-- Campo di inserimento codice personale aggiornato -->
+                    <!-- Pulsante per inviare la ricevuta via email -->
+                    <button type="button" onclick="app.openVipEmailRequest()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/30 cursor-pointer">
+                        ✉️ Invia Ricevuta via Email
+                    </button>
+
+                    <!-- Campo di inserimento codice personale -->
                     <div class="flex space-x-1 pt-1">
                         <input type="text" id="vip-secret-input" placeholder="Inserisci qui il tuo codice VIP" class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs uppercase">
                         <button type="button" onclick="app.unlockVipWithCode()" class="px-3 bg-amber-500 font-bold rounded-lg text-slate-950 cursor-pointer text-xs">Attiva</button>
@@ -705,7 +705,7 @@
             showVipInfoModal() { document.getElementById('vip-info-modal').classList.remove('hidden'); }
             closeVipInfoModal() { document.getElementById('vip-info-modal').classList.add('hidden'); }
 
-            // VERIFICA DEL CODICE PERSONALE CON LA FORMULA DEFINITIVA "PRO" (SENZA ANNO)
+            // VERIFICA DEL CODICE PERSONALE CON LA FORMULA DEFINITIVA "PRO"
             unlockVipWithCode() {
                 const inputCode = document.getElementById('vip-secret-input').value.trim().toUpperCase();
                 if (!inputCode) {
@@ -720,8 +720,6 @@
                 }
 
                 const emailPrefix = email.split('@')[0].replace(/[^a-z0-9]/gi, '').toUpperCase();
-                
-                // Formula definitiva: RUN + PREFISSO EMAIL + PRO
                 const expectedCode = ("RUN" + emailPrefix + "PRO").toUpperCase();
 
                 if (inputCode === expectedCode) {
@@ -740,12 +738,12 @@
                 this.profile.vip_requested = true;
                 this.saveData();
                 const userEmail = this.userEmail || "Non specificata";
-                const subject = encodeURIComponent("Richiesta Accesso VIP - Running Coach Pro");
+                const subject = encodeURIComponent("Invio Ricevuta Donazione VIP - Running Coach Pro");
                 const body = encodeURIComponent(
-                    `Ciao Jovy,\n\nVorrei richiedere l'accesso VIP per Running Coach Pro.\n` +
+                    `Ciao Jovy,\n\nHo effettuato la donazione di supporto di 3€ per Running Coach Pro.\n` +
+                    `Allego la ricevuta / conferma di pagamento.\n` +
                     `La mia email registrata nell'app è: ${userEmail}\n\n` +
-                    `Desidero effettuare il piccolo contributo di supporto di 3€.\n\n` +
-                    `Grazie!`
+                    `Attendo il mio codice VIP personale. Grazie!`
                 );
                 window.location.href = `mailto:jovy1972@gmail.com?subject=${subject}&body=${body}`;
             }
