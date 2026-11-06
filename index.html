@@ -1158,29 +1158,46 @@
                     btnComp.innerText = "✔ Segna come Completato";
                 }
 
-                // TABELLA DI MARCIA RISTORI / INTEGRAZIONE DINAMICA AL KM
-                const showNutrition = (dayObj.title.includes('Lungo') || dayObj.km >= 14 || dayObj.title.includes('Gara'));
+                // SOGLIA STANDARD DEFINITIVA:
+                // - Fino a 22 km (inclusa Mezza Maratona): solo acqua e gel essenziali.
+                // - Oltre i 22 km e Ultra: tabella completa con alternanza dolce/salato.
+                const isUltraOrLong = (dayObj.km > 22 || (dayObj.title.includes('Gara') && dayObj.km > 22));
+                const showNutrition = (dayObj.km > 12 || dayObj.title.includes('Gara'));
+                
                 document.getElementById('nutrition-strategy-box').classList.toggle('hidden', !showNutrition);
                 
                 if (showNutrition) {
                     const nutritionContainer = document.getElementById('nutrition-plan-text');
                     let kmTot = dayObj.km;
-                    let stepKm = kmTot > 30 ? 10 : (kmTot > 20 ? 7 : 5);
                     
                     let planHtml = `<div class="space-y-1.5 font-medium">`;
-                    planHtml += `<p class="text-amber-300 font-bold border-b border-amber-500/20 pb-1">⏱️ Tabella di Marcia Ristori & Integrazione (${kmTot} km):</p>`;
                     
-                    for (let k = stepKm; k < kmTot; k += stepKm) {
-                        let isSecondHalf = k >= (kmTot * 0.45);
-                        if (!isSecondHalf) {
-                            planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>📍 <strong>Km ${k}</strong> (circa ${k * 5} min):</span> <span class="text-emerald-300">Gel Energetico / Snack Dolce + Acqua 💧</span></div>`;
-                        } else {
-                            planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>📍 <strong>Km ${k}</strong> (circa ${k * 5} min):</span> <span class="text-amber-200">Cibo Salato (panino/gallette) + Sali 🧂</span></div>`;
+                    if (!isUltraOrLong) {
+                        // Per distanze medie, 10k e Mezza Maratona (fino a 22 km): solo gel e acqua
+                        planHtml += `<p class="text-emerald-300 font-bold border-b border-emerald-500/20 pb-1">💧 Ristori & Gel Essential (${kmTot} km):</p>`;
+                        if (kmTot >= 14 && kmTot <= 22) {
+                            planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-emerald-500/20 text-[11px]"><span>📍 <strong>Km 10-12</strong>:</span> <span class="text-emerald-300">1 Gel Energetico + Acqua al ristoro 💧</span></div>`;
+                        } else if (kmTot < 14) {
+                            planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-emerald-500/20 text-[11px]"><span>📍 <strong>Gestione</strong>:</span> <span class="text-emerald-300">Idratazione standard e acqua al bisogno 💧</span></div>`;
                         }
+                        planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-emerald-500/20 text-[11px]"><span>🏁 <strong>Arrivo (${kmTot} km)</strong>:</span> <span class="text-emerald-400 font-bold">Reintegro idrico finale!</span></div>`;
+                    } else {
+                        // Per lunghi oltre i 22 km e ultramaratone: tabella completa dolce/salato
+                        let stepKm = kmTot > 30 ? 10 : 7;
+                        planHtml += `<p class="text-amber-300 font-bold border-b border-amber-500/20 pb-1">⏱️ Tabella di Marcia Avanzata Dolce/Salato (${kmTot} km):</p>`;
+                        
+                        for (let k = stepKm; k < kmTot; k += stepKm) {
+                            let isSecondHalf = k >= (kmTot * 0.45);
+                            if (!isSecondHalf) {
+                                planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>📍 <strong>Km ${k}</strong>:</span> <span class="text-emerald-300">Gel Energetico / Snack Dolce + Acqua 💧</span></div>`;
+                            } else {
+                                planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>📍 <strong>Km ${k}</strong>:</span> <span class="text-amber-200">Cibo Salato (panino/gallette) + Sali 🧂</span></div>`;
+                            }
+                        }
+                        planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>🏁 <strong>Arrivo (${kmTot} km)</strong>:</span> <span class="text-amber-400 font-bold">Recupero finale e reidratazione!</span></div>`;
                     }
-                    planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>🏁 <strong>Arrivo (${kmTot} km)</strong>:</span> <span class="text-amber-400 font-bold">Recupero finale e reintegro idrico!</span></div>`;
-                    planHtml += `</div>`;
                     
+                    planHtml += `</div>`;
                     nutritionContainer.innerHTML = planHtml;
                 }
 
