@@ -352,6 +352,22 @@
                     </div>
                     <span id="detail-completed-badge" class="text-[10px] px-2 py-1 bg-slate-800 text-slate-400 rounded-lg">Da svolgere</span>
                 </div>
+
+                <!-- PULSANTI DI MODIFICA RAPIDA E GESTIONE SEDUTA (POSIZIONATI IN ALTO PER MASSIMA VISIBILITÀ) -->
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
+                    <span class="text-[10px] uppercase text-amber-400 font-bold block">⚖️ Gestione & Modifica Rapida Seduta</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="app.editCurrentWorkout()" class="py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 font-semibold rounded-lg text-[11px] border border-blue-500/40 cursor-pointer">
+                            ✏️ Modifica Seduta
+                        </button>
+                        <button type="button" onclick="app.skipCurrentWorkout()" class="py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-[11px] border border-slate-700 cursor-pointer">
+                            💤 Salta / Riposo
+                        </button>
+                    </div>
+                    <button type="button" onclick="app.recordRaceAsWorkout()" class="w-full py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold rounded-lg text-[11px] border border-amber-500/40 cursor-pointer">
+                        🏅 Oggi ho fatto una Gara
+                    </button>
+                </div>
                 
                 <!-- TABELLA DI MARCIA RISTORI / INTEGRAZIONE -->
                 <div id="nutrition-strategy-box" class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-amber-300 hidden space-y-2">
@@ -366,22 +382,6 @@
                 <div>
                     <span class="text-slate-400 block uppercase font-semibold text-[10px]">Come Svolgere l'Allenamento & Ritmi Target</span>
                     <p id="detail-instructions" class="leading-relaxed bg-slate-900 p-2.5 rounded-xl border border-slate-700 mt-1 whitespace-pre-line text-[11px]"></p>
-                </div>
-
-                <!-- PULSANTI DI MODIFICA RAPIDA E GESTIONE SEDUTA -->
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
-                    <span class="text-[10px] uppercase text-amber-400 font-bold block">⚖️ Gestione & Modifica Rapida Seduta</span>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="app.editCurrentWorkout()" class="py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 font-semibold rounded-lg text-[11px] border border-blue-500/40 cursor-pointer">
-                            ✏️ Modifica Seduta
-                        </button>
-                        <button type="button" onclick="app.skipCurrentWorkout()" class="py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-[11px] border border-slate-700 cursor-pointer">
-                            💤 Salta / Riposo
-                        </button>
-                    </div>
-                    <button type="button" onclick="app.recordRaceAsWorkout()" class="w-full py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold rounded-lg text-[11px] border border-amber-500/40 cursor-pointer">
-                        🏅 Oggi ho fatto una Gara
-                    </button>
                 </div>
 
                 <div>
@@ -1163,8 +1163,6 @@
                 }
 
                 // SOGLIA STANDARD RISTORI:
-                // - Fino a 22 km (inclusa Mezza Maratona): solo acqua e gel essenziali.
-                // - Oltre i 22 km e Ultra: tabella completa con alternanza dolce/salato.
                 const isUltraOrLong = (dayObj.km > 22 || (dayObj.title.includes('Gara') && dayObj.km > 22));
                 const showNutrition = (dayObj.km > 12 || dayObj.title.includes('Gara'));
                 
@@ -1196,7 +1194,7 @@
                                 planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>📍 <strong>Km ${k}</strong>:</span> <span class="text-amber-200">Cibo Salato (panino/gallette) + Sali 🧂</span></div>`;
                             }
                         }
-                        planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-emerald-500/20 text-[11px]"><span>🏁 <strong>Arrivo (${kmTot} km)</strong>:</span> <span class="text-amber-400 font-bold">Recupero finale e reidratazione!</span></div>`;
+                        planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>🏁 <strong>Arrivo (${kmTot} km)</strong>:</span> <span class="text-amber-400 font-bold">Recupero finale e reidratazione!</span></div>`;
                     }
                     
                     planHtml += `</div>`;
