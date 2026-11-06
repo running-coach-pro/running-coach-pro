@@ -368,16 +368,20 @@
                     <p id="detail-instructions" class="leading-relaxed bg-slate-900 p-2.5 rounded-xl border border-slate-700 mt-1 whitespace-pre-line text-[11px]"></p>
                 </div>
 
+                <!-- PULSANTI DI MODIFICA RAPIDA E GESTIONE SEDUTA -->
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
-                    <span class="text-[10px] uppercase text-amber-400 font-bold block">⚖️ Gestione Flessibile Seduta</span>
+                    <span class="text-[10px] uppercase text-amber-400 font-bold block">⚖️ Gestione & Modifica Rapida Seduta</span>
                     <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="app.editCurrentWorkout()" class="py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 font-semibold rounded-lg text-[11px] border border-blue-500/40 cursor-pointer">
+                            ✏️ Modifica Seduta
+                        </button>
                         <button type="button" onclick="app.skipCurrentWorkout()" class="py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-[11px] border border-slate-700 cursor-pointer">
                             💤 Salta / Riposo
                         </button>
-                        <button type="button" onclick="app.recordRaceAsWorkout()" class="py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold rounded-lg text-[11px] border border-amber-500/40 cursor-pointer">
-                            🏅 Oggi ho fatto una Gara
-                        </button>
                     </div>
+                    <button type="button" onclick="app.recordRaceAsWorkout()" class="w-full py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold rounded-lg text-[11px] border border-amber-500/40 cursor-pointer">
+                        🏅 Oggi ho fatto una Gara
+                    </button>
                 </div>
 
                 <div>
@@ -1158,7 +1162,7 @@
                     btnComp.innerText = "✔ Segna come Completato";
                 }
 
-                // SOGLIA STANDARD DEFINITIVA:
+                // SOGLIA STANDARD RISTORI:
                 // - Fino a 22 km (inclusa Mezza Maratona): solo acqua e gel essenziali.
                 // - Oltre i 22 km e Ultra: tabella completa con alternanza dolce/salato.
                 const isUltraOrLong = (dayObj.km > 22 || (dayObj.title.includes('Gara') && dayObj.km > 22));
@@ -1173,7 +1177,6 @@
                     let planHtml = `<div class="space-y-1.5 font-medium">`;
                     
                     if (!isUltraOrLong) {
-                        // Per distanze medie, 10k e Mezza Maratona (fino a 22 km): solo gel e acqua
                         planHtml += `<p class="text-emerald-300 font-bold border-b border-emerald-500/20 pb-1">💧 Ristori & Gel Essential (${kmTot} km):</p>`;
                         if (kmTot >= 14 && kmTot <= 22) {
                             planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-emerald-500/20 text-[11px]"><span>📍 <strong>Km 10-12</strong>:</span> <span class="text-emerald-300">1 Gel Energetico + Acqua al ristoro 💧</span></div>`;
@@ -1182,7 +1185,6 @@
                         }
                         planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-emerald-500/20 text-[11px]"><span>🏁 <strong>Arrivo (${kmTot} km)</strong>:</span> <span class="text-emerald-400 font-bold">Reintegro idrico finale!</span></div>`;
                     } else {
-                        // Per lunghi oltre i 22 km e ultramaratone: tabella completa dolce/salato
                         let stepKm = kmTot > 30 ? 10 : 7;
                         planHtml += `<p class="text-amber-300 font-bold border-b border-amber-500/20 pb-1">⏱️ Tabella di Marcia Avanzata Dolce/Salato (${kmTot} km):</p>`;
                         
@@ -1194,7 +1196,7 @@
                                 planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>📍 <strong>Km ${k}</strong>:</span> <span class="text-amber-200">Cibo Salato (panino/gallette) + Sali 🧂</span></div>`;
                             }
                         }
-                        planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-amber-500/20 text-[11px]"><span>🏁 <strong>Arrivo (${kmTot} km)</strong>:</span> <span class="text-amber-400 font-bold">Recupero finale e reidratazione!</span></div>`;
+                        planHtml += `<div class="flex justify-between bg-slate-900/60 p-1.5 rounded border border-emerald-500/20 text-[11px]"><span>🏁 <strong>Arrivo (${kmTot} km)</strong>:</span> <span class="text-amber-400 font-bold">Recupero finale e reidratazione!</span></div>`;
                     }
                     
                     planHtml += `</div>`;
@@ -1210,6 +1212,24 @@
                     shoeSelect.appendChild(opt);
                 });
                 this.showScreen('screen-detail');
+            }
+
+            editCurrentWorkout() {
+                if (this.activeDayIndex === null) return;
+                const dayObj = this.fullPlan.weeks[this.selectedWeekIndex].days[this.activeDayIndex];
+                let newKm = prompt("Modifica i chilometri per questa seduta:", dayObj.km);
+                if (newKm === null) return;
+                let parsedKm = parseFloat(newKm);
+                if (isNaN(parsedKm) || parsedKm < 0) { alert("Valore non valido."); return; }
+
+                let newTitle = prompt("Modifica la descrizione o il titolo dell'allenamento:", dayObj.title);
+                if (newTitle !== null) dayObj.title = newTitle;
+
+                dayObj.km = parsedKm;
+                this.saveData();
+                this.openDetail(this.activeDayIndex);
+                this.renderDashboard();
+                alert("✨ Allenamento modificato con successo!");
             }
 
             toggleCompleteCurrent() {
