@@ -1012,51 +1012,32 @@
                 };
 
                 let weeks = [];
+                // Definizione corretta delle sedute di qualità con calcolo reale della distanza (Riscaldamento 2km + Blocco centrale + Defaticamento 1km)
                 const qualityWorkouts = [
                     { 
                         name: "Ripetute Brevi (Velocità)", 
-                        buildDesc: (sKm, p) => {
-                            let warmupKm = 2;
-                            let cooldownKm = 1;
-                            let qualityKm = Math.max(1, (sKm - warmupKm - cooldownKm).toFixed(1));
-                            return `• Riscaldamento: ${warmupKm} km corsa lenta (${p.slow}/km).\n• Blocco: 8 x 400m a ${p.intervalFast}/km (Recupero 1'30\" camminata) (~${qualityKm} km).\n• Defaticamento: ${cooldownKm} km (Totale sessione: ${sKm} km).`;
-                        } 
+                        calcKm: () => 2 + 1.6 + 1, // 2km wup + ~1.6km (8x200m o simili) + 1km def = 4.6km (~5km)
+                        buildDesc: (realKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 8 x 400m a ${p.intervalFast}/km (Recupero 1'30\" camminata).\n• Defaticamento: 1 km (Totale sessione: ${realKm} km).` 
                     },
                     { 
                         name: "Fartlek Strutturato", 
-                        buildDesc: (sKm, p) => {
-                            let warmupKm = 2;
-                            let cooldownKm = 1;
-                            let qualityKm = Math.max(1, (sKm - warmupKm - cooldownKm).toFixed(1));
-                            return `• Riscaldamento: ${warmupKm} km corsa lenta (${p.slow}/km).\n• Blocco: 6 x (1 min forte a ${p.intervalFast}/km / 1 min lento a ${p.slow}/km) (~${qualityKm} km).\n• Defaticamento: ${cooldownKm} km (Totale sessione: ${sKm} km).`;
-                        } 
+                        calcKm: () => 2 + 1.5 + 1, // 2km wup + ~1.5km (6x 1' forte / 1' lento) + 1km def = 4.5km (~5km)
+                        buildDesc: (realKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 6 x (1 min forte a ${p.intervalFast}/km / 1 min lento a ${p.slow}/km).\n• Defaticamento: 1 km (Totale sessione: ${realKm} km).` 
                     },
                     { 
                         name: "Ripetute Medie (Soglia)", 
-                        buildDesc: (sKm, p) => {
-                            let warmupKm = 2;
-                            let cooldownKm = 1;
-                            let qualityKm = Math.max(1, (sKm - warmupKm - cooldownKm).toFixed(1));
-                            return `• Riscaldamento: ${warmupKm} km corsa lenta (${p.slow}/km).\n• Blocco: 3 x 1000m a ${p.race}/km (Recupero 2 min attivo) (~${qualityKm} km).\n• Defaticamento: ${cooldownKm} km (Totale sessione: ${sKm} km).`;
-                        } 
+                        calcKm: () => 2 + 3.0 + 1, // 2km wup + 3km (3x1000m) + 1km def = 6.0 km
+                        buildDesc: (realKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 3 x 1000m a ${p.race}/km (Recupero 2 min attivo).\n• Defaticamento: 1 km (Totale sessione: ${realKm} km).` 
                     },
                     { 
                         name: "Fartlek Piramidale", 
-                        buildDesc: (sKm, p) => {
-                            let warmupKm = 2;
-                            let cooldownKm = 1;
-                            let qualityKm = Math.max(1, (sKm - warmupKm - cooldownKm).toFixed(1));
-                            return `• Riscaldamento: ${warmupKm} km corsa lenta (${p.slow}/km).\n• Blocco: Variazioni 1'-2'-3'-2'-1' a ritmo sostenuto (${p.intervalMedium}/km) (~${qualityKm} km).\n• Defaticamento: ${cooldownKm} km (Totale sessione: ${sKm} km).`;
-                        } 
+                        calcKm: () => 2 + 2.5 + 1, // 2km wup + ~2.5km piramidale + 1km def = 5.5 km
+                        buildDesc: (realKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: Variazioni 1'-2'-3'-2'-1' a ritmo sostenuto (${p.intervalMedium}/km).\n• Defaticamento: 1 km (Totale sessione: ${realKm} km).` 
                     },
                     { 
                         name: "Ripetute Lunghe", 
-                        buildDesc: (sKm, p) => {
-                            let warmupKm = 2;
-                            let cooldownKm = 1;
-                            let qualityKm = Math.max(1, (sKm - warmupKm - cooldownKm).toFixed(1));
-                            return `• Riscaldamento: ${warmupKm} km corsa lenta (${p.slow}/km).\n• Blocco: 2 x 2000m a ${p.intervalMedium}/km (Recupero 2'30\") (~${qualityKm} km).\n• Defaticamento: ${cooldownKm} km (Totale sessione: ${sKm} km).`;
-                        } 
+                        calcKm: () => 2 + 4.0 + 1, // 2km wup + 4km (2x2000m) + 1km def = 7.0 km
+                        buildDesc: (realKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 2 x 2000m a ${p.intervalMedium}/km (Recupero 2'30\" recupero attivo).\n• Defaticamento: 1 km (Totale sessione: ${realKm} km).` 
                     }
                 ];
 
@@ -1100,27 +1081,10 @@
                         let isQuality = (dayName === qualityDay);
                         
                         let sessionKm = Math.round(weekKm / selectedDays.length);
-                        if (isLong) {
-                            sessionKm = longSessionKm;
-                        } else if (isQuality) {
-                            sessionKm = Math.min(12, Math.round(weekKm * 0.28));
-                            if (hasRaceThisWeek) {
-                                sessionKm = Math.max(5, Math.round(sessionKm * 0.70));
-                            }
-                        } else {
-                            sessionKm = Math.min(sessionKm, maxInfrasettimanaleKm);
-                            sessionKm = Math.max(7, sessionKm);
-                        }
-
                         let title = "Corsa Lenta Rigenerante (Fondo Lento)";
                         let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento/Rigenerante (${paces.slow}/km - Zona 2).\n• Defaticamento: 5 min allungamento.`;
                         
                         let defaultShoe = this.shoes[0] ? this.shoes[0].name : "Standard";
-                        if (isLong && this.shoes.some(s => s.category && s.category.includes('Lungo'))) {
-                            defaultShoe = this.shoes.find(s => s.category.includes('Lungo')).name;
-                        } else if (isQuality && this.shoes.some(s => s.category && s.category.includes('Veloci'))) {
-                            defaultShoe = this.shoes.find(s => s.category.includes('Veloci')).name;
-                        }
 
                         if (matchedRaceForDay) {
                             let raceDistLabel = matchedRaceForDay.dist || "Gara";
@@ -1129,12 +1093,23 @@
                             sessionKm = isNaN(parsedRaceKm) ? sessionKm : parsedRaceKm;
                             desc = `• Gara Ufficiale in Agenda VIP (${matchedRaceForDay.name} - ${raceDistLabel}).\n• Sostituzione forzata: nessun lungo di tabella pianificato in questa data.`;
                         } else if (isLong) {
+                            sessionKm = longSessionKm;
                             title = isUltra ? "Lungo Endurance Ultra (Metodo 9+1)" : "Lungo Specifico (Metodo 9+1 Protettivo)";
                             desc = `• Modalità Time on Feet: Alterna 9 min corsa lenta (${paces.slow}/km) e 1 min camminata.\n• Distanza Obiettivo: ${sessionKm} km.`;
+                            if (this.shoes.some(s => s.category && s.category.includes('Lungo'))) {
+                                defaultShoe = this.shoes.find(s => s.category.includes('Lungo')).name;
+                            }
                         } else if (isQuality) {
                             let qWorkout = qualityWorkouts[(w - 1) % qualityWorkouts.length];
+                            sessionKm = Math.round(qWorkout.calcKm());
                             title = hasRaceThisWeek ? `Qualità (Scarico Pre-Gara): ${qWorkout.name}` : `Qualità: ${qWorkout.name}`;
                             desc = qWorkout.buildDesc(sessionKm, paces);
+                            if (this.shoes.some(s => s.category && s.category.includes('Veloci'))) {
+                                defaultShoe = this.shoes.find(s => s.category.includes('Veloci')).name;
+                            }
+                        } else {
+                            sessionKm = Math.min(sessionKm, maxInfrasettimanaleKm);
+                            sessionKm = Math.max(6, sessionKm);
                         }
 
                         return { day: dayName, title: title, km: sessionKm, instructions: desc, completed: false, skipped: false, shoe: defaultShoe, notes: "" };
