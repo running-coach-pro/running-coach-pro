@@ -571,7 +571,7 @@
                         4. Inseriscilo qui sotto per attivare il VIP in modo permanente!
                     </div>
 
-                    <!-- LINK SATISPAY AGGIORNATO CON IMPORTO FISSO A 3€ (300 centesimi)[cite: 1] -->
+                    <!-- LINK SATISPAY AGGIORNATO CON IMPORTO FISSO A 3€ (300 centesimi) -->
                     <a href="https://web.satispay.com/app/match/link/user/S6Y-CON--CF94314C-7C3B-4478-8159-655DA895B62E?amount=300&currency=EUR" target="_blank" rel="noopener noreferrer" class="block text-center py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/40 no-underline">
                         ☕ Dona il tuo contributo di 3€ (Link esterno)
                     </a>
@@ -1012,32 +1012,32 @@
                 };
 
                 let weeks = [];
-                // Definizione corretta delle sedute di qualità con calcolo reale della distanza (Riscaldamento 2km + Blocco centrale + Defaticamento 1km)
+                // Definizione corretta delle sedute di qualità con calcolo reale e allineato dei chilometri (Riscaldamento 2km + Blocco centrale + Defaticamento 1km)
                 const qualityWorkouts = [
                     { 
                         name: "Ripetute Brevi (Velocità)", 
-                        calcKm: () => 2 + 1.6 + 1, // 2km wup + ~1.6km (8x200m o simili) + 1km def = 4.6km (~5km)
+                        calcKm: () => 4.5, 
                         buildDesc: (realKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 8 x 400m a ${p.intervalFast}/km (Recupero 1'30\" camminata).\n• Defaticamento: 1 km (Totale sessione: ${realKm} km).` 
                     },
                     { 
                         name: "Fartlek Strutturato", 
-                        calcKm: () => 2 + 1.5 + 1, // 2km wup + ~1.5km (6x 1' forte / 1' lento) + 1km def = 4.5km (~5km)
+                        calcKm: () => 4.5, 
                         buildDesc: (realKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 6 x (1 min forte a ${p.intervalFast}/km / 1 min lento a ${p.slow}/km).\n• Defaticamento: 1 km (Totale sessione: ${realKm} km).` 
                     },
                     { 
                         name: "Ripetute Medie (Soglia)", 
-                        calcKm: () => 2 + 3.0 + 1, // 2km wup + 3km (3x1000m) + 1km def = 6.0 km
+                        calcKm: () => 6.0, 
                         buildDesc: (realKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 3 x 1000m a ${p.race}/km (Recupero 2 min attivo).\n• Defaticamento: 1 km (Totale sessione: ${realKm} km).` 
                     },
                     { 
                         name: "Fartlek Piramidale", 
-                        calcKm: () => 2 + 2.5 + 1, // 2km wup + ~2.5km piramidale + 1km def = 5.5 km
+                        calcKm: () => 5.5, 
                         buildDesc: (realKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: Variazioni 1'-2'-3'-2'-1' a ritmo sostenuto (${p.intervalMedium}/km).\n• Defaticamento: 1 km (Totale sessione: ${realKm} km).` 
                     },
                     { 
                         name: "Ripetute Lunghe", 
-                        calcKm: () => 2 + 4.0 + 1, // 2km wup + 4km (2x2000m) + 1km def = 7.0 km
-                        buildDesc: (realKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 2 x 2000m a ${p.intervalMedium}/km (Recupero 2'30\" recupero attivo).\n• Defaticamento: 1 km (Totale sessione: ${realKm} km).` 
+                        calcKm: () => 7.0, 
+                        buildDesc: (realKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 2 x 2000m a ${p.intervalMedium}/km (Recupero 2'30\").\n• Defaticamento: 1 km (Totale sessione: ${realKm} km).` 
                     }
                 ];
 
@@ -1101,7 +1101,7 @@
                             }
                         } else if (isQuality) {
                             let qWorkout = qualityWorkouts[(w - 1) % qualityWorkouts.length];
-                            sessionKm = Math.round(qWorkout.calcKm());
+                            sessionKm = qWorkout.calcKm();
                             title = hasRaceThisWeek ? `Qualità (Scarico Pre-Gara): ${qWorkout.name}` : `Qualità: ${qWorkout.name}`;
                             desc = qWorkout.buildDesc(sessionKm, paces);
                             if (this.shoes.some(s => s.category && s.category.includes('Veloci'))) {
@@ -1243,7 +1243,7 @@
                 }
 
                 const isUltraOrLong = (dayObj.km > 22 || (dayObj.title.includes('Gara') && dayObj.km > 22));
-                const showNutrition = (dayObj.km > 12 || dayObj.title.includes('Gara'));
+                const showNutrition = (dayObj.km > 14 || dayObj.title.includes('Gara'));
                 
                 document.getElementById('nutrition-strategy-box').classList.toggle('hidden', !showNutrition);
                 
