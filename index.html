@@ -512,7 +512,7 @@
             </div>
         </div>
 
-        <!-- 6. SCHERMATA INFO AGGIORNATA -->
+        <!-- 6. SCHERMATA INFO -->
         <div id="screen-info" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto text-xs text-slate-300">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                 <h3 class="font-bold text-emerald-400 text-sm">📖 Come funziona Running Coach Pro</h3>
@@ -1013,11 +1013,51 @@
 
                 let weeks = [];
                 const qualityWorkouts = [
-                    { name: "Ripetute Brevi (Velocità)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 8 x 400m a ${p.intervalFast}/km (Recupero 1'30\" camminata).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Fartlek Strutturato", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 6 x (1 min forte a ${p.intervalFast}/km / 1 min lento a ${p.slow}/km).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Ripetute Medie (Soglia)", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 3 x 1000m a ${p.race}/km (Recupero 2 min attivo).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Fartlek Piramidale", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: Variazioni 1'-2'-3'-2'-1' a ritmo sostenuto (${p.intervalMedium}/km).\n• Defaticamento: 1 km (Totale: ${sKm} km).` },
-                    { name: "Ripetute Lunghe", buildDesc: (sKm, p) => `• Riscaldamento: 2 km corsa lenta (${p.slow}/km).\n• Blocco: 2 x 2000m a ${p.intervalMedium}/km (Recupero 2'30\" recupero attivo).\n• Defaticamento: 1 km (Totale: ${sKm} km).` }
+                    { 
+                        name: "Ripetute Brevi (Velocità)", 
+                        buildDesc: (sKm, p) => {
+                            let warmupKm = 2;
+                            let cooldownKm = 1;
+                            let qualityKm = Math.max(1, (sKm - warmupKm - cooldownKm).toFixed(1));
+                            return `• Riscaldamento: ${warmupKm} km corsa lenta (${p.slow}/km).\n• Blocco: 8 x 400m a ${p.intervalFast}/km (Recupero 1'30\" camminata) (~${qualityKm} km).\n• Defaticamento: ${cooldownKm} km (Totale sessione: ${sKm} km).`;
+                        } 
+                    },
+                    { 
+                        name: "Fartlek Strutturato", 
+                        buildDesc: (sKm, p) => {
+                            let warmupKm = 2;
+                            let cooldownKm = 1;
+                            let qualityKm = Math.max(1, (sKm - warmupKm - cooldownKm).toFixed(1));
+                            return `• Riscaldamento: ${warmupKm} km corsa lenta (${p.slow}/km).\n• Blocco: 6 x (1 min forte a ${p.intervalFast}/km / 1 min lento a ${p.slow}/km) (~${qualityKm} km).\n• Defaticamento: ${cooldownKm} km (Totale sessione: ${sKm} km).`;
+                        } 
+                    },
+                    { 
+                        name: "Ripetute Medie (Soglia)", 
+                        buildDesc: (sKm, p) => {
+                            let warmupKm = 2;
+                            let cooldownKm = 1;
+                            let qualityKm = Math.max(1, (sKm - warmupKm - cooldownKm).toFixed(1));
+                            return `• Riscaldamento: ${warmupKm} km corsa lenta (${p.slow}/km).\n• Blocco: 3 x 1000m a ${p.race}/km (Recupero 2 min attivo) (~${qualityKm} km).\n• Defaticamento: ${cooldownKm} km (Totale sessione: ${sKm} km).`;
+                        } 
+                    },
+                    { 
+                        name: "Fartlek Piramidale", 
+                        buildDesc: (sKm, p) => {
+                            let warmupKm = 2;
+                            let cooldownKm = 1;
+                            let qualityKm = Math.max(1, (sKm - warmupKm - cooldownKm).toFixed(1));
+                            return `• Riscaldamento: ${warmupKm} km corsa lenta (${p.slow}/km).\n• Blocco: Variazioni 1'-2'-3'-2'-1' a ritmo sostenuto (${p.intervalMedium}/km) (~${qualityKm} km).\n• Defaticamento: ${cooldownKm} km (Totale sessione: ${sKm} km).`;
+                        } 
+                    },
+                    { 
+                        name: "Ripetute Lunghe", 
+                        buildDesc: (sKm, p) => {
+                            let warmupKm = 2;
+                            let cooldownKm = 1;
+                            let qualityKm = Math.max(1, (sKm - warmupKm - cooldownKm).toFixed(1));
+                            return `• Riscaldamento: ${warmupKm} km corsa lenta (${p.slow}/km).\n• Blocco: 2 x 2000m a ${p.intervalMedium}/km (Recupero 2'30\") (~${qualityKm} km).\n• Defaticamento: ${cooldownKm} km (Totale sessione: ${sKm} km).`;
+                        } 
+                    }
                 ];
 
                 let startDate = new Date(); startDate.setHours(0,0,0,0);
