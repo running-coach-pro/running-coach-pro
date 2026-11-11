@@ -407,7 +407,7 @@
             </button>
         </div>
 
-        <!-- 4. GARE IN AGENDA ⭐ (FUNZIONE VIP CON AI SMART TAG ESTESO) -->
+        <!-- 4. GARE IN AGENDA ⭐ (FUNZIONE VIP CON AI SMART TAG REGIONALE E NAZIONALE) -->
         <div id="screen-races" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                 <h3 class="font-bold text-amber-400 text-sm">📅 Agenda Gare Universale ⭐ VIP</h3>
@@ -427,11 +427,11 @@
 
             <div class="space-y-3 text-xs text-slate-300 pt-1">
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
-                    <span class="text-[10px] uppercase font-bold text-amber-400 block">⭐ AI Smart Tag con Database Italia Esteso</span>
+                    <span class="text-[10px] uppercase font-bold text-amber-400 block">⭐ AI Smart Tag (Marche, Centro & Italia)</span>
                     
                     <label class="block text-[10px] uppercase text-slate-400">Nome Gara o Località</label>
                     <div class="flex space-x-1">
-                        <input type="text" id="race-name" placeholder="Es. Maratona di Roma, Stramilano, Riviera..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
+                        <input type="text" id="race-name" placeholder="Es. San Benedetto, Brain Run, Roma, Riviera..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
                         <button type="button" onclick="app.analyzeRaceWithAI()" class="px-3 bg-amber-500 font-bold rounded-lg text-slate-950 cursor-pointer text-xs">✨ Analizza Gara</button>
                     </div>
 
@@ -1419,7 +1419,7 @@
                 });
             }
 
-            // --- AI SMART TAG CON DATABASE ITALIA ESTESO ---
+            // --- AI SMART TAG AMPLIATO (MARCHE, CENTRO & ITALIA) ---
             analyzeRaceWithAI() {
                 const nameInput = document.getElementById('race-name').value.trim().toLowerCase();
                 const previewBox = document.getElementById('ai-race-preview');
@@ -1430,17 +1430,28 @@
                 }
 
                 const racesDatabase = [
-                    // Marche & Centro
+                    // --- SAN BENEDETTO DEL TRONTO & RIVIERA (ZONA TUA) ---
                     {
-                        keywords: ["riviera", "grottammare", "half marathon riviera"],
-                        name: "Half Marathon Riviera delle Palme",
+                        keywords: ["san benedetto", "maratona sulla sabbia", "riviera delle palme", "half marathon riviera", "grottammare"],
+                        name: "Half Marathon & Maratona Riviera delle Palme",
                         dist: "21.1",
                         distType: "half",
-                        details: "Percorso costiero pianeggiante e veloce lungo la ciclabile adriatica.",
-                        elevation: "Dislivello trascurabile (piatto)",
+                        details: "Percorso costiero pianeggiante e veloce lungo la riviera adriatica tra San Benedetto e Grottammare.",
+                        elevation: "Completamente piatto (asfalto e ciclabile)",
                         schedule: "Ritrovo ore 07:30 - Partenza ore 09:00",
                         shoe: "Mizuno Wave Neo Vista 2 (Reattiva)",
                         strategy: "Integrazione: 1 Gel al 10° km + Acqua a ogni ristoro."
+                    },
+                    {
+                        keywords: ["brain run", "moretti corva", "porto sant'elpidio", "portosantelpidio"],
+                        name: "Brain Run Trofeo Moretti Corva (Porto Sant'Elpidio)",
+                        dist: "10",
+                        distType: "10k",
+                        details: "Classica gara podistica su strada a Porto Sant'Elpidio.",
+                        elevation: "Tracciato cittadino scorrevole",
+                        schedule: "Partenza mattutina",
+                        shoe: "Mizuno Wave Neo Vista 2",
+                        strategy: "Integrazione: Gara veloce, idratazione leggera."
                     },
                     {
                         keywords: ["civitanova", "stracivitanova"],
@@ -1486,7 +1497,29 @@
                         shoe: "Brooks Glycerin 23 GTS",
                         strategy: "Integrazione: Gestione energetica costante."
                     },
-                    // Grandi Classiche Italiane
+                    {
+                        keywords: ["ancona", "maratona del conero", "del conero"],
+                        name: "Maratona del Conero (Ancona)",
+                        dist: "42.2",
+                        distType: "marathon",
+                        details: "Splendida maratona lungo la Riviera del Conero.",
+                        elevation: "Ondulato con panorami marittimi suggestivi",
+                        schedule: "Partenza ore 08:30",
+                        shoe: "Brooks Glycerin 23 GTS",
+                        strategy: "Integrazione: Gel ogni 8 km + Sali."
+                    },
+                    {
+                        keywords: ["macerata", "stramacerata"],
+                        name: "Stramacerata",
+                        dist: "10",
+                        distType: "10k",
+                        details: "Tradizionale appuntamento podistico maceratese.",
+                        elevation: "Tracciato cittadino e collinare",
+                        schedule: "Partenza ore 09:00",
+                        shoe: "Mizuno Wave Neo Vista 2",
+                        strategy: "Integrazione: Ritmo costante."
+                    },
+                    // --- GRANDI CLASSICHE NAZIONALI ---
                     {
                         keywords: ["roma", "maratona di roma", "acea run"],
                         name: "Acea Run Rome The Marathon",
@@ -1514,7 +1547,7 @@
                         name: "Stramilano Mezza Maratona",
                         dist: "21.1",
                         distType: "half",
-                        details: "Storica mezza maratona veloce su amotti larghi.",
+                        details: "Storica mezza maratona veloce su ampi viali milanesi.",
                         elevation: "Piatto",
                         schedule: "Partenza ore 09:00",
                         shoe: "Mizuno Wave Neo Vista 2",
