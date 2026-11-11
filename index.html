@@ -1113,6 +1113,7 @@
                         
                         let sessionKm = Math.round(weekKm / selectedDays.length);
                         let title = "Corsa Lenta Rigenerante (Fondo Lento)";
+                        // CORRETTO: usa la variabile sessionKm dinamica nel testo descrittivo
                         let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento/Rigenerante (${paces.slow}/km - Zona 2).\n• Defaticamento: 5 min allungamento.`;
                         
                         let defaultShoe = this.shoes[0] ? this.shoes[0].name : "Standard";
@@ -1141,6 +1142,8 @@
                         } else {
                             sessionKm = Math.min(sessionKm, maxInfrasettimanaleKm);
                             sessionKm = Math.max(6, sessionKm);
+                            // Aggiorna anche qui la descrizione della corsa normale per riflettere il nuovo sessionKm calcolato
+                            desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento/Rigenerante (${paces.slow}/km - Zona 2).\n• Defaticamento: 5 min allungamento.`;
                         }
 
                         return { day: dayName, dateKey: dateKey, title: title, km: sessionKm, instructions: desc, completed: false, skipped: false, shoe: defaultShoe, notes: "" };
