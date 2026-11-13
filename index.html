@@ -268,7 +268,7 @@
                     <div>
                         <div class="flex items-center gap-1.5">
                             <h3 id="user-display" class="font-bold text-white text-xs">Atleta</h3>
-                            <span id="user-tier-badge" onclick="app.showVipInfoModal()" class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider cursor-pointer transition-transform active:scale-95" title="Clicca per scoprire come diventare VIP">Base</span>
+                            <span id="user-tier-badge" onclick="app.showVipInfoModal()" class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider cursor-pointer transition-transform active:scale-95" title="Clicca per scoprire lo stato VIP">Base</span>
                         </div>
                         <span class="text-[10px] text-emerald-400 font-medium" id="dashboard-stats-history">Storico: 0 km</span>
                     </div>
@@ -278,6 +278,18 @@
                     <button type="button" onclick="app.openInfo()" class="text-slate-400 hover:text-white p-1.5 cursor-pointer text-sm" title="Come funziona">ℹ️</button>
                     <button type="button" onclick="app.openSettings()" class="text-slate-400 hover:text-white p-1.5 cursor-pointer">⚙️</button>
                 </div>
+            </div>
+
+            <!-- BANNER CONTATORE PROVA VIP A SCALARE (PROMEMORIA) -->
+            <div id="trial-countdown-banner" class="bg-gradient-to-r from-amber-500/15 to-slate-800 p-2.5 rounded-xl border border-amber-500/30 flex justify-between items-center hidden">
+                <div class="flex items-center space-x-2">
+                    <span class="text-base">⏳</span>
+                    <div>
+                        <span class="text-[10px] font-bold text-amber-300 block uppercase tracking-wider">Prova VIP in corso</span>
+                        <span id="trial-days-remaining-text" class="text-[11px] text-slate-300">Ti restano 30 giorni di prova gratuita.</span>
+                    </div>
+                </div>
+                <button type="button" onclick="app.openSettings()" class="text-[10px] bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-lg font-bold hover:bg-amber-500/30 cursor-pointer border border-amber-500/40">Sblocca ⭐</button>
             </div>
 
             <!-- COUNTDOWN ALLA PROSSIMA GARA -->
@@ -402,7 +414,7 @@
             <button type="button" id="btn-toggle-complete" onclick="app.toggleCompleteCurrent()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">
                 ✔ Segna come Completato
             </button>
-            <button type="button" onclick="app.closeDetail()" class="w-full py-2 bg-slate-700 hover:bg-slate-600 font-bold rounded-xl text-white text-xs cursor-pointer">
+            <button type="button" onclick="app.closeDetail()" class="w-full py-2 bg-slate-700 font-bold rounded-xl text-white text-xs cursor-pointer">
                 Torna alla Tabella
             </button>
         </div>
@@ -486,6 +498,10 @@
                     <h3 class="font-extrabold text-emerald-400 text-base">📖 Benvenuto in Running Coach Pro</h3>
                     <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Running Coach Pro – Designed by Jovy</p>
                 </div>
+                <div class="bg-slate-900 p-3 rounded-xl border border-amber-500/30 text-xs text-amber-300 text-center space-y-1">
+                    <p class="font-bold">🎁 PROVA VIP GRATUITA DI 30 GIORNI</p>
+                    <p class="text-[11px] text-slate-300">Tutte le funzioni avanzate (maratone, agenda gare, export PDF ed Excel) sono attive gratuitamente per un mese intero!</p>
+                </div>
                 <button type="button" onclick="app.closeWelcomeModal()" class="w-full py-3 bg-emerald-500 font-bold rounded-xl text-slate-950 text-xs cursor-pointer shadow-lg">
                     Iniziamo! 🚀
                 </button>
@@ -496,11 +512,11 @@
         <div id="vip-info-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-slate-800 border border-amber-500/40 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
                 <div class="text-center space-y-1">
-                    <h3 class="font-extrabold text-amber-400 text-base">⭐ Account VIP - Running Coach Pro</h3>
+                    <h3 class="font-extrabold text-amber-400 text-base">⭐ Stato Account & Prova VIP</h3>
                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Running Coach Pro – Designed by Jovy</p>
                 </div>
                 <div class="space-y-2 text-xs text-slate-300 bg-slate-900 p-3 rounded-xl border border-slate-700">
-                    <p>Sblocca distanze personalizzate, ultramaratone, agenda gare con analisi tecnica dettagliata dei tracciati inserendo il codice segreto nelle impostazioni (⚙️).</p>
+                    <p id="vip-modal-status-text">Stai usufruendo della prova gratuita di 30 giorni. Alla scadenza potrai decidere se supportare il progetto con una donazione per mantenere attive le funzioni VIP in modo permanente.</p>
                 </div>
                 <button type="button" onclick="app.closeVipInfoModal()" class="w-full py-2.5 bg-amber-500 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">
                     Ho capito 👍
@@ -525,13 +541,8 @@
                 </div>
 
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-1.5">
-                    <h4 class="font-bold text-emerald-400 uppercase tracking-wider text-[11px]">🟢 Versione Base (Free)</h4>
-                    <p>Ideale per 5 km e 10 km, con gestione flessibile e tracciamento scarpe nel Cloud.</p>
-                </div>
-
-                <div class="bg-slate-900 p-3 rounded-xl border border-amber-500/40 space-y-1.5">
-                    <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[11px]">⭐ Versione VIP</h4>
-                    <p>Distanze illimitate, Agenda Gare con descrizioni tecniche dei tracciati e download PDF ed Excel.</p>
+                    <h4 class="font-bold text-emerald-400 uppercase tracking-wider text-[11px]">🟢 Periodo di Prova & Versione Base</h4>
+                    <p>Ogni nuovo account gode di <strong>30 giorni di prova gratuita</strong> di tutte le funzioni VIP. Terminato il mese, potrai decidere se sostenere il progetto con una donazione per sbloccarle permanentemente.</p>
                 </div>
             </div>
 
@@ -555,8 +566,8 @@
 
                 <div class="bg-slate-900 p-3 rounded-xl border border-amber-500/40 space-y-2.5">
                     <span class="font-bold text-amber-400 uppercase tracking-wider text-[10px] block">⭐ VERSIONE VIP - SUPORTA IL PROGETTO (3€)</span>
-                    <p class="text-[10px] text-slate-400 leading-relaxed">
-                        Sblocca le funzioni avanzate. La donazione è esclusivamente per sostenere e portare avanti il progetto Running Coach Pro.
+                    <p id="settings-trial-status-note" class="text-[10px] text-slate-400 leading-relaxed">
+                        Stai usando la prova gratuita di 30 giorni. Sostieni il progetto per mantenere l'account VIP attivo per sempre.
                     </p>
 
                     <div class="bg-slate-800 p-2.5 rounded-lg border border-slate-700 text-[11px] text-slate-300 space-y-1">
@@ -624,7 +635,7 @@
                     { name: "Mizuno Wave Neo Vista 2", category: "Lavori Veloci / Fartlek 🔵", km: 0, maxKm: 600, description: "Scarpa reattiva per ripetute e ritmi medi." }
                 ];
                 this.races = [];
-                this.profile = { is_vip: false, vip_requested: false };
+                this.profile = { is_vip: false, vip_requested: false, created_at: new Date().toISOString(), device_id: this.getOrCreateDeviceId() };
                 this.fullPlan = null;
                 this.selectedWeekIndex = 0;
                 this.activeDayIndex = null;
@@ -688,6 +699,41 @@
                 ];
 
                 this.initCloudSync();
+            }
+
+            // Generatore di marcatore persistente di dispositivo (Anti-abuso tentativi multipli)
+            getOrCreateDeviceId() {
+                let devId = localStorage.getItem('running_coach_device_id');
+                if (!devId) {
+                    devId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+                    localStorage.setItem('running_coach_device_id', devId);
+                }
+                return devId;
+            }
+
+            // Metodo di controllo automatico della prova di 30 giorni e del dispositivo
+            isUserVip() {
+                if (this.profile && this.profile.is_vip) return true; // Sblocca se ha inserito il codice VIP permanente
+                
+                // Controlla la data di creazione associata al dispositivo/account
+                if (this.profile && this.profile.created_at) {
+                    let createdDate = new Date(this.profile.created_at);
+                    let now = new Date();
+                    let diffTime = now - createdDate;
+                    let diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    if (diffDays <= 30) {
+                        return true; // Durante i primi 30 giorni è VIP di prova
+                    }
+                }
+                return false;
+            }
+
+            getTrialDaysRemaining() {
+                if (!this.profile || !this.profile.created_at) return 30;
+                let createdDate = new Date(this.profile.created_at);
+                let expiryDate = new Date(createdDate.getTime() + (30 * 24 * 60 * 60 * 1000));
+                let daysLeft = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+                return Math.max(0, daysLeft);
             }
 
             async initCloudSync() {
@@ -755,12 +801,19 @@
                 try {
                     const { data } = await supabaseClient.from('runners').select('*').eq('user_id', this.userId).maybeSingle();
                     if (data) {
-                        this.profile = data.profile || { is_vip: false, vip_requested: false };
+                        this.profile = data.profile || { is_vip: false, vip_requested: false, created_at: new Date().toISOString(), device_id: this.getOrCreateDeviceId() };
+                        if (!this.profile.created_at) this.profile.created_at = new Date().toISOString();
+                        if (!this.profile.device_id) this.profile.device_id = this.getOrCreateDeviceId();
                         this.fullPlan = data.full_plan || null;
                         this.shoes = data.shoes || [];
                         this.races = data.races || [];
                         this.avatarUrl = data.avatar_url || this.avatarUrl;
                         document.getElementById('dashboard-avatar').src = this.avatarUrl;
+                    } else {
+                        // Nuovo utente: imposta la data di creazione e il marcatore dispositivo
+                        this.profile.created_at = new Date().toISOString();
+                        this.profile.device_id = this.getOrCreateDeviceId();
+                        await this.saveData();
                     }
                 } catch (e) {}
                 this.evaluateStartupScreen();
@@ -794,7 +847,7 @@
                     this.profile.vip_requested = false;
                     this.saveData();
                     this.renderDashboard();
-                    alert("🎉 Codice verificato con successo! Account aggiornato a VIP ⭐.");
+                    alert("🎉 Codice verificato con successo! Account VIP permanente attivato ⭐.");
                     this.closeSettings();
                 } else {
                     alert("❌ Codice non valido per questa email. Controlla di aver inserito il codice corretto ricevuto via email.");
@@ -901,8 +954,8 @@
 
             handleRaceTypeChange() {
                 const raceType = document.getElementById('profile-race-type').value;
-                if (!this.profile.is_vip && raceType !== '5k' && raceType !== '10k') {
-                    alert("⭐ Questa distanza personalizzata o avanzata è riservata agli account VIP.");
+                if (!this.isUserVip() && raceType !== '5k' && raceType !== '10k') {
+                    alert("⭐ Questa distanza personalizzata o avanzata richiede un account VIP o un periodo di prova attivo.");
                     document.getElementById('profile-race-type').value = '10k';
                     this.handleRaceTypeChange();
                     return;
@@ -1020,8 +1073,8 @@
                 const targetDateInput = document.getElementById('profile-race-target-date').value;
 
                 if (targetDateInput) {
-                    if (!this.profile.is_vip) {
-                        alert("⭐ Il calcolo automatico basato sulla data della gara è una funzione VIP.");
+                    if (!this.isUserVip()) {
+                        alert("⭐ Il calcolo automatico basato sulla data della gara richiede un account VIP o prova attiva.");
                     } else {
                         let raceDate = new Date(targetDateInput);
                         let today = new Date(); today.setHours(0,0,0,0);
@@ -1036,8 +1089,8 @@
                     }
                 }
 
-                if (!this.profile.is_vip && weeksCount > 8) {
-                    alert("⭐ Le tabelle superiori a 8 settimane sono riservate agli account VIP.");
+                if (!this.isUserVip() && weeksCount > 8) {
+                    alert("⭐ Le tabelle superiori a 8 settimane richiedono un account VIP o prova attiva.");
                     return;
                 }
 
@@ -1215,15 +1268,28 @@
                 document.getElementById('dashboard-avatar').src = this.avatarUrl;
                 
                 const tierBadge = document.getElementById('user-tier-badge');
+                const trialBanner = document.getElementById('trial-countdown-banner');
+
                 if (this.profile.is_vip) {
                     tierBadge.innerText = "VIP ⭐";
                     tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 cursor-pointer";
+                    trialBanner.classList.add('hidden');
+                } else if (this.isUserVip()) {
+                    let daysLeft = this.getTrialDaysRemaining();
+                    tierBadge.innerText = `Prova VIP (${daysLeft}g) 🎁`;
+                    tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 cursor-pointer";
+                    
+                    // Mostra il banner promemoria con i giorni a scalare
+                    document.getElementById('trial-days-remaining-text').innerText = `Ti restano ${daysLeft} giorni di prova gratuita.`;
+                    trialBanner.classList.remove('hidden');
                 } else if (this.profile.vip_requested) {
                     tierBadge.innerText = "In attesa ⏳";
                     tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/30 cursor-pointer";
+                    trialBanner.classList.add('hidden');
                 } else {
                     tierBadge.innerText = "Base 🟢";
                     tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-slate-700 text-slate-300 cursor-pointer";
+                    trialBanner.classList.add('hidden');
                 }
 
                 let totalPlanKm = 0, doneKm = 0;
@@ -1454,7 +1520,7 @@
             dropPlan() { if (confirm("Vuoi cambiare obiettivo resettando il piano?")) { this.fullPlan = null; this.saveData(); document.getElementById('btn-cancel-onboarding').classList.add('hidden'); this.showScreen('screen-onboarding'); } }
 
             openRaces() {
-                if (!this.profile.is_vip) { alert("⭐ L'Agenda Gare è riservata agli utenti VIP."); return; }
+                if (!this.isUserVip()) { alert("⭐ L'Agenda Gare richiede un account VIP o un periodo di prova attivo."); return; }
                 this.renderRacesList(); this.showScreen('screen-races');
             }
             closeRaces() { this.showScreen('screen-dashboard'); }
@@ -1540,6 +1606,16 @@
             openSettings() {
                 document.getElementById('settings-preview-avatar').src = this.avatarUrl;
                 this.renderShoesSettings();
+                
+                // Aggiorna il testo nelle impostazioni sullo stato della prova gratuita e giorni restanti
+                if (this.profile && this.profile.created_at) {
+                    let daysLeft = this.getTrialDaysRemaining();
+                    let noteText = this.profile.is_vip ? 
+                        "✅ Account VIP permanente attivato." : 
+                        `⏳ Prova VIP attiva: ti restano <strong>${daysLeft} giorni</strong> di prova gratuita. Fai una donazione di 3€ per renderlo permanente!`;
+                    document.getElementById('settings-trial-status-note').innerHTML = noteText;
+                }
+
                 this.showScreen('screen-settings');
             }
             closeSettings() { this.showScreen('screen-dashboard'); }
@@ -1619,7 +1695,7 @@
             deleteAccountData() { if (confirm("Vuoi svuotare tutti i dati?")) { localStorage.clear(); location.reload(); } }
 
             exportCompletePDF() {
-                if (!this.profile.is_vip) { alert("⭐ Esportazione riservata agli account VIP."); return; }
+                if (!this.isUserVip()) { alert("⭐ L'esportazione PDF richiede un account VIP o un periodo di prova attivo."); return; }
                 if (!this.fullPlan || !this.fullPlan.weeks) { alert("Nessun programma da esportare."); return; }
 
                 const container = document.createElement('div');
@@ -1686,7 +1762,7 @@
             }
 
             exportCompleteExcel() {
-                if (!this.profile.is_vip) { alert("⭐ Esportazione riservata agli account VIP."); return; }
+                if (!this.isUserVip()) { alert("⭐ L'esportazione Excel richiede un account VIP o un periodo di prova attivo."); return; }
                 let rows = [];
                 this.fullPlan.weeks.forEach(w => w.days.forEach(d => rows.push({ Settimana: w.weekNumber, Giorno: d.day, Data: d.dateKey || '', Allenamento: d.title, Km: d.km, Scarpa: d.shoe })));
                 const wb = XLSX.utils.book_new();
