@@ -244,7 +244,7 @@
                         <strong class="text-amber-400">Note e Esonero di Responsabilità:</strong> Le tabelle generate da <strong class="text-white">Running Coach Pro</strong> sono puramente indicative in base ad età, peso e livello. Si raccomanda consulto medico preventivo.
                     </p>
                     <label class="flex items-start space-x-2 pt-1 cursor-pointer">
-                        <input type="checkbox" id="disclaimer-check" class="mt-0.5 rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0" checked>
+                        <input type="checkbox" id="disclaimer-check" class="mt-0.5 rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0">
                         <span class="text-[10px] text-emerald-300 font-semibold">Accetto le condizioni, dichiaro idoneità fisica e sollevo da responsabilità.</span>
                     </label>
                 </div>
@@ -630,10 +630,7 @@
         class RunnerApp {
             constructor() {
                 this.avatarUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces";
-                this.shoes = [
-                    { name: "Brooks Glycerin 23 GTS", category: "Lungo / Massimo Ammortizzamento 🟢", km: 0, maxKm: 750, description: "Ammortizzamento elevato." },
-                    { name: "Mizuno Wave Neo Vista 2", category: "Lavori Veloci / Fartlek 🔵", km: 0, maxKm: 600, description: "Scarpa reattiva per ripetute e ritmi medi." }
-                ];
+                this.shoes = []; // I nuovi utenti partono senza scarpe predefinite in archivio
                 this.races = [];
                 this.profile = { is_vip: false, vip_requested: false, created_at: new Date().toISOString(), device_id: this.getOrCreateDeviceId() };
                 this.fullPlan = null;
@@ -701,7 +698,6 @@
                 this.initCloudSync();
             }
 
-            // Generatore di marcatore persistente di dispositivo (Anti-abuso tentativi multipli)
             getOrCreateDeviceId() {
                 let devId = localStorage.getItem('running_coach_device_id');
                 if (!devId) {
@@ -711,18 +707,15 @@
                 return devId;
             }
 
-            // Metodo di controllo automatico della prova di 30 giorni e del dispositivo
             isUserVip() {
-                if (this.profile && this.profile.is_vip) return true; // Sblocca se ha inserito il codice VIP permanente
-                
-                // Controlla la data di creazione associata al dispositivo/account
+                if (this.profile && this.profile.is_vip) return true;
                 if (this.profile && this.profile.created_at) {
                     let createdDate = new Date(this.profile.created_at);
                     let now = new Date();
                     let diffTime = now - createdDate;
                     let diffDays = diffTime / (1000 * 60 * 60 * 24);
                     if (diffDays <= 30) {
-                        return true; // Durante i primi 30 giorni è VIP di prova
+                        return true;
                     }
                 }
                 return false;
@@ -810,9 +803,9 @@
                         this.avatarUrl = data.avatar_url || this.avatarUrl;
                         document.getElementById('dashboard-avatar').src = this.avatarUrl;
                     } else {
-                        // Nuovo utente: imposta la data di creazione e il marcatore dispositivo
                         this.profile.created_at = new Date().toISOString();
                         this.profile.device_id = this.getOrCreateDeviceId();
+                        this.shoes = []; // Assicura che i nuovi utenti partano senza scarpe in archivio
                         await this.saveData();
                     }
                 } catch (e) {}
@@ -893,6 +886,7 @@
                     this.renderDashboard();
                     this.showScreen('screen-dashboard');
                 } else {
+                    document.getElementById('disclaimer-check').checked = false; // Assicura che parta non spuntato
                     this.showScreen('screen-onboarding');
                 }
             }
@@ -941,6 +935,7 @@
                         });
                     }
                 }
+                document.getElementById('disclaimer-check').checked = false; // Richiede di spuntare ogni volta che si modifica
                 document.getElementById('onboarding-title').innerText = "Modifica Giorni / Piano";
                 document.getElementById('onboarding-subtitle').innerText = "Aggiorna i giorni di allenamento o i parametri mantenendo il tuo storico.";
                 document.getElementById('btn-cancel-onboarding').classList.remove('hidden');
@@ -1065,7 +1060,7 @@
 
             generatePlan() {
                 if (!document.getElementById('disclaimer-check').checked) {
-                    alert("Per favore, accetta l'esonero di responsabilità.");
+                    alert("Per favore, accetta l'esonero di responsabilità spuntando la casella prima di continuare.");
                     return;
                 }
 
@@ -1279,7 +1274,6 @@
                     tierBadge.innerText = `Prova VIP (${daysLeft}g) 🎁`;
                     tierBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 cursor-pointer";
                     
-                    // Mostra il banner promemoria con i giorni a scalare
                     document.getElementById('trial-days-remaining-text').innerText = `Ti restano ${daysLeft} giorni di prova gratuita.`;
                     trialBanner.classList.remove('hidden');
                 } else if (this.profile.vip_requested) {
@@ -1517,7 +1511,7 @@
             }
 
             closeDetail() { this.showScreen('screen-dashboard'); }
-            dropPlan() { if (confirm("Vuoi cambiare obiettivo resettando il piano?")) { this.fullPlan = null; this.saveData(); document.getElementById('btn-cancel-onboarding').classList.add('hidden'); this.showScreen('screen-onboarding'); } }
+            dropPlan() { if (confirm("Vuoi cambiare obiettivo resettando il piano?")) { this.fullPlan = null; this.saveData(); document.getElementById('btn-cancel-onboarding').classList.add('hidden'); document.getElementById('disclaimer-check').checked = false; this.showScreen('screen-onboarding'); } }
 
             openRaces() {
                 if (!this.isUserVip()) { alert("⭐ L'Agenda Gare richiede un account VIP o un periodo di prova attivo."); return; }
@@ -1607,7 +1601,6 @@
                 document.getElementById('settings-preview-avatar').src = this.avatarUrl;
                 this.renderShoesSettings();
                 
-                // Aggiorna il testo nelle impostazioni sullo stato della prova gratuita e giorni restanti
                 if (this.profile && this.profile.created_at) {
                     let daysLeft = this.getTrialDaysRemaining();
                     let noteText = this.profile.is_vip ? 
@@ -1692,7 +1685,22 @@
             }
 
             saveSettings() { this.saveData(); this.closeSettings(); alert("Impostazioni salvate!"); }
-            deleteAccountData() { if (confirm("Vuoi svuotare tutti i dati?")) { localStorage.clear(); location.reload(); } }
+
+            // Funzione corretta per la rimozione totale dell'account dal Cloud e dal LocalStorage
+            async deleteAccountData() {
+                if (confirm("Sei sicuro di voler rimuovere definitivamente il tuo account e tutti i dati associati? L'operazione è irreversibile.")) {
+                    try {
+                        if (this.userId) {
+                            await supabaseClient.from('runners').delete().eq('user_id', this.userId);
+                        }
+                    } catch (e) {
+                        console.error("Errore cancellazione cloud:", e);
+                    }
+                    localStorage.clear();
+                    alert("Account rimosso con successo.");
+                    location.reload();
+                }
+            }
 
             exportCompletePDF() {
                 if (!this.isUserVip()) { alert("⭐ L'esportazione PDF richiede un account VIP o un periodo di prova attivo."); return; }
