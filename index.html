@@ -433,17 +433,17 @@
                 
                 <div id="agenda-info-box" class="hidden bg-slate-900 p-3 rounded-xl border border-amber-500/30 text-[11px] text-slate-300 space-y-2 leading-relaxed">
                     <p class="font-bold text-amber-400 uppercase tracking-wider text-[10px]">Analisi Altimetrica & Fondo</p>
-                    <p>Digita il nome di una gara: l'AI ti mostrerà subito la descrizione dettagliata del tracciato (asfalto, sterrato, collinare o mare) per aiutarti a scegliere la strategia e la scarpa ideale.</p>
+                    <p>Digita il nome di una gara o la provincia (es. Roma, Milano, Ascoli, Pescara): l'AI ti mostrerà subito la descrizione dettagliata del tracciato e delle caratteristiche per aiutarti a scegliere la strategia e la scarpa ideale.</p>
                 </div>
             </div>
 
             <div class="space-y-3 text-xs text-slate-300 pt-1">
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
-                    <span class="text-[10px] uppercase font-bold text-amber-400 block">⭐ AI SMART TAG TRACCIATO</span>
+                    <span class="text-[10px] uppercase font-bold text-amber-400 block">⭐ AI SMART TAG TRACCIATO (CALENDARIO NAZIONALE)</span>
                     
-                    <label class="block text-[10px] uppercase text-slate-400">Cerca Gara o Località</label>
+                    <label class="block text-[10px] uppercase text-slate-400">Cerca Gara, Località o Provincia</label>
                     <div class="flex space-x-1">
-                        <input type="text" id="race-name" placeholder="Es. Maratona di Roma..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
+                        <input type="text" id="race-name" placeholder="Es. Maratona di Roma, Pescara, Ascoli..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
                         <button type="button" onclick="app.analyzeRaceWithAI()" class="px-3 bg-amber-500 font-bold rounded-lg text-slate-950 cursor-pointer text-xs">✨ Analizza Tracciato</button>
                     </div>
 
@@ -629,7 +629,7 @@
         class RunnerApp {
             constructor() {
                 this.avatarUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces";
-                this.shoes = []; // I nuovi utenti partono senza scarpe predefinite in archivio
+                this.shoes = [];
                 this.races = [];
                 this.profile = { is_vip: false, vip_requested: false, created_at: new Date().toISOString(), device_id: this.getOrCreateDeviceId() };
                 this.fullPlan = null;
@@ -641,57 +641,198 @@
                 this.tempAnalyzedRace = null;
                 this.isSaving = false;
 
-                // DATABASE DELLE GARE CON DESCRIZIONE TRACCIATO E ALTIMETRIA
+                // DATABASE AGGIORNATO CON TUTTE LE MARATONE E MEZZE MARATONE ITALIANE 2026 DAL DOCUMENTO UFFICIALE (SENZA DATE)
                 this.fidalMarcheDatabase = [
-                    { name: "Maratonina di Centobuchi", dist: "21", location: "Centobuchi di Monteprandone", desc: "Tracciato pianeggiante e scorrevole tra i centri urbani della vallata del Tronto.", shoe: "Mizuno Wave Neo Vista 2 (Reattiva)" },
-                    { name: "Ultramaratona del Conero", dist: "10", location: "Porto Recanati", desc: "Percorso costiero veloce lungo il lungomare e la zona residenziale.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Stracivitanova", dist: "21", location: "Civitanova Marche", desc: "Mezza maratona scorrevole con passaggi sul lungomare sud e nord.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Maratonina della Solidarietà", dist: "10", location: "Porto Sant'Elpidio", desc: "Classica cittadina sul lungomare centro, veloce e piatta.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "La Mezza del Metauro", dist: "21", location: "Fossombrone", desc: "Tracciato vallonato lungo la valle del fiume Metauro, panorami suggestivi.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Trofeo Colli del Tronto", dist: "9", location: "Colli del Tronto", desc: "Gara collinare tecnica con brevi saliscendi e strappi muscolari.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Trofeo Città di Senigallia", dist: "10", location: "Senigallia", desc: "Percorso piatto sulla famosa spiaggia di velluto e centro storico.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Maratonina dei Fiori", dist: "21", location: "San Benedetto del Tronto", desc: "Splendida mezza maratona sulla riviera delle palme, totalmente piatta.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Stracassero", dist: "10", location: "Castelraimondo", desc: "Gara tecnica nell'entroterra maceratese con tratti ondulati.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Corri Lucrezia", dist: "10", location: "Lucrezia di Cartoceto", desc: "Tracciato pianeggiante, ideale per ritmi veloci.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Conero Running", dist: "21", location: "Numana", desc: "Mezza maratona panoramica ai piedi del Conero, con qualche saliscendi.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Collemarathon", dist: "42", location: "Barchi / Fano", desc: "Maratona d'arte e collina da Barchi fino al mare di Fano, ondulata.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Marcia Camerte", dist: "10", location: "Camerino", desc: "Percorso montano e universitario con dislivelli impegnativi.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Trofeo Città di Potenza Picena", dist: "10", location: "Porto Potenza Picena", desc: "Tracciato misto tra lungomare e salita verso il borgo storico.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Sem Run", dist: "10", location: "Sant'Elpidio a Mare", desc: "Classica elpidiense con strappi tecnici e arrivo nel centro storico.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Trofeo Moretti Corva", dist: "10", location: "Corva di Porto Sant'Elpidio", desc: "Gara veloce e partecipata nel territorio elpidiense.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Run & Smile", dist: "10", location: "Porto San Giorgio", desc: "Percorso sul lungomare sangiorgese, veloce e pianeggiante.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Fisarmonica Run", dist: "9", location: "Castelfidardo", desc: "Gara ondulata tra le colline della patria della fisarmonica.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Giro dei IV Ponti", dist: "10", location: "Urbania", desc: "Tracciato storico lungo il fiume Metauro, misto asfalto.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Trofeo Città di Filottrano", dist: "10", location: "Filottrano", desc: "Percorso collinare con strappi tipici del borgo marchigiano.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Trofeo Avis Spinetoli", dist: "10", location: "Spinetoli", desc: "Gara vallonata tra le colline ascolane.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Maratonina Cuprense", dist: "9", location: "Cupra Marittima", desc: "Tracciato costiero suggestivo tra pineta e lungomare.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Marcia del Solleone", dist: "10", location: "Montegiorgio", desc: "Gara estiva panoramica con saliscendi nella Val Tenna.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Trasanseverino", dist: "10", location: "San Severino Marche", desc: "Percorso cittadino e vallonato ai piedi di Monte San Vicino.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Corricorridonia", dist: "10", location: "Corridonia", desc: "Tracciato scorrevole con brevi variazioni altimetriche.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Stracaldarola", dist: "10", location: "Caldarola", desc: "Gara nell'entroterra maceratese, scenario collinare.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Podistica Città di Sarnano", dist: "9", location: "Sarnano", desc: "Percorso montano/collinare fresco ai piedi dei Sibillini.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "50^ Strafossombrone", dist: "10", location: "Fossombrone", desc: "Storica competizione fluviale e cittadina.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Cretarola Night Run", dist: "9", location: "Cretarola di Porto Sant'Elpidio", desc: "Frenetica notturna in saliscendi tra contrada e borgo.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Millepiedi Città di Cingoli", dist: "10", location: "Cingoli", desc: "Impegnativo percorso sul 'Balcone delle Marche' con salite dure.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Marcia dei 4 Ponti", dist: "12", location: "Fiuminata", desc: "Tracciato naturalistico lungo il fiume Potenza.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Su e Giù per il Nera", dist: "9", location: "Castel Sant'Angelo sul Nera", desc: "Affascinante corsa montana nel parco dei Sibillini.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "San Marone Run", dist: "9", location: "Civitanova Marche Alta", desc: "Gara serale con strappo finale verso Civitanova Alta.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Trofeo Grotte di Frasassi", dist: "10", location: "Genga", desc: "Spettacolare percorso naturalistico nei pressi delle Grotte.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Stramacerata", dist: "10", location: "Macerata", desc: "Classica cittadina con passaggi nei luoghi simbolo maceratesi.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Trofeo 5 Torri", dist: "11", location: "Osimo", desc: "Famoso e duro percorso osimano con i celebri 'giri di boa' in salita.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Mezza del Piceno", dist: "21", location: "Porto San Giorgio", desc: "Mezza maratona veloce sul litorale fermano.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Marotta Mondolfo Run", dist: "10", location: "Marotta", desc: "Percorso veloce tra mare e centro urbano.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Marcialonga della Solidarietà", dist: "10", location: "Montecassiano", desc: "Gara nel suggestivo borgo medievale di Montecassiano.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Happy Run", dist: "10", location: "Porto Sant'Elpidio", desc: "Tracciato pianeggiante sul lungomare elpidiense.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "La 10 di Ancona", dist: "10", location: "Ancona", desc: "Veloce 10 km cittadina nel capoluogo dorico.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Sant'Ignazio Run", dist: "10", location: "Filottrano", desc: "Competizione tecnica collinare.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Marcialonga Lauretana", dist: "10", location: "Loreto", desc: "Tradizionale arrivo ai piedi del Santuario lauretano.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Marcialonga d'Autunno", dist: "10", location: "Falconara", desc: "Percorso pianeggiante sul litorale falconarese.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Donne in Rosa", dist: "21", location: "Grottammare", desc: "Mezza maratona sul lungomare ciclabile tra Grottammare e San Benedetto.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "Osteria dei Podisti Run", dist: "10", location: "Montelabbate", desc: "Gara nell'entroterra pesarese, fondo scorrevole.", shoe: "Mizuno Wave Neo Vista 2" },
-                    { name: "X Mas 4 Run", dist: "10", location: "Appignano", desc: "Edizione natalizia collinare tra i colli maceratesi.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Corsa di Babbo Natale", dist: "9", location: "Sarnano", desc: "Corsa invernale suggestiva ai piedi dei monti.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Veregra Run", dist: "10", location: "Montegranaro", desc: "Tradizionale chiusura di stagione nel distretto calzaturiero.", shoe: "Brooks Glycerin 23 GTS" }
+                    // Abruzzo
+                    { name: "Maratonina del Mare - Pescara Half Marathon", dist: "21.1", location: "Pescara (PE) - Abruzzo", desc: "Tracciato costiero veloce sul lungomare di Pescara.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Costa dei Trabocchi BCC Half Marathon", dist: "21.1", location: "Fossacesia (CH) - Abruzzo", desc: "Tracciato suggestivo lungo la pista ciclabile dei Trabocchi.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "La Michettiana Running", dist: "21.1", location: "Francavilla al Mare (CH) - Abruzzo", desc: "Percorso pianeggiante vista mare sulla riviera adriatica abruzzese.", shoe: "Mizuno Wave Neo Vista 2" },
+                    
+                    // Calabria
+                    { name: "Co.Ro. Half Marathon", dist: "21.1", location: "Corigliano-Rossano (CS) - Calabria", desc: "Tracciato misto urbano e costiero tra gli uliveti e il mare della Sibaritide.", shoe: "Brooks Glycerin 23 GTS" },
+
+                    // Campania
+                    { name: "Nuceria Paganorum Half Marathon", dist: "21.1", location: "Nocera Inferiore (SA) - Campania", desc: "Percorso cittadino nell'agro nocerino-sarnese.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Napoli City Half Marathon", dist: "21.1", location: "Napoli (NA) - Campania", desc: "Etichetta Oro FIDAL. Tracciato spettacolare e velocissimo sul lungomare di Napoli.", shoe: "Mizuno Wave Neo Vista 2 (Reattiva)" },
+                    { name: "Agropoli Paestum Half Marathon", dist: "21.1", location: "Agropoli (SA) - Campania", desc: "Tracciato storico-paesaggistico nei pressi dell'area archeologica di Paestum.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Telesia Half Marathon", dist: "21.1", location: "Telese Terme (BN) - Campania", desc: "Etichetta Argento FIDAL. Tracciato pianeggiante e rinomato per la velocità nel Sannio.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Strasalerno Half Marathon", dist: "21.1", location: "Salerno (SA) - Campania", desc: "Percorso cittadino e sul lungomare di Salerno.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Neapolis Half Marathon", dist: "21.1", location: "Napoli (NA) - Campania", desc: "Tracciato storico tra le bellezze e le strade di Napoli.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Neapolis Marathon", dist: "42.2", location: "Napoli (NA) - Campania", desc: "Etichetta Bronzo FIDAL. Maratona completa attraverso i luoghi simbolo partenopei.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Reggia-Reggia Mezza Maratona Internazionale di Caserta", dist: "21.1", location: "Caserta (CE) - Campania", desc: "Percorso suggestivo con passaggio all'interno e nei pressi della Reggia di Caserta.", shoe: "Brooks Glycerin 23 GTS" },
+
+                    // Emilia Romagna
+                    { name: "Faenza Half Marathon", dist: "21.1", location: "Faenza (RA) - Emilia Romagna", desc: "Tracciato cittadino nella terra della celebri gare di ultramaratona.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Rovigo in Love Half Marathon", dist: "21.1", location: "Rovigo (RO) - Veneto", desc: "Percorso pianeggiante nel centro storico polesano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "La Mezza del Marchesato", dist: "21.1", location: "Saluzzo (CN) - Piemonte", desc: "Tracciato vallonato ai piedi del Monviso.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Verdi Marathon", dist: "42.2", location: "Salsomaggiore Terme (PR) - Emilia Romagna", desc: "Tracciato che unisce i luoghi verdiani tra colline e parchi termali.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Run Tune Up", dist: "21.1", location: "Bologna (BO) - Emilia Romagna", desc: "Classica mezza maratona tra le storiche vie e i portici di Bologna.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Bologna Marathon", dist: "42.2", location: "Bologna (BO) - Emilia Romagna", desc: "Etichetta Bronzo FIDAL. Maratona d'arte nel cuore del capoluogo emiliano.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Straforli Run in the City", dist: "21.1", location: "Forlì (FC) - Emilia Romagna", desc: "Tracciato urbano scorrevole.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Cervia Run", dist: "21.1", location: "Cervia (RA) - Emilia Romagna", desc: "Percorso pianeggiante tra pineta e mare.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "La 21 di Reggio", dist: "21.1", location: "Reggio nell'Emilia (RE) - Emilia Romagna", desc: "Tracciato scorrevole emiliano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratona del Lamone", dist: "42.2", location: "Russi (RA) - Emilia Romagna", desc: "Una delle maratone storiche più longeve d'Italia, su percorso extraurbano pianeggiante.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Comacchio Half Marathon", dist: "21.1", location: "Comacchio (FE) - Emilia Romagna", desc: "Percorso suggestivo tra i canali e le Valli di Comacchio.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Placentia Half Marathon", dist: "21.1", location: "Piacenza (PC) - Emilia Romagna", desc: "Etichetta Bronzo FIDAL. Percorso cittadino veloce e partecipato.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratonia dei Laghi", dist: "21.1", location: "Bellaria-Igea Marina (RN) - Emilia Romagna", desc: "Tracciato costiero e nei parchi urbani.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Rimini Half Marathon / Rimini Marathon", dist: "42.2", location: "Rimini (RN) - Emilia Romagna", desc: "Percorso che unisce il centro storico romano alla spiaggia di Rimini.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezza Maratona Alzheimer", dist: "21.1", location: "Cesenatico (FC) - Emilia Romagna", desc: "Evento solidale con arrivo sul mare a Cesenatico.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Guastalla Half Marathon", dist: "21.1", location: "Guastalla (RE) - Emilia Romagna", desc: "Tracciato pianeggiante lungo il fiume Po.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Parma Mezza Maratona / Parma Marathon", dist: "42.2", location: "Parma (PR) - Emilia Romagna", desc: "Percorso tra parchi ducali, centro storico e viali parmensi.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Ravenna Half Marathon / Maratona di Ravenna Città d'Arte", dist: "42.2", location: "Ravenna (RA) - Emilia Romagna", desc: "Etichetta Argento FIDAL. Spettacolare maratona d'arte tra i monumenti UNESCO.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Tin Bota Romagna Half Marathon", dist: "21.1", location: "Forlì (FC) - Emilia Romagna", desc: "Tracciato podistico romagnolo.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona del Tricolore / Maratona di Reggio Emilia", dist: "42.2", location: "Reggio nell'Emilia (RE) - Emilia Romagna", desc: "Etichetta Argento FIDAL. Storica e velocissima maratona invernale.", shoe: "Brooks Glycerin 23 GTS" },
+
+                    // Friuli Venezia Giulia
+                    { name: "Maratonina Comune di Brugnera - Alto Livenza", dist: "21.1", location: "Brugnera (PN) - Friuli Venezia Giulia", desc: "Tracciato pianeggiante tra i parchi e i fiumi pordenonesi.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Trieste 42K / Trieste 21K", dist: "42.2", location: "Trieste (TS) - Friuli Venezia Giulia", desc: "Percorso spettacolare sul lungomare di Trieste con arrivo in Piazza Unità d'Italia.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Maratonina Citta' di Udine", dist: "21.1", location: "Udine (UD) - Friuli Venezia Giulia", desc: "Etichetta Bronzo FIDAL. Mezza maratona internazionale veloce nel centro friulano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratonina Internazionale dei Borghi città di Pordenone", dist: "21.1", location: "Pordenone (PN) - Friuli Venezia Giulia", desc: "Percorso nei borghi storici pordenonesi.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezza Maratona Città di Palmanova", dist: "21.1", location: "Palmanova (UD) - Friuli Venezia Giulia", desc: "Etichetta Bronzo FIDAL. Celebre percorso attorno e dentro la fortezza stellata di Palmanova.", shoe: "Mizuno Wave Neo Vista 2" },
+
+                    // Lazio
+                    { name: "Maratona Maga Circe", dist: "42.2", location: "San Felice Circeo (LT) - Lazio", desc: "Etichetta Bronzo FIDAL. Tracciato costiero mozzafiato tra mare e promontorio.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Corri Fregene Half Marathon", dist: "21.1", location: "Fiumicino (RM) - Lazio", desc: "Percorso pianeggiante sul litorale romano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "RomaOstia Half Marathon", dist: "21.1", location: "Roma / Ostia (RM) - Lazio", desc: "Etichetta Oro FIDAL. La mezza maratona più partecipata d'Italia, dritta e veloce verso il mare.", shoe: "Mizuno Wave Neo Vista 2 (Reattiva)" },
+                    { name: "Run Rome The Marathon", dist: "42.2", location: "Roma (RM) - Lazio", desc: "Etichetta Oro FIDAL. Maratona monumentale unica al mondo tra Colosseo e San Pietro.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezza Maratona di Latina", dist: "21.1", location: "Latina (LT) - Lazio", desc: "Tracciato pianeggiante pontino.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Rome Half Marathon", dist: "21.1", location: "Roma (RM) - Lazio", desc: "Etichetta Oro FIDAL. Circuito internazionale nel cuore della Capitale.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Fiumicino Half Marathon", dist: "21.1", location: "Fiumicino (RM) - Lazio", desc: "Tracciato scorrevole sul litorale.", shoe: "Mizuno Wave Neo Vista 2" },
+
+                    // Liguria
+                    { name: "Mezza Maratona Int.le di Genova", dist: "21.1", location: "Genova (GE) - Liguria", desc: "Etichetta Bronzo FIDAL. Tracciato spettacolare tra il Porto Antico e la Sopraelevata.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Andersenrun La Mezza tra le Baie", dist: "21.1", location: "Sestri Levante (GE) - Liguria", desc: "Percorso marino tra Baia delle Favole e Baia del Silenzio.", shoe: "Brooks Glycerin 23 GTS" },
+
+                    // Lombardia
+                    { name: "Mezza Maratona sul Brembo", dist: "21.1", location: "Dalmine (BG) - Lombardia", desc: "Classica invernale pianeggiante lungo la ciclabile del fiume Brembo.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Bergamo21", dist: "21.1", location: "Bergamo (BG) - Lombardia", desc: "Percorso affascinante tra la Bergamo Bassa e le mura storiche di Città Alta.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Novara Half Marathon", dist: "21.1", location: "Novara (NO) - Piemonte", desc: "Tracciato cittadino novarese.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona del Castello", dist: "21.1", location: "Vittuone (MI) - Lombardia", desc: "Storica e veloce mezza maratona dell'hinterland milanese.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratonina di Treviglio", dist: "21.1", location: "Treviglio (BG) - Lombardia", desc: "Tracciato scorrevole bergamasco.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Brescia Half Marathon / Brescia Art Marathon", dist: "42.2", location: "Brescia (BS) - Lombardia", desc: "Percorso culturale e veloce che attraversa il centro storico e i musei bresciani.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Scarpadoro Half Marathon", dist: "21.1", location: "Vigevano (PV) - Lombardia", desc: "Splendido arrivo nella celebre e monumentale Piazza Ducale di Vigevano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Bossoni Half Marathon", dist: "21.1", location: "Orzinuovi (BS) - Lombardia", desc: "Percorso pianeggiante nella bassa bresciana.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Wizz Air Milano Marathon", dist: "42.2", location: "Milano (MI) - Lombardia", desc: "Etichetta Oro FIDAL. La maratona internazionale di Milano, veloce e spettacolare.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Stramilano Half Marathon", dist: "21.1", location: "Milano (MI) - Lombardia", desc: "Etichetta Oro FIDAL. La corsa podistica più famosa d'Italia, da Piazza Duomo all'Arco della Pace.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona del Naviglio", dist: "21.1", location: "Cernusco sul Naviglio (MI) - Lombardia", desc: "Percorso naturalistico lungo la ciclabile del Naviglio Martesana.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Corripavia Half Marathon", dist: "21.1", location: "Pavia (PV) - Lombardia", desc: "Tracciato che attraversa il celebre Ponte Coperto e le vie storiche pavesi.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Padenghe Half Marathon", dist: "21.1", location: "Padenghe sul Garda (BS) - Lombardia", desc: "Percorso panoramico vista lago sul basso Garda.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratonina Città di Busto Arsizio", dist: "21.1", location: "Busto Arsizio (VA) - Lombardia", desc: "Classica podistica bustocca.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratonina Citta' di Crema", dist: "21.1", location: "Crema (CR) - Lombardia", desc: "Etichetta Bronzo FIDAL. Percorso pianeggiante nel centro storico e nelle campagne cremasche.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "BCC Brescia Park Run", dist: "21.1", location: "Brescia (BS) - Lombardia", desc: "Percorso verde tra i parchi urbani bresciani.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Milano21", dist: "21.1", location: "Milano (MI) - Lombardia", desc: "Etichetta Argento FIDAL. Veloce mezza maratona serale/autunnale tra i quartieri moderni di Milano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona di Cremona", dist: "21.1", location: "Cremona (CR) - Lombardia", desc: "Etichetta Bronzo FIDAL. Percorso veloce con passaggio sotto il Torrazzo.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Como Lake Half Marathon", dist: "21.1", location: "Como (CO) - Lombardia", desc: "Suggestivo tracciato lungolago sul ramo comasco del Lario.", shoe: "Mizuno Wave Neo Vista 2" },
+
+                    // Marche
+                    { name: "Maratonina Di Centobuchi", dist: "21.1", location: "Monteprandone (AP) - Marche", desc: "Storica e partecipata mezza maratona nella vallata del Tronto.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Stracivitanova", dist: "21.1", location: "Civitanova Marche (MC) - Marche", desc: "Etichetta Argento FIDAL. Classica sul lungomare di Civitanova.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Half Marathon La Mezza del Metauro", dist: "21.1", location: "Fossombrone (PU) - Marche", desc: "Tracciato vallonato lungo la valle del fiume Metauro.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezza Maratona dei Fiori", dist: "21.1", location: "San Benedetto del Tronto (AP) - Marche", desc: "Splendido percorso totalmente pianeggiante sulla Riviera delle Palme.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Conero Running", dist: "21.1", location: "Numana (AN) - Marche", desc: "Tracciato panoramico ai piedi del Parco del Conero.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "ColleMar-athon / Half ColleMar-athon", dist: "42.2", location: "Terre Roveresche (PU) - Marche", desc: "La Maratona dei Valori, da Barchi fino al mare di Fano.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezza Maratona del Piceno Fermano", dist: "21.1", location: "Porto San Giorgio (FM) - Marche", desc: "Percorso costiero e pianeggiante nel fermano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Happy Run In PSE", dist: "21.1", location: "Porto Sant'Elpidio (FM) - Marche", desc: "Tracciato veloce sul lungomare elpidiense.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Half Marathon Riviera Palme 10 km Agonistica", dist: "21.1", location: "Grottammare (AP) - Marche", desc: "La classica mezza maratona sulla Riviera delle Palme.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona di Ascoli", dist: "21.1", location: "Ascoli Piceno (AP) - Marche", desc: "Percorso spettacolare tra le meraviglie in travertino del centro storico.", shoe: "Brooks Glycerin 23 GTS" },
+
+                    // Piemonte
+                    { name: "Citta' di Vercelli Half Marathon", dist: "21.1", location: "Vercelli (VC) - Piemonte", desc: "Tracciato tra le risaie e le vie storiche vercellesi.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Derthona Half Marathon", dist: "21.1", location: "Tortona (AL) - Piemonte", desc: "Percorso collinare e cittadino tortonese.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Lago Maggiore Half Marathon / Marathon", dist: "42.2", location: "Verbania (VB) - Piemonte", desc: "Spettacolare evento interamente panoramico sul lungolago Maggiore.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Due Laghi", dist: "21.1", location: "Gravellona Toce (VB) - Piemonte", desc: "Percorso naturalistico tra i laghi piemontesi.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "La Mezza di Torino", dist: "21.1", location: "Torino (TO) - Piemonte", desc: "Percorso urbano torinese.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratona di Riso Italiano / Half", dist: "42.2", location: "Santhià (VC) - Piemonte", desc: "Tracciato pianeggiante immerso nella cornice delle risaie vercellesi.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Agnolotto Half Marathon Fontaneto", dist: "21.1", location: "Novara (NO) - Piemonte", desc: "Percorso tipico tra le colline e i paesi novaresi.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Una Corsa da Re 21km / Maratona Reale", dist: "42.2", location: "Venaria Reale (TO) - Piemonte", desc: "Percorso regale all'interno dei Giardini della Reggia di Venaria.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona Terre d'Acqua Citta' di Trino", dist: "21.1", location: "Trino (VC) - Piemonte", desc: "Storica e velocissima mezza maratona piemontese.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Torino City Half Marathon / Torino City Marathon", dist: "42.2", location: "Torino (TO) - Piemonte", desc: "Etichetta Argento FIDAL. Maratona e mezza nel centro barocco di Torino.", shoe: "Brooks Glycerin 23 GTS" },
+
+                    // Puglia
+                    { name: "Maratonina dello Jonio", dist: "21.1", location: "Gallipoli (LE) - Puglia", desc: "Tracciato costiero ionico con passaggio nel borgo antico di Gallipoli.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Volkswagen Barletta Marathon", dist: "42.2", location: "Barletta (BT) - Puglia", desc: "Maratona cittadina sul litorale adriatico pugliese.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mare&Sale Half Marathon", dist: "21.1", location: "Margherita di Savoia (BT) - Puglia", desc: "Percorso pianeggiante tra le saline più grandi d'Europa e il mare.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona 21k Tra Storia e Natura", dist: "21.1", location: "Acaya (LE) - Puglia", desc: "Tracciato suggestivo tra il borgo fortificato di Acaya e la natura salentina.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezza Maratona di Ostuni", dist: "21.1", location: "Ostuni (BR) - Puglia", desc: "Percorso tra gli ulivi secolari e la vista della Città Bianca.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Corri Con Gioia", dist: "21.1", location: "Gioia del Colle (BA) - Puglia", desc: "Tracciato murgiano tra storia e tradizioni.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezza Maratona Terre a Levante", dist: "21.1", location: "Spongano (LE) - Puglia", desc: "Percorso tra i muretti a secco e i paesi del Salento.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Tranincorsa", dist: "21.1", location: "Trani (BT) - Puglia", desc: "Fascino adriatico con passaggio vicino alla magnifica Cattedrale.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratona della Grecia Salentina", dist: "42.2", location: "Calimera (LE) - Puglia", desc: "Maratona culturale attraverso i comuni della Grecìa Salentina.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezzamaratona Citta' di Monopoli", dist: "21.1", location: "Monopoli (BA) - Puglia", desc: "Tracciato costiero tra calette, ulivi e centro storico.", shoe: "Mizuno Wave Neo Vista 2" },
+
+                    // Sardegna
+                    { name: "Mezza Maratona di Oristano", dist: "21.1", location: "Oristano (OR) - Sardegna", desc: "Percorso pianeggiante nel Campidano di Oristano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona del Sulcis / Cammino Minerario", dist: "21.1", location: "Santadi (CA) - Sardegna", desc: "Tracciato naturalistico e minerario nel sud della Sardegna.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Olbia21K Straolbia", dist: "21.1", location: "Olbia (OT) - Sardegna", desc: "Percorso gallurese sul golfo di Olbia.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Alghero Half Marathon", dist: "21.1", location: "Alghero (SS) - Sardegna", desc: "Suggestivo tracciato sulla Riviera del Corallo con vista su Capo Caccia.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona della Ceramica Citta' di Assemini", dist: "21.1", location: "Assemini (CA) - Sardegna", desc: "Tracciato campidanese nella patria della ceramica sarda.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratonina Citta' di Uta", dist: "21.1", location: "Uta (CA) - Sardegna", desc: "Percorso pianeggiante nel sud Sardegna.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Cagliari Respira (Mezza Maratona Int.le Citta' di Cagliari)", dist: "21.1", location: "Cagliari (CA) - Sardegna", desc: "Spettacolare mezza maratona sul lungomare del Poetto e nel centro storico.", shoe: "Mizuno Wave Neo Vista 2" },
+
+                    // Sicilia
+                    { name: "Mezza Maratona Eufemio da Messina / Maratona Antonello", dist: "42.2", location: "Messina (ME) - Sicilia", desc: "Percorso sullo Stretto di Messina.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Straragusa / Maratona di Ragusa", dist: "42.2", location: "Ragusa (RG) - Sicilia", desc: "Tracciato barocco tra Ragusa Ibla e Ragusa Superiore con dislivelli caratteristici.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Maratonina dei Nebrodi", dist: "21.1", location: "Sant'Agata di Militello (ME) - Sicilia", desc: "Percorso costiero nebroideo.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona della Concordia Città di Agrigento", dist: "21.1", location: "Agrigento (AG) - Sicilia", desc: "Straordinario percorso all'interno o a ridosso della Valle dei Templi.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezza Maratona delle due Province Reverse", dist: "21.1", location: "Rosolini (SR) - Sicilia", desc: "Percorso di confine tra le province aretusea e ragusana.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "ScoglittiRace IV Half Marathon", dist: "21.1", location: "Vittoria (RG) - Sicilia", desc: "Tracciato marittimo nella frazione marinara di Scoglitti.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratonina Citta' di Enna", dist: "21.1", location: "Enna (EN) - Sicilia", desc: "Percorso attorno al Lago di Pergusa, veloce e tecnico.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratonina Citta' di Terrasini", dist: "21.1", location: "Terrasini (PA) - Sicilia", desc: "Tracciato costiero nel golfo di Castellammare.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona Capo d'Orlando", dist: "21.1", location: "Capo d'Orlando (ME) - Sicilia", desc: "Panorama tirrenico e spiagge messinesi.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona della Memoria", dist: "21.1", location: "Palermo (PA) - Sicilia", desc: "Evento podistico commemorativo nel capoluogo siciliano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratonina Partanna - Selinunte", dist: "21.1", location: "Partanna (TP) - Sicilia", desc: "Percorso archeologico dal Castello Grifeo al Parco Archeologico.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Half Marathon Licata Città Di Mare", dist: "21.1", location: "Licata (AG) - Sicilia", desc: "Tracciato marinaro nella costa agrigentina.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Trofeo Maratonina Citta' di Trappeto", dist: "21.1", location: "Trappeto (PA) - Sicilia", desc: "Percorso sul golfo di Carini.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Half Marathon Perla del Tirreno", dist: "21.1", location: "Cefalù (PA) - Sicilia", desc: "Tracciato turistico ai piedi della celebre rocca normanna.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "La Mezza dello Stretto", dist: "21.1", location: "Messina (ME) - Sicilia", desc: "Gara sul lungomare peloritano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Sigel Marsala Half Marathon / Marathon", dist: "42.2", location: "Marsala (TP) - Sicilia", desc: "Tra le saline storiche e le cantine vinicole marsalesi.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Palermo International Half Marathon", dist: "21.1", location: "Palermo (PA) - Sicilia", desc: "Percorso internazionale tra i palazzi nobiliari e il centro storico.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratona Blu Jonio", dist: "21.1", location: "Riposto (CT) - Sicilia", desc: "Tracciato vista Etna e mare ionio.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Lumia Half Marathon", dist: "21.1", location: "Avola (SR) - Sicilia", desc: "Percorso siracusano nella terra del noto Nero d'Avola.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Mezza Maratona Citta' di Palermo / Maratona", dist: "42.2", location: "Palermo (PA) - Sicilia", desc: "Etichetta Bronzo FIDAL. Classica maratona d'autunno nel cuore di Palermo.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Half Marathon Mazara", dist: "21.1", location: "Mazara del Vallo (TP) - Sicilia", desc: "Percorso nella medina e sul lungomare mazarese.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratonina del Golfo", dist: "21.1", location: "Gela (CL) - Sicilia", desc: "Tracciato costiero nel golfo di Gela.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Naturosa Catania Marathon (21km / 42km)", dist: "42.2", location: "Catania (CT) - Sicilia", desc: "Spettacolare maratona barocca tra Via Etnea, Piazza Duomo e l'Etna.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "VIII Half Marathon Arancia di Ribera D.O.P.", dist: "21.1", location: "Ribera (AG) - Sicilia", desc: "Percorso enogastronomico tra gli agrumeti di Ribera.", shoe: "Brooks Glycerin 23 GTS" },
+
+                    // Toscana
+                    { name: "World Running Academy Half / White Marble Marathon", dist: "42.2", location: "Carrara (MS) - Toscana", desc: "La famosa maratona del marmo, con vista sulle cave apuane.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Maratona del Mugello", dist: "42.2", location: "Borgo San Lorenzo (FI) - Toscana", desc: "La maratona più antica d'Italia, immersa nel verde e nelle colline del Mugello.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Maratonina Città di Prato Prato Half Marathon", dist: "21.1", location: "Prato (PO) - Toscana", desc: "Tracciato storico laniero toscano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Lucca Half Marathon", dist: "21.1", location: "Lucca (LU) - Toscana", desc: "Fascino unico con percorso che corre sopra e intorno alle Mura rinascimentali.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Pisa Half Marathon", dist: "21.1", location: "Pisa (PI) - Toscana", desc: "Percorso pianeggiante con passaggio in Piazza dei Miracoli e Torre Pendente.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Maratonina Citta' di Arezzo", dist: "21.1", location: "Arezzo (AR) - Toscana", desc: "Tracciato veloce e competitivo nel centro toscano.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "ESTRA Firenze Marathon", dist: "42.2", location: "Firenze (FI) - Toscana", desc: "Etichetta Oro FIDAL. Una delle maratone d'arte più affascinanti al mondo tra i lungarni.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezza Maratona Giuseppe Cerone Citta' di San Miniato", dist: "21.1", location: "San Miniato (PI) - Toscana", desc: "Percorso collinare nella terra del celebre tartufo bianco.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezza Maratona di Pisa La Pisanina / Maratona di Pisa", dist: "42.2", location: "Pisa (PI) - Toscana", desc: "Etichetta Bronzo FIDAL. Veloce maratona d'inverno con arrivo in Piazza dei Miracoli.", shoe: "Brooks Glycerin 23 GTS" },
+
+                    // Trentino Alto Adige
+                    { name: "Lake Garda 42", dist: "42.2", location: "Arco (TN) / Limone sul Garda (BS) - Trentino / Lombardia", desc: "Straordinario evento internazionale lungo le sponde settentrionali del Lago di Garda.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Dolomitica Run Half Marathon Val Rendena", dist: "21.1", location: "Pinzolo (TN) - Trentino", desc: "Etichetta Bronzo FIDAL. Percorso alpino immerso nelle Dolomiti della Val Rendena.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Trento Half Marathon", dist: "21.1", location: "Trento (TN) - Trentino", desc: "Etichetta Argento FIDAL. Veloce mezza maratona autunnale nel centro storico.", shoe: "Mizuno Wave Neo Vista 2" },
+
+                    // Umbria
+                    { name: "Terni Half Marathon / Mezza e Maratona di San Valentino", dist: "42.2", location: "Terni (TR) - Umbria", desc: "Percorso romantico e naturalistico vicino alla Cascata delle Marmore.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Strasimeno Marathon / Half Marathon", dist: "42.2", location: "Castiglione del Lago (PG) - Umbria", desc: "La leggendaria maratona che compie l'intero giro attorno al Lago Trasimeno.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Mezza Maratona Citta' di Foligno", dist: "21.1", location: "Foligno (PG) - Umbria", desc: "Tracciato pianeggiante nella valle Umbra.", shoe: "Mizuno Wave Neo Vista 2" },
+
+                    // Valle d'Aosta
+                    { name: "Aosta 21K Half Marathon", dist: "21.1", location: "Aosta (AO) - Valle d'Aosta", desc: "Percorso alpino con vista sui monumenti romani di Aosta.", shoe: "Mizuno Wave Neo Vista 2" },
+
+                    // Veneto
+                    { name: "Romeo & Giulietta Run Half Marathon", dist: "21.1", location: "Verona (VR) - Veneto", desc: "Etichetta Oro FIDAL. Romantico arrivo all'interno dell'Arena di Verona.", shoe: "Mizuno Wave Neo Vista 2 (Reattiva)" },
+                    { name: "Maratonina della Vittoria", dist: "21.1", location: "Vittorio Veneto (TV) - Veneto", desc: "Tracciato storico tra le colline trevigiane.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Dogi's Half Marathon", dist: "21.1", location: "Fiesso d'Artico (VE) - Veneto", desc: "Percorso d'arte e ville venete lungo la Riviera del Brenta.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Padova Half Marathon / Padova Marathon", dist: "42.2", location: "Padova (PD) - Veneto", desc: "Etichetta Argento FIDAL. Spettacolare arrivo in Prato della Valle.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Bibione Half Marathon", dist: "21.1", location: "Bibione (VE) - Veneto", desc: "Tracciato turistico sul litorale e pineta di Bibione.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Jesolo Moonlight Half Marathon", dist: "21.1", location: "Jesolo (VE) - Veneto", desc: "Etichetta Argento FIDAL. Suggestiva mezza maratona serale al chiaro di luna.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Valle dell'Agno Half Marathon", dist: "21.1", location: "Trissino (VI) - Veneto", desc: "Percorso nella valle vicentina.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "M6C 21KM", dist: "21.1", location: "Villaverta (VI) - Veneto", desc: "Tracciato podistico vicentino.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "La Mezza di Treviso", dist: "21.1", location: "Treviso (TV) - Veneto", desc: "Percorso tra le mura e i fiumi della Marca Trevigiana.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Venicemarathon / Venice Half Marathon", dist: "42.2", location: "Venezia (VE) - Veneto", desc: "Etichetta Oro FIDAL. Arrivo iconico in Piazza San Marco a Venezia.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Maratonina di San Biagio", dist: "21.1", location: "San Biagio di Callalta (TV) - Veneto", desc: "Tracciato trevigiano pianeggiante.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Verona Run Marathon / Verona Run Halfmarathon", dist: "42.2", location: "Verona (VR) - Veneto", desc: "Etichetta Argento FIDAL. Maratona e mezza d'autunno tra i monumenti UNESCO.", shoe: "Brooks Glycerin 23 GTS" },
+                    { name: "Maratonina della Citta' Murata", dist: "21.1", location: "Cittadella (PD) - Veneto", desc: "Etichetta Argento FIDAL. Percorso intorno e dentro le mura medievali.", shoe: "Mizuno Wave Neo Vista 2" }
                 ];
 
                 this.initCloudSync();
