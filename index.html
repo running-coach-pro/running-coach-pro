@@ -407,21 +407,21 @@
             </button>
         </div>
 
-        <!-- 4. GARE IN AGENDA ⭐ (AI SMART TAG CON DESCRIZIONE TRACCIATO FIDAL MARCHE) -->
+        <!-- 4. GARE IN AGENDA ⭐ (AI SMART TAG CON DESCRIZIONE TRACCIATO) -->
         <div id="screen-races" class="hidden space-y-3 my-auto bg-slate-800 p-4 rounded-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-                <h3 class="font-bold text-amber-400 text-sm">📅 Agenda Gare & Altimetria FIDAL ⭐ VIP</h3>
+                <h3 class="font-bold text-amber-400 text-sm">📅 Agenda Gare & Altimetria ⭐ VIP</h3>
                 <button type="button" onclick="app.closeRaces()" class="text-slate-400 text-xs cursor-pointer">✕ Chiudi</button>
             </div>
             
             <div class="space-y-2">
                 <button type="button" onclick="app.toggleAgendaInfo()" class="w-full py-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 font-semibold rounded-xl text-xs border border-amber-500/30 cursor-pointer flex items-center justify-center gap-1.5 transition-all">
-                    <span>💡 Guida Tecnica Tracciati FIDAL Marche</span>
+                    <span>💡 Guida Tecnica Tracciati</span>
                 </button>
                 
                 <div id="agenda-info-box" class="hidden bg-slate-900 p-3 rounded-xl border border-amber-500/30 text-[11px] text-slate-300 space-y-2 leading-relaxed">
                     <p class="font-bold text-amber-400 uppercase tracking-wider text-[10px]">Analisi Altimetrica & Fondo</p>
-                    <p>Digita il nome di una gara del calendario regionale: l'AI ti mostrerà subito la descrizione dettagliata del tracciato (asfalto, sterrato, collinare o mare) per aiutarti a scegliere la strategia e la scarpa ideale.</p>
+                    <p>Digita il nome di una gara: l'AI ti mostrerà subito la descrizione dettagliata del tracciato (asfalto, sterrato, collinare o mare) per aiutarti a scegliere la strategia e la scarpa ideale.</p>
                 </div>
             </div>
 
@@ -429,9 +429,9 @@
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
                     <span class="text-[10px] uppercase font-bold text-amber-400 block">⭐ AI SMART TAG TRACCIATO</span>
                     
-                    <label class="block text-[10px] uppercase text-slate-400">Cerca Gara FIDAL o Località</label>
+                    <label class="block text-[10px] uppercase text-slate-400">Cerca Gara o Località</label>
                     <div class="flex space-x-1">
-                        <input type="text" id="race-name" placeholder="Es. Centobuchi, Civitanova, San Benedetto, Veregra..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
+                        <input type="text" id="race-name" placeholder="Es. Maratona di Roma..." class="flex-1 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white text-xs">
                         <button type="button" onclick="app.analyzeRaceWithAI()" class="px-3 bg-amber-500 font-bold rounded-lg text-slate-950 cursor-pointer text-xs">✨ Analizza Tracciato</button>
                     </div>
 
@@ -500,7 +500,7 @@
                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Running Coach Pro – Designed by Jovy</p>
                 </div>
                 <div class="space-y-2 text-xs text-slate-300 bg-slate-900 p-3 rounded-xl border border-slate-700">
-                    <p>Sblocca distanze personalizzate, ultramaratone, agenda gare con analisi tecnica dettagliata dei tracciati FIDAL Marche inserendo il codice segreto nelle impostazioni (⚙️).</p>
+                    <p>Sblocca distanze personalizzate, ultramaratone, agenda gare con analisi tecnica dettagliata dei tracciati inserendo il codice segreto nelle impostazioni (⚙️).</p>
                 </div>
                 <button type="button" onclick="app.closeVipInfoModal()" class="w-full py-2.5 bg-amber-500 font-bold rounded-xl text-slate-950 text-xs cursor-pointer">
                     Ho capito 👍
@@ -531,7 +531,7 @@
 
                 <div class="bg-slate-900 p-3 rounded-xl border border-amber-500/40 space-y-1.5">
                     <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[11px]">⭐ Versione VIP</h4>
-                    <p>Distanze illimitate, Agenda Gare con descrizioni tecniche dei tracciati regionali e download PDF ed Excel.</p>
+                    <p>Distanze illimitate, Agenda Gare con descrizioni tecniche dei tracciati e download PDF ed Excel.</p>
                 </div>
             </div>
 
@@ -634,7 +634,7 @@
                 this.tempAnalyzedRace = null;
                 this.isSaving = false;
 
-                // DATABASE DELLE 49 GARE FIDAL MARCHE CON DESCRIZIONE TRACCIATO E ALTIMETRIA
+                // DATABASE DELLE GARE CON DESCRIZIONE TRACCIATO E ALTIMETRIA
                 this.fidalMarcheDatabase = [
                     { name: "Maratonina di Centobuchi", dist: "21", location: "Centobuchi di Monteprandone", desc: "Tracciato pianeggiante e scorrevole tra i centri urbani della vallata del Tronto.", shoe: "Mizuno Wave Neo Vista 2 (Reattiva)" },
                     { name: "Ultramaratona del Conero", dist: "10", location: "Porto Recanati", desc: "Percorso costiero veloce lungo il lungomare e la zona residenziale.", shoe: "Mizuno Wave Neo Vista 2" },
@@ -670,7 +670,7 @@
                     { name: "Su e Giù per il Nera", dist: "9", location: "Castel Sant'Angelo sul Nera", desc: "Affascinante corsa montana nel parco dei Sibillini.", shoe: "Brooks Glycerin 23 GTS" },
                     { name: "San Marone Run", dist: "9", location: "Civitanova Marche Alta", desc: "Gara serale con strappo finale verso Civitanova Alta.", shoe: "Brooks Glycerin 23 GTS" },
                     { name: "Trofeo Grotte di Frasassi", dist: "10", location: "Genga", desc: "Spettacolare percorso naturalistico nei pressi delle Grotte.", shoe: "Brooks Glycerin 23 GTS" },
-                    { name: "Stramacerata", dist: "10", location: "Macerata", desc: "Classica cittadina con passaggi nei luoghi simbolo maceratesi.", shoe: "Mizuno Wave Neo Vista 2" },
+                    { name: "Stramacerata", dist: "10", location: "Macerata", desc: "Classica cittadina con passaggi nei luoghi simbolo maceratesi.", shoe: "Brooks Glycerin 23 GTS" },
                     { name: "Trofeo 5 Torri", dist: "11", location: "Osimo", desc: "Famoso e duro percorso osimano con i celebri 'giri di boa' in salita.", shoe: "Brooks Glycerin 23 GTS" },
                     { name: "Mezza del Piceno", dist: "21", location: "Porto San Giorgio", desc: "Mezza maratona veloce sul litorale fermano.", shoe: "Mizuno Wave Neo Vista 2" },
                     { name: "Marotta Mondolfo Run", dist: "10", location: "Marotta", desc: "Percorso veloce tra mare e centro urbano.", shoe: "Mizuno Wave Neo Vista 2" },
@@ -1170,7 +1170,7 @@
                             title = `🏅 Gara in Agenda VIP: ${matchedRaceForDay.name}`;
                             let parsedRaceKm = parseFloat(matchedRaceForDay.dist) || sessionKm;
                             sessionKm = isNaN(parsedRaceKm) ? sessionKm : parsedRaceKm;
-                            desc = `• Gara Ufficiale FIDAL Marche (${matchedRaceForDay.name} - ${raceDistLabel} km).\n• Sostituzione forzata: nessun lungo di tabella pianificato in questa data.`;
+                            desc = `• Gara Ufficiale (${matchedRaceForDay.name} - ${raceDistLabel} km).\n• Sostituzione forzata: nessun lungo di tabella pianificato in questa data.`;
                         } else if (isLong) {
                             sessionKm = longSessionKm;
                             title = isUltra ? "Lungo Endurance Ultra (Metodo 9+1)" : "Lungo Specifico (Metodo 9+1 Protettivo)";
@@ -1474,7 +1474,7 @@
                 });
             }
 
-            // --- AI SMART TAG TRACCIATO & ALTIMETRIA FIDAL MARCHE ---
+            // --- AI SMART TAG TRACCIATO & ALTIMETRIA ---
             analyzeRaceWithAI() {
                 const nameInput = document.getElementById('race-name').value.trim().toLowerCase();
                 const previewBox = document.getElementById('ai-race-preview');
@@ -1499,7 +1499,7 @@
                 } else {
                     this.tempAnalyzedRace = null;
                     previewBox.classList.add('hidden');
-                    alert("ℹ️ Gara non trovata nel database regionale. Puoi impostare la distanza e la data a mano con i selettori.");
+                    alert("ℹ️ Gara non trovata nel database. Puoi impostare la distanza e la data a mano con i selettori.");
                 }
             }
 
