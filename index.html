@@ -757,7 +757,7 @@
                     if (data) {
                         this.profile = data.profile || { is_vip: false, vip_requested: false };
                         this.fullPlan = data.full_plan || null;
-                        this.shoes = data.shoes || this.shoes;
+                        this.shoes = data.shoes || [];
                         this.races = data.races || [];
                         this.avatarUrl = data.avatar_url || this.avatarUrl;
                         document.getElementById('dashboard-avatar').src = this.avatarUrl;
@@ -1163,7 +1163,7 @@
                         let title = "Corsa Lenta Rigenerante (Fondo Lento)";
                         let desc = `• Riscaldamento: 10 min camminata.\n• Corsa Costante: ${sessionKm} km a Ritmo Lento/Rigenerante (${paces.slow}/km - Zona 2).\n• Defaticamento: 5 min allungamento.`;
                         
-                        let defaultShoe = this.shoes[0] ? this.shoes[0].name : "Standard";
+                        let defaultShoe = this.shoes.length > 0 ? this.shoes[0].name : "Nessuna Scarpa";
 
                         if (matchedRaceForDay) {
                             let raceDistLabel = matchedRaceForDay.dist || "Gara";
@@ -1365,12 +1365,18 @@
 
                 const shoeSelect = document.getElementById('detail-shoe-select');
                 shoeSelect.innerHTML = '';
-                this.shoes.forEach(s => {
+                if (this.shoes.length === 0) {
                     const opt = document.createElement('option');
-                    opt.value = s.name; opt.innerText = `${s.name} (${s.category || 'Generica'})`;
-                    if (s.name === dayObj.shoe) opt.selected = true;
+                    opt.value = ""; opt.innerText = "Nessuna scarpa associata";
                     shoeSelect.appendChild(opt);
-                });
+                } else {
+                    this.shoes.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.name; opt.innerText = `${s.name} (${s.category || 'Generica'})`;
+                        if (s.name === dayObj.shoe) opt.selected = true;
+                        shoeSelect.appendChild(opt);
+                    });
+                }
                 this.showScreen('screen-detail');
             }
 
@@ -1430,11 +1436,12 @@
                 dayObj.title = "🏅 Partecipazione a Gara";
                 dayObj.instructions = `• Gara completata con successo.\n• Chilometri registrati: ${raceKm} km.`;
                 
-                let shoeObj = this.shoes[0];
-                if (this.shoes.length > 0) shoeObj = this.shoes[0];
+                let shoeObj = this.shoes.length > 0 ? this.shoes[0] : null;
                 if (shoeObj) {
                     dayObj.shoe = shoeObj.name;
                     shoeObj.km += raceKm;
+                } else {
+                    dayObj.shoe = "Nessuna Scarpa";
                 }
 
                 this.saveData();
@@ -1566,7 +1573,7 @@
                 setTimeout(() => {
                     let cat = "Lungo / Massimo Ammortizzamento 🟢", max = 750, desc = "Ottima protezione ammortizzata.";
                     if (nameInput.toLowerCase().includes('superblast') || nameInput.toLowerCase().includes('neo vista') || nameInput.toLowerCase().includes('glycerin')) { 
-                        cat = "Lavori Veloci / Fartlek 🔵"; max = 600; desc = "Reattiva per ripetute e lunghi."; 
+                        cat = "Lavori Veloci / Fartlek 🔵"; max = 600; desc = "Reattiva per ripetute e ritmi medi."; 
                     }
                     this.tempAnalyzedShoe = { name: nameInput, category: cat, km: 0, maxKm: max, description: desc };
                     document.getElementById('ai-preview-category').innerText = `Categoria: ${cat}`;
@@ -1590,6 +1597,10 @@
             renderShoesSettings() {
                 const container = document.getElementById('shoes-management-container');
                 container.innerHTML = '';
+                if (this.shoes.length === 0) {
+                    container.innerHTML = '<p class="text-slate-500 text-center py-2 text-[11px]">Nessuna scarpa in archivio. Puoi aggiungerne una quando desideri.</p>';
+                    return;
+                }
                 this.shoes.forEach((s, idx) => {
                     const div = document.createElement('div');
                     div.className = "bg-slate-900 p-2 rounded-lg border border-slate-700 flex justify-between items-center text-xs";
@@ -1598,7 +1609,12 @@
                 });
             }
 
-            deleteShoe(idx) { if (this.shoes.length <= 1) { alert("Tieni almeno una scarpa."); return; } this.shoes.splice(idx, 1); this.saveData(); this.renderShoesSettings(); }
+            deleteShoe(idx) { 
+                this.shoes.splice(idx, 1); 
+                this.saveData(); 
+                this.renderShoesSettings(); 
+            }
+
             saveSettings() { this.saveData(); this.closeSettings(); alert("Impostazioni salvate!"); }
             deleteAccountData() { if (confirm("Vuoi svuotare tutti i dati?")) { localStorage.clear(); location.reload(); } }
 
