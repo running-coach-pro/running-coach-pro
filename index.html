@@ -578,7 +578,6 @@
                         4. Inseriscilo qui sotto per attivare il VIP in modo permanente!
                     </div>
 
-                    <!-- LINK SATISPAY AGGIORNATO CON IMPORTO FISSO A 3€ (300 centesimi) -->
                     <a href="https://web.satispay.com/app/match/link/user/S6Y-CON--CF94314C-7C3B-4478-8159-655DA895B62E?amount=300&currency=EUR" target="_blank" rel="noopener noreferrer" class="block text-center py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/40 no-underline">
                         ☕ Dona il tuo contributo di 3€ (Link esterno)
                     </a>
@@ -805,7 +804,7 @@
                     } else {
                         this.profile.created_at = new Date().toISOString();
                         this.profile.device_id = this.getOrCreateDeviceId();
-                        this.shoes = []; // Assicura che i nuovi utenti partano senza scarpe in archivio
+                        this.shoes = [];
                         await this.saveData();
                     }
                 } catch (e) {}
@@ -886,7 +885,7 @@
                     this.renderDashboard();
                     this.showScreen('screen-dashboard');
                 } else {
-                    document.getElementById('disclaimer-check').checked = false; // Assicura che parta non spuntato
+                    document.getElementById('disclaimer-check').checked = false;
                     this.showScreen('screen-onboarding');
                 }
             }
@@ -935,7 +934,7 @@
                         });
                     }
                 }
-                document.getElementById('disclaimer-check').checked = false; // Richiede di spuntare ogni volta che si modifica
+                document.getElementById('disclaimer-check').checked = false;
                 document.getElementById('onboarding-title').innerText = "Modifica Giorni / Piano";
                 document.getElementById('onboarding-subtitle').innerText = "Aggiorna i giorni di allenamento o i parametri mantenendo il tuo storico.";
                 document.getElementById('btn-cancel-onboarding').classList.remove('hidden');
@@ -1686,7 +1685,6 @@
 
             saveSettings() { this.saveData(); this.closeSettings(); alert("Impostazioni salvate!"); }
 
-            // Funzione corretta per la rimozione totale dell'account dal Cloud e dal LocalStorage
             async deleteAccountData() {
                 if (confirm("Sei sicuro di voler rimuovere definitivamente il tuo account e tutti i dati associati? L'operazione è irreversibile.")) {
                     try {
